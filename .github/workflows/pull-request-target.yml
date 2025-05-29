@@ -1,0 +1,22 @@
+name: Pull Request Targeted to Dev Branch
+on:
+  pull_request_target:
+    types:
+      - synchronize
+      - labeled
+    branches:
+      - dev
+
+permissions:
+  contents: write
+  id-token: write
+  packages: write
+  pull-requests: write
+
+jobs:
+  pull-request:
+    if: github.repository == 'zerobias-org/framework'
+    uses: zerobias-org/devops/.github/workflows/pull-request-target-reusable.yml@main
+    secrets: inherit
+    with:
+      run-integration-tests: 'false'

@@ -1,0 +1,21 @@
+name: Publish Pull Requests Merged into Dev or QA branch
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - qa
+      - dev
+
+permissions:
+  contents: write
+  id-token: write
+  packages: write
+  pull-requests: write
+
+jobs:
+  pull-request:
+    if: github.repository == 'zerobias-org/framework'
+    uses: zerobias-org/devops/.github/workflows/publish-merged-pull-request-reusable.yml@main
+    secrets: inherit
+    with:
+      run-integration-tests: 'false'

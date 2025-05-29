@@ -16,4 +16,4 @@ jobs:
     uses: zerobias-org/devops/.github/workflows/publish-reusable.yml@main
     secrets: inherit
     with:
-      skip-publish-announcement: 'true'
+      skip-publish-announcement: 'false'
