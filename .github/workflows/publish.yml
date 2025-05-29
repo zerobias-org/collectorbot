@@ -1,0 +1,19 @@
+name: Publish
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  id-token: write
+  packages: write
+  pull-requests: write
+
+jobs:
+  publish:
+    uses: zerobias-org/devops/.github/workflows/publish-reusable.yml@main
+    secrets: inherit
+    with:
+      skip-publish-announcement: 'true'

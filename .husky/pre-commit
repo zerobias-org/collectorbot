@@ -1,0 +1,25 @@
+#!/bin/sh
+
+[ -n "$CI" ] && exit 0
+
+. "$(dirname $0)/_/husky.sh"
+
+files=$(git diff --name-only --cached)
+modified=""
+
+for f in $files; do 
+  dir=${f%%/*}
+  if test -d $dir; then
+    modified="${modified} ${dir}" #+=($dir)
+  fi
+done
+
+uniq_modified=$(echo "${modified}" | tr ' ' '\n' | sort -u | tr '\n' ' ')
+
+for dir in $uniq_modified; do
+  cd $dir
+  npm run -s build --if-present
+  npm run -s lint --if-present
+  npm run test --if-present
+  cd ..
+done

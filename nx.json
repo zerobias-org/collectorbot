@@ -1,0 +1,51 @@
+{
+  "affected": {
+    "defaultBase": "master"
+  },
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": [
+          "build",
+          "docs",
+          "generate",
+          "lint",
+          "test"
+        ],
+        "parallel": 4
+      }
+    }
+  },
+  "targetDefaults": {
+    "clean": {},
+    "lint": {},
+    "generate": {
+      "dependsOn": [
+        "^build"
+      ]
+    },
+    "build": {
+      "dependsOn": [
+        "^build",
+        "generate"
+      ]
+    },
+    "test": {
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "test:integration": {
+      "dependsOn": [
+        "build"
+      ]
+    },
+    "prepublishOnly": {
+      "dependsOn": [
+        "build",
+        "^build"
+      ]
+    }
+  }
+}
