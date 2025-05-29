@@ -7,7 +7,5 @@
       "message": "chore(release): bump version"
     }
   },
-  "version": "independent",
-  "useNx": false,
-  "useWorkspaces": false
+  "version": "independent"
 }
