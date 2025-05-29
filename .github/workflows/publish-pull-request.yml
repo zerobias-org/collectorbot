@@ -14,7 +14,7 @@ permissions:
 
 jobs:
   pull-request:
-    if: github.repository == 'zerobias-org/framework'
+    if: github.repository == 'zerobias-org/collectorbot'
     uses: zerobias-org/devops/.github/workflows/publish-merged-pull-request-reusable.yml@main
     secrets: inherit
     with:
