@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "noImplicitAny": false,
+    "suppressImplicitAnyIndexErrors": true,
+    "target": "ES5",
+    "strict": true,
+    "useUnknownInCatchVariables": false, 
+    "moduleResolution": "node",
+    "removeComments": true,
+    "sourceMap": true,
+    "noLib": false,
+    "allowJs": true,
+    "declaration": true,
+    "lib": ["es6", "es5"],
+    "outDir": "dist",
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "paths": {
+       "@auditmation/*": ["node_modules/@auditmation/*"]
+    },
+    "baseUrl": "./"
+  },
+  "include": [
+    "src/**/*",
+    "test/**/*",
+    "generated/**/*"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
+}
