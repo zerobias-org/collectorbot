@@ -1,12 +1,12 @@
 {
   "name": "@zerobias-org/collectorbot-bundle",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "lockfileVersion": 2,
   "requires": true,
   "packages": {
     "": {
       "name": "@zerobias-org/collectorbot-bundle",
-      "version": "0.0.3",
+      "version": "0.0.4",
       "license": "ISC"
     }
   }
