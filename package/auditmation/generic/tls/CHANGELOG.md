@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 0.1.0-rc.3 (2025-05-29)
+
+
+### Features
+
+* **tls:** add tls collectorbot ([0706890](https://github.com/zerobias-org/collectorbot/commit/070689013777301e9f5ec71c6a8bd67e490d5a8c))
+
+
+
+
+
 # 0.1.0-rc.2 (2025-05-29)
 
 
