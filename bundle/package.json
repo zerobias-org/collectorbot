@@ -1,0 +1,21 @@
+{
+  "name": "@zerobias-org/collectorbot-bundle",
+  "version": "0.0.1",
+  "description": "All installable collectorbots",
+  "author": "team@auditmation.io",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:zerobias-org/collectorbot.git",
+    "directory": "bundle/"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/"
+  },
+  "auditmation": {
+    "package": "bundle.all-collectorbots",
+    "import-artifact": "bundle",
+    "dataloader-version": "0.5.4"
+  },
+  "dependencies": {}
+}
