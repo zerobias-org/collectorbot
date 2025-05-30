@@ -8,7 +8,6 @@ import {
 } from '@auditmation/types-core-js';
 import { Batch } from '@auditmation/util-collector-utils/dist/src';
 import { injectable } from 'inversify';
-
 import { BaseClient } from '../generated/BaseClient';
 import { Parameters } from '../generated/model';
 import { toServiceEndpoint, toX509Certificate } from './Mappers';
