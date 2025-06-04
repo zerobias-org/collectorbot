@@ -3,8 +3,8 @@
   "version": "0.1.0-rc.5",
   "description": "Auditmation Generic TLS Collectorbot",
   "author": "ctamas@zerobias.com",
-  "license": "UNLICENSED",
   "main": "dist/src/index.js",
+  "license": "UNLICENSED",
   "directories": {
     "src": "src"
   },
