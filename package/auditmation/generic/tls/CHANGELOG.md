@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.1.0-rc.6](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-auditmation-generic-tls@0.1.0-rc.5...@zerobias-org/collectorbot-auditmation-generic-tls@0.1.0-rc.6) (2025-06-04)
+
+**Note:** Version bump only for package @zerobias-org/collectorbot-auditmation-generic-tls
+
+
+
+
+
 # [0.1.0-rc.5](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-auditmation-generic-tls@0.1.0-rc.4...@zerobias-org/collectorbot-auditmation-generic-tls@0.1.0-rc.5) (2025-05-30)
 
 

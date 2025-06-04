@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/collectorbot-auditmation-generic-tls",
-  "version": "0.1.0-rc.5",
+  "version": "0.1.0-rc.6",
   "description": "Auditmation Generic TLS Collectorbot",
   "author": "ctamas@zerobias.com",
   "main": "dist/src/index.js",
