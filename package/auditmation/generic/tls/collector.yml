@@ -1,4 +1,4 @@
 classes:
-  '@auditlogic/schema-auditmation-auditmaiton-base':
+  '@auditlogic/schema-auditmation-auditmation-base':
     - X509Certificate
     - ServiceEndpoint
