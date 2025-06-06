@@ -1,15 +1,15 @@
 {
   "name": "@zerobias-org/collectorbot-auditmation-generic-tls",
-  "version": "0.1.0-rc.7",
+  "version": "0.1.0-rc.8",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "@zerobias-org/collectorbot-auditmation-generic-tls",
-      "version": "0.1.0-rc.7",
+      "version": "0.1.0-rc.8",
       "license": "UNLICENSED",
       "dependencies": {
-        "@auditlogic/module-auditmation-generic-tls": "^3.0.6",
+        "@auditlogic/module-auditmation-generic-tls": "^3.0.7",
         "@auditlogic/product-auditmation-generic-tls": "^0.6.0",
         "@auditlogic/schema-auditmation-auditmation-base": "^1.25.0",
         "@auditlogic/schema-auditmation-auditmation-base-ts": "^1.25.0",
@@ -57,21 +57,22 @@
       }
     },
     "node_modules/@auditlogic/module-auditmation-generic-tls": {
-      "version": "3.0.6",
-      "resolved": "https://pkg.zerobias.org/@auditlogic/module-auditmation-generic-tls/-/1c28e2679d1ca447c1357934629cf497f4582603",
-      "integrity": "sha512-EVqCo6Ad2M491URHJCso6+rTFZJWlldguY7uxIAkCsnZZdKlja0Df3gfs1z1pQv8cKfNqKQK7FKxAzDHiohcSQ==",
+      "version": "3.0.7",
+      "resolved": "https://pkg.zerobias.org/@auditlogic/module-auditmation-generic-tls/-/7485b3a67c53e50d0f0b2a971b839dbbf1c5c923",
+      "integrity": "sha512-oig0zSjmrwmUbp1rA1qIoMGkqtUOaPLr30nSZEIHlf35BHA6GhPJ9u2ya8Qpox7dKQjnIFZh2IB7+hOHsedKpA==",
       "license": "UNLICENSED",
       "dependencies": {
         "@auditlogic/product-auditmation-generic-tls": "^0.6.0",
-        "@auditmation/hub-core": "^4.4.38",
+        "@auditmation/hub-core": "^4.4.44",
         "@auditmation/util-logger": "^4.0.9",
         "dotenv": "^16.0.3",
         "nock": "^13.3.0",
-        "node-forge": "^0.10.0"
+        "node-forge": "^0.10.0",
+        "snake-case": "^3.0.4"
       },
       "peerDependencies": {
         "@auditmation/types-core": "^4.8.1",
-        "@auditmation/types-core-js": "^4.9.7"
+        "@auditmation/types-core-js": "^4.9.8"
       }
     },
     "node_modules/@auditlogic/module-hashicorp-vault": {

@@ -35,7 +35,7 @@
     "directory": "package/auditmation/generic/tls"
   },
   "dependencies": {
-    "@auditlogic/module-auditmation-generic-tls": "^3.0.6",
+    "@auditlogic/module-auditmation-generic-tls": "^3.0.7",
     "@auditlogic/product-auditmation-generic-tls": "^0.6.0",
     "@auditlogic/schema-auditmation-auditmation-base": "^1.25.0",
     "@auditlogic/schema-auditmation-auditmation-base-ts": "^1.25.0",
