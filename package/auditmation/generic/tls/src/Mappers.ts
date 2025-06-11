@@ -16,15 +16,15 @@ export function toX509Certificate(cert: X509Certificate): X509CertificateSchema 
     id: `${cert.serialNumber}`,
     name: `${cert.subject?.cn}`,
     aliases,
+    issuer: cert.issuer,
+    certificate: cert,
   };
 
   Object.assign(
     output,
     {
-      validFrom: cert.validFrom?.toISOString().split('T')[0],
-      validTo: cert.validTo?.toISOString().split('T')[0],
-      issuer: cert.issuer?.cn,
-      certificate: cert,
+      validFrom: new Date(`${cert.validFrom?.toISOString().split('T')[0]}`),
+      validTo: new Date(`${cert.validTo?.toISOString().split('T')[0]}`),
     }
   );
 
