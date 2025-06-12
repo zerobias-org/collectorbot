@@ -111,17 +111,19 @@ export class CollectorAuditmationGenericTlsImpl extends BaseClient {
     for (const url of urls.slice(0, this.previewCount)) {
       let certSn: string | undefined;
 
-      const certBatch = await this.initBatchForClass(this.classes.cert, `${url}`);
+      let certBatch: Batch<X509Certificate> | undefined;
       try {
         const certificate = await this.serverApi.getCertificateDetails(url.host);
         const mappedCert = toX509Certificate(certificate);
         certSn = mappedCert.id;
+        certBatch = await this.initBatchForClass(this.classes.cert, `${certSn}`);
         await certBatch.add(mappedCert);
       } catch (error) {
+        certBatch = await this.initBatchForClass(this.classes.cert);
         this.logger.error(`Error fetching certificate from ${url}: ${error.message}. ${error.stack}`);
         await certBatch.error(`Error fetching certificate from ${url}: ${error.message}. ${error.stack}`);
       }
-      await certBatch.end();
+      await certBatch?.end();
 
       const endpointBatch = await this.initBatchForClass(this.classes.endpoint, `${url}`);
       try {
