@@ -42,7 +42,7 @@
     "@auditmation/hub-client": "^8.8.44",
     "@auditmation/hub-core": "^4.4.45",
     "@auditmation/module-auditmation-auditmation-hub": "^3.12.113",
-    "@auditmation/module-auditmation-auditmation-platform": "^4.1.23",
+    "@auditmation/module-auditmation-auditmation-platform": "^4.1.24",
     "@auditmation/types-core-js": "^4.9.11",
     "@auditmation/util-collector-utils": "^4.3.5",
     "inversify": "^6.0.2",
