@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.1.0-rc.14](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-auditmation-generic-tls@0.1.0-rc.13...@zerobias-org/collectorbot-auditmation-generic-tls@0.1.0-rc.14) (2025-06-12)
+
+
+### Bug Fixes
+
+* **tls:** update groupid for certificate batch ([9e8ae1e](https://github.com/zerobias-org/collectorbot/commit/9e8ae1e073b1cea1453bb89085b3d9811cf2526c))
+
+
+
+
+
 # [0.1.0-rc.13](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-auditmation-generic-tls@0.1.0-rc.12...@zerobias-org/collectorbot-auditmation-generic-tls@0.1.0-rc.13) (2025-06-12)
 
 
