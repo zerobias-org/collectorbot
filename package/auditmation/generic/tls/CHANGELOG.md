@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# 0.1.0-rc.15 (2025-06-16)
+
+
+### Features
+
+* add tls collectorbot  ([a09f4dd](https://github.com/zerobias-org/collectorbot/commit/a09f4dd09cf5a028483d6eb72251610385957df6))
+
+
+
+
+
 # [0.1.0-rc.14](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-auditmation-generic-tls@0.1.0-rc.13...@zerobias-org/collectorbot-auditmation-generic-tls@0.1.0-rc.14) (2025-06-12)
 
 
