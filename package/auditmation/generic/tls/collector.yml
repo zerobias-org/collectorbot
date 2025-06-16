@@ -1,0 +1,6 @@
+classes:
+    # Name of schema artifact that contains the classes below
+    - "@auditlogic/schema-auditmation-auditmation-base":
+        # List of all classes from the artifact above this collector populates
+        - X509Certificate
+        - ServiceEndpoint

@@ -1,8 +1,8 @@
 {
   "name": "@zerobias-org/collectorbot",
   "version": "1.0.0",
-  "description": "Zerobias collectorbot artifacts",
   "main": "main.js",
+  "description": "Zerobias collectorbot artifacts",
   "scripts": {
     "lerna:dry-run": "lerna version --no-git-tag-version --no-push --conventional-commits",
     "lerna:publish": "lerna publish --conventional-commits --no-verify-access",
