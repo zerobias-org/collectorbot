@@ -17,17 +17,18 @@
   "scripts": {
     "build": "npm run generate && npm run transpile",
     "clean": "rm -rf generated && rm -rf dist",
-    "generate": "npm run generate:models && npm run generate:hub-client",
     "generate:hub-client": "node node_modules/@auditmation/hub-client-codegen/dist/index.js",
     "generate:models": "hub-generator generate -g hub-module -i ./parameters.yml -o generated/ --global-property models,supportingFiles=index.ts && rm ./generated/api/index.ts",
-    "lint": "eslint src/",
+    "generate": "npm run generate:models && npm run generate:hub-client",
     "lint:fix": "eslint --fix src/",
-    "test": "",
+    "lint": "eslint src/",
+    "nx:publish": "../../../../scripts/publish.sh",
+    "test:integration:watch": "npm run test:integration -- --watch --reporter=min",
     "test:integration": "mocha --exit --inline-diffs --reporter=list test/integration/**/*.ts",
     "test:watch": "npm run test -- --watch --reporter=min",
-    "test:integration:watch": "npm run test:integration -- --watch --reporter=min",
-    "transpile": "tsc",
-    "transpile:watch": "tsc --watch"
+    "test": "",
+    "transpile:watch": "tsc --watch",
+    "transpile": "tsc"
   },
   "repository": {
     "type": "git",
@@ -35,18 +36,18 @@
     "directory": "package/auditmation/generic/tls"
   },
   "dependencies": {
-    "@auditlogic/module-auditmation-generic-tls": "^3.0.7",
-    "@auditlogic/product-auditmation-generic-tls": "^0.6.0",
-    "@auditlogic/schema-auditmation-auditmation-base": "^1.25.1",
-    "@auditlogic/schema-auditmation-auditmation-base-ts": "^1.25.1",
-    "@auditmation/hub-client": "^8.8.44",
-    "@auditmation/hub-core": "^4.4.45",
-    "@auditmation/module-auditmation-auditmation-hub": "^3.12.113",
-    "@auditmation/module-auditmation-auditmation-platform": "^4.1.24",
-    "@auditmation/types-core-js": "^4.9.11",
-    "@auditmation/util-collector-utils": "^4.3.5",
-    "inversify": "^6.0.2",
-    "reflect-metadata": "^0.1.13"
+    "@auditlogic/module-auditmation-generic-tls": "latest",
+    "@auditlogic/product-auditmation-generic-tls": "latest",
+    "@auditlogic/schema-auditmation-auditmation-base": "latest",
+    "@auditlogic/schema-auditmation-auditmation-base-ts": "latest",
+    "@auditmation/hub-client": "latest",
+    "@auditmation/hub-core": "latest",
+    "@auditmation/module-auditmation-auditmation-hub": "latest",
+    "@auditmation/module-auditmation-auditmation-platform": "latest",
+    "@auditmation/types-core-js": "latest",
+    "@auditmation/util-collector-utils": "latest",
+    "inversify": "latest",
+    "reflect-metadata": "latest"
   },
   "devDependencies": {
     "@auditmation/eslint-config": "^1.1.17",
