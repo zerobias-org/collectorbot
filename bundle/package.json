@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/collectorbot-bundle",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "All installable collectorbots",
   "author": "team@auditmation.io",
   "license": "ISC",
@@ -17,5 +17,7 @@
     "import-artifact": "bundle",
     "dataloader-version": "0.5.4"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@zerobias-org/collectorbot-auditmation-generic-tls": "0.1.2"
+  }
 }
