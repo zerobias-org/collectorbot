@@ -1,26 +1,26 @@
 {
   "name": "@zerobias-org/collectorbot-auditmation-generic-tls",
-  "version": "0.1.0-rc.11",
+  "version": "0.1.0",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "@zerobias-org/collectorbot-auditmation-generic-tls",
-      "version": "0.1.0-rc.11",
+      "version": "0.1.0",
       "license": "UNLICENSED",
       "dependencies": {
-        "@auditlogic/module-auditmation-generic-tls": "^3.0.7",
-        "@auditlogic/product-auditmation-generic-tls": "^0.6.0",
-        "@auditlogic/schema-auditmation-auditmation-base": "^1.25.1",
-        "@auditlogic/schema-auditmation-auditmation-base-ts": "^1.25.1",
-        "@auditmation/hub-client": "^8.8.44",
-        "@auditmation/hub-core": "^4.4.45",
-        "@auditmation/module-auditmation-auditmation-hub": "^3.12.113",
-        "@auditmation/module-auditmation-auditmation-platform": "^4.1.24",
-        "@auditmation/types-core-js": "^4.9.11",
-        "@auditmation/util-collector-utils": "^4.3.5",
-        "inversify": "^6.0.2",
-        "reflect-metadata": "^0.1.13"
+        "@auditlogic/module-auditmation-generic-tls": "latest",
+        "@auditlogic/product-auditmation-generic-tls": "latest",
+        "@auditlogic/schema-auditmation-auditmation-base": "latest",
+        "@auditlogic/schema-auditmation-auditmation-base-ts": "latest",
+        "@auditmation/hub-client": "latest",
+        "@auditmation/hub-core": "latest",
+        "@auditmation/module-auditmation-auditmation-hub": "latest",
+        "@auditmation/module-auditmation-auditmation-platform": "latest",
+        "@auditmation/types-core-js": "latest",
+        "@auditmation/util-collector-utils": "latest",
+        "inversify": "latest",
+        "reflect-metadata": "latest"
       },
       "devDependencies": {
         "@auditmation/eslint-config": "^1.1.17",
