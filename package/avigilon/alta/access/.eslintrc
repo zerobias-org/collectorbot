@@ -1,0 +1,29 @@
+{
+  "extends": "@auditmation",
+  "parser": "@typescript-eslint/parser",
+  "rules": {
+    "import/no-unresolved": "off",
+    "import/no-extraneous-dependencies": "off",
+    "import/prefer-default-export": "off",
+    "import/extensions": "off",
+    "object-curly-newline": "off",
+    "no-await-in-loop": "off",
+    "no-continue": "off",
+    "no-restricted-syntax": ["error", "ForInStatement", "LabeledStatement", "WithStatement"],
+    "@typescript-eslint/explicit-module-boundary-types": "off",
+    "@typescript-eslint/no-explicit-any": "off",
+    "max-len": ["error", { "code": 150 }]
+  },
+  "env": {
+    "commonjs": true,
+    "node": true,
+    "mocha": true
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx", ".ts", ".tsx"]
+      }
+    }
+  }
+}

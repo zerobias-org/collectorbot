@@ -1,0 +1,9 @@
+modules:
+  '@zerobias-org/module-avigilon-alta-access':
+    id: 17feded8-8e28-4b45-8960-d4b1f0cbe4a8
+    name: module-avigilon-alta-access
+    module: Access
+products:
+  avigilon.alta.access:
+    id: b5deeb3d-92f1-48a5-8aa9-d209846585d9
+    name: Avigilon Alta Access
