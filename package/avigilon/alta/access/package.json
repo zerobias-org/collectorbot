@@ -44,7 +44,8 @@
     "@auditmation/module-auditmation-auditmation-platform": "^5.0.33",
     "@auditmation/types-core-js": "^4.9.13",
     "@auditmation/util-collector-utils": "^4.3.6",
-    "@zerobias-org/module-avigilon-alta-access": "latest",
+    "@zerobias-org/module-avigilon-alta-access": "^0.1.8",
+    "@zerobias-org/product-avigilon-alta-access": "^1.0.1",
     "inversify": "^6.0.2",
     "reflect-metadata": "^0.1.13"
   },

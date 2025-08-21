@@ -17,7 +17,8 @@
         "@auditmation/module-auditmation-auditmation-platform": "^5.0.33",
         "@auditmation/types-core-js": "^4.9.13",
         "@auditmation/util-collector-utils": "^4.3.6",
-        "@zerobias-org/module-avigilon-alta-access": "latest",
+        "@zerobias-org/module-avigilon-alta-access": "^0.1.8",
+        "@zerobias-org/product-avigilon-alta-access": "^1.0.1",
         "inversify": "^6.0.2",
         "reflect-metadata": "^0.1.13"
       },
@@ -2735,18 +2736,16 @@
       "license": "ISC"
     },
     "node_modules/@zerobias-org/module-avigilon-alta-access": {
-      "version": "0.1.7",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/module-avigilon-alta-access/-/module-avigilon-alta-access-0.1.7.tgz",
-      "integrity": "sha512-dsr9e4cakuCGp8XvvlBB5C/+0M8Xs60SvsM4fxgmcDQSJim0YmjdjgtjNMmrQV6K4CAZ5dIlfKLzMANXMlMnDA==",
+      "version": "0.1.8",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/module-avigilon-alta-access/-/module-avigilon-alta-access-0.1.8.tgz",
+      "integrity": "sha512-airgXSsu+HZVLd73wNOQR5k1pERZ7PgZLVT0qCczvYO5oKq8WYcSWK7B+z27vhxl0QdGSjYhBLXHmR0RaI7b2Q==",
       "license": "UNLICENSED",
       "dependencies": {
         "@auditmation/hub-core": "^4.5.16",
         "@auditmation/util-hub-module-utils": "^1.0.27",
         "@auditmation/util-logger": "^4.0.9",
-        "@zerobias-org/product-avigilon-alta-access": "^1.0.0",
-        "axios": "^0.27.2",
-        "inversify": "^6.0.2",
-        "reflect-metadata": "^0.1.13"
+        "@zerobias-org/product-avigilon-alta-access": "^1.0.1",
+        "axios": "^0.27.2"
       },
       "peerDependencies": {
         "@auditmation/types-core": "^4.9.0",
@@ -2754,9 +2753,9 @@
       }
     },
     "node_modules/@zerobias-org/product-avigilon-alta-access": {
-      "version": "1.0.0",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/product-avigilon-alta-access/-/product-avigilon-alta-access-1.0.0.tgz",
-      "integrity": "sha512-Ocm0bbXbJVeMtUmtP0W31ghDdPPbVIAxgTd5sTkM9XveVOYkaYIC1sX1oAM5+NmmSoC+gPm43AbII6Jt6yr9Dg==",
+      "version": "1.0.1",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/product-avigilon-alta-access/-/product-avigilon-alta-access-1.0.1.tgz",
+      "integrity": "sha512-9QaKWTbDlUevAnQPBJV5iKL3Ucy2SCL80kWg2nmlIk0ttGtv12kq4e8Im/PIxeI08FyU/1aXWZSrC8fdY3NGPQ==",
       "license": "ISC",
       "dependencies": {
         "@zerobias-org/suite-avigilon-alta": "latest"
