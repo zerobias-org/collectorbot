@@ -64,7 +64,7 @@ set -e
 
 echo "--- Building docker module for $FULL_PACKAGE_VERSION in $(pwd)"
 cp $GENERATOR_DIR/templates/Dockerfile $tmpdir
-cp $BASEDIR/package/amazon/aws/ec2/tsconfig.json $tmpdir
+cp $BASEDIR/package/avigilon/alta/access/tsconfig.json $tmpdir
 if [ -e "$LOCATION/tsconfig.json" ]; then
   cp $LOCATION/tsconfig.json $tmpdir || 'No specific tsconfig found'
 fi
