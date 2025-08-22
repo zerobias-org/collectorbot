@@ -1,0 +1,108 @@
+name: Image Publish
+
+on:
+  repository_dispatch:
+    types:
+      - image-publish
+
+permissions:
+  contents: write
+  id-token: write
+  packages: write
+  pull-requests: write
+
+jobs:
+  image-publish:
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      fail-fast: false
+      matrix:
+        package: ${{ github.event.client_payload.packages }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          ref: main
+      - uses: zerobias-org/devops/actions/setup-node@main
+      - name: Import Secrets
+        uses: hashicorp/vault-action@v2.4.3
+        with:
+          method: jwt
+          url: ${{ secrets.VAULT_ADDR }}
+          role: publishing-role
+          path: gh-actions
+          secrets: |
+            operations-kv/data/ci/github readPackagesToken | NPM_TOKEN;
+            operations-kv/data/ci/slack devopsNotifications | SLACK_DEVOPS_NOTIFICATIONS;
+            operations-kv/data/ci/github docsDeploymentToken | DISPATCH_TOKEN;
+            operations-kv/data/ci/slack releasesWebhook | SLACK_RELEASES_WEBHOOK;
+            operations-kv/data/ci/github username | USERNAME ;
+            operations-kv/data/ci/github writePackagesToken | WRITE_TOKEN ;
+            operations-kv/data/ci/github zb-token | ZB_TOKEN ;
+
+      - name: configure aws tools creds
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::961260934100:role/github-actions-publishing-role
+          role-session-name: ${{ github.event.repository.name }}
+          aws-region: us-east-1
+
+      - name: save tools profile
+        shell: bash
+        run: |
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID --profile tools
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY --profile tools
+          aws configure set aws_session_token $AWS_SESSION_TOKEN --profile tools
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ env.USERNAME }}
+          password: ${{ env.WRITE_TOKEN }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        with:
+          platforms: linux/amd64,linux/arm64
+
+      - name: Build images
+        shell: bash
+        env:
+          ZB_TOKEN: ${{ env.ZB_TOKEN }}
+        run: |
+          npm ci
+          ./scripts/imagepublish.sh ${{ matrix.package }}
+
+      - name: Release Announcement
+        uses: zerobias-org/devops/actions/release-announcement@main
+
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@master
+        env:
+          SLACK_COLOR: good
+          SLACK_WEBHOOK: ${{ env.SLACK_RELEASES_WEBHOOK }}
+          SLACK_ICON_EMOJI: ':robot:'
+          MSG_MINIMAL: 'true'
+          SLACK_TITLE: ':gear: new collectorbot image published :tada:'
+          SLACK_MESSAGE: '${{ matrix.package }}'
+          SLACK_FOOTER: ''
+
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@master
+        if: failure()
+        env:
+          SLACK_WEBHOOK: ${{ env.SLACK_DEVOPS_NOTIFICATIONS }}
+          SLACK_ICON_EMOJI: ":fire"
+          MSG_MINIMAL: 'true'
+          SLACK_TITLE: ":fire: ${{ github.repository }} image publish failed"
+          SLACK_MESSAGE: "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          SLACK_COLOR: danger

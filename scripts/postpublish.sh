@@ -59,3 +59,29 @@ for ((i = 0 ; i < ${#versions[@]} ; i++)); do
     echo "Not running post-publish against non schema package $package"
   fi;
 done
+
+
+if [ "$1" = "--dry-run" ]; then
+  echo "--- This was only a dry-run ---"
+	echo "Testing publishing images since"
+	PACKAGES=$(npx lerna list --since --ndjson | jq -r '(.name + "@" + .version)')
+	for pkg in $PACKAGES; do
+		scripts/imagepublish.sh $pkg --dry-run
+	done
+  exit 0
+fi;
+
+SINCE=${1:-"HEAD~1"}
+
+echo "Publishing images since $SINCE"
+
+PAYLOAD=$(npx lerna list --since $SINCE --json | jq -rc '{"event_type": "image-publish", "client_payload": { "packages": [.[] | .name + "@" + .version] }}')
+echo $PAYLOAD
+curl -X POST \
+	-vvv \
+	--fail \
+	-H "Authorization: token $DISPATCH_TOKEN" \
+	-H "Accept: application/vnd.github.v3+json" \
+	-H "Content-type: application/json" https://api.github.com/repos/zerobias-org/collectorbot/dispatches \
+	-d ''"$PAYLOAD"''
+
