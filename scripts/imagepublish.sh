@@ -82,20 +82,20 @@ npm prune --omit=dev
 
 if [ "$2" = "--dry-run" ]; then
   echo "Building local image for testing"
-  docker buildx build --platform linux/amd64 -t 961260934100.dkr.ecr.us-east-1.amazonaws.com/auditlogic-$name:$version -o type=docker .
+  docker buildx build --platform linux/amd64 -t 961260934100.dkr.ecr.us-east-1.amazonaws.com/zerobias-org-$name:$version -o type=docker .
 else
   echo "Building image for ecr"
   aws ecr create-repository \
-	  --repository-name auditlogic-$name \
+	  --repository-name zerobias-org-$name \
 	  --region us-east-1 || echo "Repository already created"
 
-  aws ecr set-repository-policy --repository-name auditlogic-$name \
+  aws ecr set-repository-policy --repository-name zerobias-org-$name \
 	  --policy-text '{ "Version": "2012-10-17", "Statement": [ { "Sid": "ReadonlyAccess", "Effect": "Allow", "Principal": { "AWS": "*" }, "Action": [ "ecr:BatchCheckLayerAvailability", "ecr:BatchGetImage", "ecr:DescribeImageScanFindings", "ecr:DescribeImages", "ecr:DescribeRepositories", "ecr:GetAuthorizationToken", "ecr:GetDownloadUrlForLayer", "ecr:GetRepositoryPolicy", "ecr:ListImages" ], "Condition": { "StringLike": { "aws:PrincipalOrgID": "o-dppyp34ws8" } } } ] }'
 
-  docker buildx build --platform linux/amd64,linux/arm64 -t 961260934100.dkr.ecr.us-east-1.amazonaws.com/auditlogic-$name:$version --push .
+  docker buildx build --platform linux/amd64,linux/arm64 -t 961260934100.dkr.ecr.us-east-1.amazonaws.com/zerobias-org-$name:$version --push .
 
   echo "Building image for ghcr"
-  docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/auditlogic/auditlogic-$name:$version --push .
+  docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/auditlogic/zerobias-org-$name:$version --push .
 fi
 
 echo "--- Changing back to $BASEDIR"
