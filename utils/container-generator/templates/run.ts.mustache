@@ -1,0 +1,101 @@
+import { getClient } from '@auditmation/hub-client';
+import { getLogger } from '@auditmation/util-logger';
+import axios from 'axios';
+
+{{#dryRun}}
+import { container } from '../generated';
+{{/dryRun}}
+{{^dryRun}}
+import { container } from '../dist/generated';
+{{/dryRun}}
+
+const logger = getLogger('console');
+
+const apiKey = process.env.API_KEY!;
+const orgId = process.env.ORG_ID!;
+const jobId = process.env.JOB_ID!;
+
+const updateExecutionDetails = async (
+  platformApi: string,
+  executionDetails: Record<string, string>
+) => {
+  const target = `${platformApi}/dataCollections/${jobId}/executionDetails`;
+  try {
+    await axios.put(target, { executionDetails }, {
+      headers: {
+        Authorization: `APIKey ${apiKey}`,
+        'dana-org-id': orgId,
+      },
+    });
+  } catch (err) {
+    logger.error(`Error updating execution details: ${err.message}`);
+    logger.error(err);
+  }
+};
+
+const sendError = async (err) => {
+  const callbackUrl = process.env.ERROR_CALLBACK_URL;
+  if (callbackUrl) {
+    const data = {
+      jobId,
+      error: { message: err.message, error: err },
+      environment: {
+        executionArn: process.env.EXECUTION_ARN,
+        stateMachineArn: process.env.STATE_MACHINE_ARN,
+        state: process.env.STATE,
+      },
+    };
+    logger.info(`Sending error callback ${JSON.stringify(data)}`);
+
+    try {
+      await axios.post(callbackUrl, data, {
+        headers: {
+          Authorization: `APIKey ${apiKey}`,
+          'dana-org-id': orgId,
+        },
+      });
+    } catch (axiosError) {
+      logger.error(`Error sending error callback: ${axiosError.message}`);
+      logger.error(axiosError);
+      process.exit(1);
+    }
+  } else {
+    logger.warning('No error callback url set');
+    process.exit(1);
+  }
+}
+
+(async function main() {
+  const params = JSON.parse(process.env.CLIENT_PARAMS || '{}');
+  const client = await getClient(container);
+  const { context } = client;
+  const platformApi = `${context.server.protocol}://${context.server.hostname}/platform`;
+  await client.run(params);
+
+  process.on('uncaughtException', function (err) {
+    logger.error('Uncaught Exception', err);
+  })
+
+  const callbackUrl = process.env.COMPLETE_CALLBACK_URL;
+  if (callbackUrl) {
+    logger.info('Sending complete callback');
+    await updateExecutionDetails(platformApi, {
+      status: 'COMPLETE',
+      endTime: new Date().toISOString(),
+    });
+    await axios.put(callbackUrl, {}, {
+      headers: {
+        Authorization: `APIKey ${apiKey}`,
+        'dana-org-id': orgId,
+      },
+    });
+  } else {
+    logger.error('No complete callback url set');
+    process.exit(1);
+  }
+  logger.info('Finished');
+}()).catch(async (e) => {
+  logger.error('Could not start {{pascal}} collectorbot:\n', e);
+  await sendError(e);
+  process.exit(1);
+});
