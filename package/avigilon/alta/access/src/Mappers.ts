@@ -1,6 +1,6 @@
-import * as m from '@zerobias-org/module-avigilon-alta-access';
 import * as s from '@auditlogic/schema-auditmation-auditmation-base-ts';
 import { PrincipalType } from '@auditlogic/schema-auditmation-auditmation-base-ts';
+import * as m from '@zerobias-org/module-avigilon-alta-access';
 
 function toUserStatus(raw?: m.UserInfo.StatusEnumDef): s.AccountStatus | undefined {
   switch (raw) {
@@ -31,8 +31,8 @@ export function mapUser(raw: m.UserInfo): s.Account {
   Object.assign(
     output,
     {
-      dateCreated: raw.createdAt ? new Date(raw.createdAt?.toISOString().split('T')[0]) : undefined,
-      dateLastModified: raw.updatedAt ? new Date(raw.updatedAt?.toISOString().split('T')[0]) : undefined,
+      dateCreated: raw.createdAt?.toISOString().split('T')[0],
+      dateLastModified: raw.updatedAt?.toISOString().split('T')[0],
     }
   );
   return output;
@@ -50,8 +50,8 @@ export function mapGroup(raw: m.GroupInfo, memberIds: string[]): s.Group {
   Object.assign(
     output,
     {
-      dateCreated: raw.createdAt ? new Date(raw.createdAt?.toISOString().split('T')[0]) : undefined,
-      dateLastModified: raw.updatedAt ? new Date(raw.updatedAt?.toISOString().split('T')[0]) : undefined,
+      dateCreated: raw.createdAt?.toISOString().split('T')[0],
+      dateLastModified: raw.updatedAt?.toISOString().split('T')[0],
     }
   );
   return output;
