@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.6](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-avigilon-alta-access@1.0.5...@zerobias-org/collectorbot-avigilon-alta-access@1.0.6) (2025-08-27)
+
+
+### Bug Fixes
+
+* declare dynamic classes as collected ([5ee5fe2](https://github.com/zerobias-org/collectorbot/commit/5ee5fe23e85d957cbffbbee7ba20dbd5cf901fd8))
+
+
+
+
+
 ## [1.0.5](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-avigilon-alta-access@1.0.4...@zerobias-org/collectorbot-avigilon-alta-access@1.0.5) (2025-08-27)
 
 **Note:** Version bump only for package @zerobias-org/collectorbot-avigilon-alta-access
