@@ -1,12 +1,12 @@
 {
   "name": "@zerobias-org/collectorbot-avigilon-alta-access",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "@zerobias-org/collectorbot-avigilon-alta-access",
-      "version": "1.0.6",
+      "version": "1.0.7",
       "license": "UNLICENSED",
       "dependencies": {
         "@auditlogic/schema-avigilon-alta-access": "^1.1.3",
