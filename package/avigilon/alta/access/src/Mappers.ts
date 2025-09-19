@@ -1,5 +1,5 @@
-import * as s from '@auditlogic/schema-auditmation-auditmation-base-ts';
-import { PrincipalType } from '@auditlogic/schema-auditmation-auditmation-base-ts';
+import * as s from '@auditlogic/schema-avigilon-alta-access-ts';
+import { PrincipalType } from '@auditlogic/schema-avigilon-alta-access-ts';
 import * as m from '@zerobias-org/module-avigilon-alta-access';
 
 function toUserStatus(raw?: m.UserInfo.StatusEnumDef): s.AccountStatus | undefined {

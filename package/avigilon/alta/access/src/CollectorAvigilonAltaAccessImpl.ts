@@ -28,8 +28,8 @@ export class CollectorAvigilonAltaAccessImpl extends BaseClient {
   }
 
   private classes = {
-    user: 'Account',
-    group: 'Group',
+    user: 'AvigilonAltaUser',
+    group: 'AvigilonAltaGroup',
   };
 
   private async init() {
@@ -62,7 +62,7 @@ export class CollectorAvigilonAltaAccessImpl extends BaseClient {
       throw new InvalidStateError('Organization ID is not set');
     }
 
-    const userBatch = await this.initBatchForClass(this.classes.user);
+    const userBatch = await this.initBatchForClass(this.classes.user, this.orgId);
 
     const usersPr = await this.access.getUserApi().list(this.orgId);
     await usersPr.forEach(async (user) => {
@@ -77,7 +77,7 @@ export class CollectorAvigilonAltaAccessImpl extends BaseClient {
       throw new InvalidStateError('Organization ID is not set');
     }
 
-    const groupBatch = await this.initBatchForClass(this.classes.group);
+    const groupBatch = await this.initBatchForClass(this.classes.group, this.orgId);
     const groupsPr = await this.access.getGroupApi().list(this.orgId);
     await groupsPr.forEach(async (group) => {
       const groupInfo = await this.access.getGroupApi().get(this.orgId!, group.id);
