@@ -16,7 +16,7 @@ function toUserStatus(raw?: m.UserInfo.StatusEnumDef): s.AccountStatus | undefin
   }
 }
 
-export function mapUser(raw: m.UserInfo): s.Account {
+export function mapUser(raw: m.User): s.Account {
   const output: s.Account = {
     id: `${raw.id}`,
     name: `${raw.identity?.firstName ?? ''} ${raw.identity?.lastName ?? ''}`.trim() || `User ${raw.id}`,
@@ -25,8 +25,6 @@ export function mapUser(raw: m.UserInfo): s.Account {
     login: `${raw.identity?.email}`,
     person: `${raw.identity?.email}`,
     status: toUserStatus(raw.status),
-    app: raw.organizationId ? `${raw.organizationId}` : undefined,
-    icon: raw.avatarUrl,
     principalType: PrincipalType.USER,
   };
   Object.assign(
@@ -39,12 +37,11 @@ export function mapUser(raw: m.UserInfo): s.Account {
   return output;
 }
 
-export function mapGroup(raw: m.GroupInfo, memberIds: string[]): s.Group {
+export function mapGroup(raw: m.Group, memberIds: string[]): s.Group {
   const output: s.Group = {
     id: `${raw.id}`,
     name: raw.name || `Group ${raw.id}`,
     description: raw.description,
-    groups: raw.parentGroupId ? `${raw.parentGroupId}` : undefined,
     principalType: PrincipalType.GROUP,
     members: memberIds.map((id) => `${id}`),
   };

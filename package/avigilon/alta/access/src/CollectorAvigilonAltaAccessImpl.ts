@@ -92,8 +92,7 @@ export class CollectorAvigilonAltaAccessImpl extends BaseClient {
 
     const usersPr = await this.access.getUserApi().list(this.orgId);
     await usersPr.forEach(async (user) => {
-      const userInfo = await this.access.getUserApi().get(this.orgId!, user.id);
-      await userBatch.add(mapUser(userInfo));
+      await userBatch.add(mapUser(user));
     }, 3, this.previewCount);
     await userBatch.end();
   }
@@ -106,13 +105,12 @@ export class CollectorAvigilonAltaAccessImpl extends BaseClient {
     const groupBatch = await this.initBatchForClass(this.classes.group, this.orgId);
     const groupsPr = await this.access.getGroupApi().list(this.orgId);
     await groupsPr.forEach(async (group) => {
-      const groupInfo = await this.access.getGroupApi().get(this.orgId!, group.id);
       const groupMembersPr = await this.access.getGroupApi().listUsers(this.orgId!, group.id);
       const membersIds: string[] = [];
       await groupMembersPr.forEach(async (member) => {
         membersIds.push(`${member.id}`);
       });
-      await groupBatch.add(mapGroup(groupInfo, membersIds));
+      await groupBatch.add(mapGroup(group, membersIds));
     }, 3, this.previewCount);
     await groupBatch.end();
   }
