@@ -19,7 +19,7 @@ function toUserStatus(raw?: m.UserInfo.StatusEnumDef): s.AccountStatus | undefin
 export function mapUser(raw: m.UserInfo): s.Account {
   const output: s.Account = {
     id: `${raw.id}`,
-    name: `${raw.identity?.firstName ?? ''} ${raw.identity?.lastName ?? ''}`.trim(),
+    name: `${raw.identity?.firstName ?? ''} ${raw.identity?.lastName ?? ''}`.trim() || `User ${raw.id}`,
     email: raw.identity?.email,
     identity: `${raw.identity?.email}`,
     login: `${raw.identity?.email}`,
@@ -42,7 +42,7 @@ export function mapUser(raw: m.UserInfo): s.Account {
 export function mapGroup(raw: m.GroupInfo, memberIds: string[]): s.Group {
   const output: s.Group = {
     id: `${raw.id}`,
-    name: raw.name,
+    name: raw.name || `Group ${raw.id}`,
     description: raw.description,
     groups: raw.parentGroupId ? `${raw.parentGroupId}` : undefined,
     principalType: PrincipalType.GROUP,
@@ -75,7 +75,7 @@ export function mapSite(raw: m.Site): s.AvigilonAltaSite {
 
   const output: s.AvigilonAltaSite = {
     id: `${raw.id}`,
-    name: raw.name,
+    name: raw.name || `Site ${raw.id}`,
     locations: [{
       address: {
         addressLine: [`${raw.address}`, `${raw.address2}`].filter(Boolean).join(', '),
@@ -100,7 +100,7 @@ export function mapSite(raw: m.Site): s.AvigilonAltaSite {
 export function mapZone(raw: m.Zone): s.AvigilonAltaZone {
   const output: s.AvigilonAltaZone = {
     id: `${raw.id}`,
-    name: raw.name,
+    name: raw.name || `Zone ${raw.id}`,
     description: raw.description,
     site: `${raw.site?.id}`,
   };
