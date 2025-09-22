@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/collectorbot-avigilon-alta-access",
-  "version": "1.0.7",
+  "version": "1.0.8-rc.2",
   "description": "Auditmation Avigilon Alta Access Collectorbot",
   "main": "dist/src/index.js",
   "author": "ctamas@zerobias.com",
@@ -36,15 +36,16 @@
     "directory": "package/avigilon/alta/access"
   },
   "dependencies": {
-    "@auditlogic/schema-avigilon-alta-access": "^1.1.3",
+    "@auditlogic/schema-avigilon-alta-access": "^1.1.4",
     "@auditlogic/schema-avigilon-alta-access-ts": "^1.1.3",
     "@auditmation/hub-client": "^8.8.68",
     "@auditmation/hub-core": "^4.5.19",
     "@auditmation/module-auditmation-auditmation-hub": "^3.13.30",
-    "@auditmation/module-auditmation-auditmation-platform": "^5.1.16",
+    "@auditmation/module-auditmation-auditmation-platform": "^5.1.17",
     "@auditmation/types-core-js": "^4.10.2",
     "@auditmation/util-collector-utils": "^4.3.6",
-    "@zerobias-org/module-avigilon-alta-access": "^0.1.17",
+    "@supercharge/promise-pool": "^3.2.0",
+    "@zerobias-org/module-avigilon-alta-access": "^0.2.1",
     "@zerobias-org/product-avigilon-alta-access": "^1.0.1",
     "inversify": "^6.0.2",
     "reflect-metadata": "^0.1.13"

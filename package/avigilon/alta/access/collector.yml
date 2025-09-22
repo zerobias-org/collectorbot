@@ -4,3 +4,6 @@ classes:
         # List of all classes from the artifact above this collector populates
         - AvigilonAltaUser
         - AvigilonAltaGroup
+        - AvigilonAltaSite
+        - AvigilonAltaZone
+        - AvigilonAltaEntry

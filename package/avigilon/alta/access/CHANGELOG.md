@@ -3,6 +3,36 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.8-rc.2](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-avigilon-alta-access@1.0.8-rc.1...@zerobias-org/collectorbot-avigilon-alta-access@1.0.8-rc.2) (2025-09-22)
+
+
+### Bug Fixes
+
+* use list result instead of get result on users and groups ([b29f3ac](https://github.com/zerobias-org/collectorbot/commit/b29f3acb3d6e7b91dbcae7157fab76170158cb3b))
+
+
+
+
+
+## [1.0.8-rc.1](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-avigilon-alta-access@1.0.8-rc.0...@zerobias-org/collectorbot-avigilon-alta-access@1.0.8-rc.1) (2025-09-22)
+
+
+### Bug Fixes
+
+* fix collector yml and names ([06c3910](https://github.com/zerobias-org/collectorbot/commit/06c3910ef592efff6772d1619529afc1c640651a))
+
+
+
+
+
+## [1.0.8-rc.0](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-avigilon-alta-access@1.0.7...@zerobias-org/collectorbot-avigilon-alta-access@1.0.8-rc.0) (2025-09-22)
+
+**Note:** Version bump only for package @zerobias-org/collectorbot-avigilon-alta-access
+
+
+
+
+
 ## [1.0.7](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-avigilon-alta-access@1.0.6...@zerobias-org/collectorbot-avigilon-alta-access@1.0.7) (2025-09-19)
 
 **Note:** Version bump only for package @zerobias-org/collectorbot-avigilon-alta-access
