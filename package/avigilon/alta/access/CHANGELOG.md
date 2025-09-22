@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.8-rc.2](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-avigilon-alta-access@1.0.8-rc.1...@zerobias-org/collectorbot-avigilon-alta-access@1.0.8-rc.2) (2025-09-22)
+
+
+### Bug Fixes
+
+* use list result instead of get result on users and groups ([b29f3ac](https://github.com/zerobias-org/collectorbot/commit/b29f3acb3d6e7b91dbcae7157fab76170158cb3b))
+
+
+
+
+
 ## [1.0.8-rc.1](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-avigilon-alta-access@1.0.8-rc.0...@zerobias-org/collectorbot-avigilon-alta-access@1.0.8-rc.1) (2025-09-22)
 
 

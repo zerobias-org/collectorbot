@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/collectorbot-avigilon-alta-access",
-  "version": "1.0.8-rc.1",
+  "version": "1.0.8-rc.2",
   "description": "Auditmation Avigilon Alta Access Collectorbot",
   "main": "dist/src/index.js",
   "author": "ctamas@zerobias.com",
