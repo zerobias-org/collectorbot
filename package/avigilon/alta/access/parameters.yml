@@ -19,4 +19,5 @@ components:
       properties:
         organizationId:
           type: string
-          description: The organization ID to collect data for
+          description: The organization ID to collect data for. If not provided, defaults to the organization of the authenticated user.
+          example: '12345'
