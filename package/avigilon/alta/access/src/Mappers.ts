@@ -1,5 +1,6 @@
 import * as s from '@auditlogic/schema-avigilon-alta-access-ts';
 import { PrincipalType } from '@auditlogic/schema-avigilon-alta-access-ts';
+import { GeoCountry, GeoCountryDef, PhoneNumber } from '@auditmation/types-core-js';
 import * as m from '@zerobias-org/module-avigilon-alta-access';
 
 function toUserStatus(raw?: m.UserInfo.StatusEnumDef): s.AccountStatus | undefined {
@@ -18,11 +19,11 @@ function toUserStatus(raw?: m.UserInfo.StatusEnumDef): s.AccountStatus | undefin
 export function mapUser(raw: m.UserInfo): s.Account {
   const output: s.Account = {
     id: `${raw.id}`,
-    name: `${raw.firstName ?? ''} ${raw.lastName ?? ''}`.trim(),
-    email: raw.email,
-    identity: `${raw.email}`,
-    login: `${raw.email}`,
-    person: `${raw.email}`,
+    name: `${raw.identity?.firstName ?? ''} ${raw.identity?.lastName ?? ''}`.trim(),
+    email: raw.identity?.email,
+    identity: `${raw.identity?.email}`,
+    login: `${raw.identity?.email}`,
+    person: `${raw.identity?.email}`,
     status: toUserStatus(raw.status),
     app: raw.organizationId ? `${raw.organizationId}` : undefined,
     icon: raw.avatarUrl,
@@ -54,5 +55,78 @@ export function mapGroup(raw: m.GroupInfo, memberIds: string[]): s.Group {
       dateLastModified: raw.updatedAt?.toISOString().split('T')[0],
     }
   );
+  return output;
+}
+
+export function mapSite(raw: m.Site): s.AvigilonAltaSite {
+  let country: GeoCountryDef | undefined;
+  try {
+    country = GeoCountry.from('{raw.country}');
+  } catch {
+    // ignore invalid country codes
+  }
+
+  let phoneNo: PhoneNumber | undefined;
+  try {
+    phoneNo = new PhoneNumber(raw.phone || '');
+  } catch {
+    // ignore invalid phone numbers
+  }
+
+  const output: s.AvigilonAltaSite = {
+    id: `${raw.id}`,
+    name: raw.name,
+    locations: [{
+      address: {
+        addressLine: [`${raw.address}`, `${raw.address2}`].filter(Boolean).join(', '),
+        locality: raw.city,
+        postalCode: raw.zip,
+        country,
+      },
+      phoneNumber: phoneNo,
+    }],
+  };
+
+  Object.assign(
+    output,
+    {
+      dateCreated: raw.createdAt?.toISOString().split('T')[0],
+      dateLastModified: raw.updatedAt?.toISOString().split('T')[0],
+    }
+  );
+  return output;
+}
+
+export function mapZone(raw: m.Zone): s.AvigilonAltaZone {
+  const output: s.AvigilonAltaZone = {
+    id: `${raw.id}`,
+    name: raw.name,
+    description: raw.description,
+    site: `${raw.site?.id}`,
+  };
+
+  Object.assign(output, {
+    dateCreated: raw.createdAt?.toISOString().split('T')[0],
+    dateLastModified: raw.updatedAt?.toISOString().split('T')[0],
+  });
+
+  return output;
+}
+
+export function mapEntry(raw: m.EntryDetails): s.AvigilonAltaEntry {
+  const state = s.PhysicalEntry_status[raw.entryState?.name.toUpperCase() || 'UNKNOWN'];
+  const output: s.AvigilonAltaEntry = {
+    id: `${raw.id}`,
+    name: raw.name || `Entry ${raw.id}`,
+    note: raw.notes,
+    zone: raw.zone?.id ? `${raw.zone.id}` : undefined,
+    aliases: raw.externalUuid,
+    state,
+  };
+
+  Object.assign(output, {
+    dateCreated: raw.createdAt?.toISOString().split('T')[0],
+    dateLastModified: raw.updatedAt?.toISOString().split('T')[0],
+  });
   return output;
 }
