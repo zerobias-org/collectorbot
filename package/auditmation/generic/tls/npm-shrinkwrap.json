@@ -1,20 +1,12 @@
 {
   "name": "@zerobias-org/collectorbot-auditmation-generic-tls",
-<<<<<<< HEAD
-  "version": "0.1.2",
-=======
-  "version": "0.1.0-rc.2",
->>>>>>> d8a5727 (chore: trigger publish)
+  "version": "0.1.3",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "@zerobias-org/collectorbot-auditmation-generic-tls",
-<<<<<<< HEAD
-      "version": "0.1.2",
-=======
-      "version": "0.1.0-rc.2",
->>>>>>> d8a5727 (chore: trigger publish)
+      "version": "0.1.3",
       "license": "UNLICENSED",
       "dependencies": {
         "@auditlogic/module-auditmation-generic-tls": "latest",
