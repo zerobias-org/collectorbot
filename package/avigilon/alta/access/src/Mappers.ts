@@ -3,13 +3,13 @@ import { PrincipalType } from '@auditlogic/schema-avigilon-alta-access-ts';
 import { GeoCountry, GeoCountryDef, PhoneNumber } from '@auditmation/types-core-js';
 import * as m from '@zerobias-org/module-avigilon-alta-access';
 
-function toUserStatus(raw?: m.UserInfo.StatusEnumDef): s.AccountStatus | undefined {
+function toUserStatus(raw?: m.User.StatusEnumDef): s.AccountStatus | undefined {
   switch (raw) {
-    case m.UserInfo.StatusEnum.Active:
+    case m.User.StatusEnum.Active:
       return s.AccountStatus.ACTIVE;
-    case m.UserInfo.StatusEnum.Inactive:
+    case m.User.StatusEnum.Inactive:
       return s.AccountStatus.INACTIVE;
-    case m.UserInfo.StatusEnum.Suspended:
+    case m.User.StatusEnum.Suspended:
       return s.AccountStatus.DISABLED;
     default:
       return undefined;
@@ -58,7 +58,7 @@ export function mapGroup(raw: m.Group, memberIds: string[]): s.Group {
 export function mapSite(raw: m.Site): s.AvigilonAltaSite {
   let country: GeoCountryDef | undefined;
   try {
-    country = GeoCountry.from('{raw.country}');
+    country = raw.country ? GeoCountry.from(raw.country) : undefined;
   } catch {
     // ignore invalid country codes
   }
