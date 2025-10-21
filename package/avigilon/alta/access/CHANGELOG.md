@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.1.0](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-avigilon-alta-access@1.0.9...@zerobias-org/collectorbot-avigilon-alta-access@1.1.0) (2025-10-21)
+
+
+### Features
+
+* **avigilon-alta-access:** add credential and role collection with MFA detection ([3ededd0](https://github.com/zerobias-org/collectorbot/commit/3ededd033311747019ff7f0d25828b99e6d2a76a))
+
+
+
+
+
 ## [1.0.9](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-avigilon-alta-access@1.0.8...@zerobias-org/collectorbot-avigilon-alta-access@1.0.9) (2025-10-21)
 
 **Note:** Version bump only for package @zerobias-org/collectorbot-avigilon-alta-access
