@@ -1,15 +1,15 @@
 import * as s from '@auditlogic/schema-avigilon-alta-access-ts';
-import { PrincipalType } from '@auditlogic/schema-avigilon-alta-access-ts';
+import { PhysicalEntry_type, PrincipalType } from '@auditlogic/schema-avigilon-alta-access-ts';
 import { GeoCountry, GeoCountryDef, PhoneNumber } from '@auditmation/types-core-js';
 import * as m from '@zerobias-org/module-avigilon-alta-access';
 
 function toUserStatus(raw?: m.User.StatusEnumDef): s.AccountStatus | undefined {
   switch (raw) {
-    case m.User.StatusEnum.Active:
+    case m.User.StatusEnum.A:
       return s.AccountStatus.ACTIVE;
-    case m.User.StatusEnum.Inactive:
+    case m.User.StatusEnum.I:
       return s.AccountStatus.INACTIVE;
-    case m.User.StatusEnum.Suspended:
+    case m.User.StatusEnum.S:
       return s.AccountStatus.DISABLED;
     default:
       return undefined;
@@ -17,6 +17,10 @@ function toUserStatus(raw?: m.User.StatusEnumDef): s.AccountStatus | undefined {
 }
 
 export function mapUser(raw: m.User): s.Account {
+  // Build description from title and department
+  const descriptionParts = [raw.title, raw.department].filter(Boolean);
+  const description = descriptionParts.length > 0 ? descriptionParts.join(' - ') : undefined;
+
   const output: s.Account = {
     id: `${raw.id}`,
     name: `${raw.identity?.firstName ?? ''} ${raw.identity?.lastName ?? ''}`.trim() || `User ${raw.id}`,
@@ -26,6 +30,8 @@ export function mapUser(raw: m.User): s.Account {
     person: `${raw.identity?.email}`,
     status: toUserStatus(raw.status),
     principalType: PrincipalType.USER,
+    description,
+    aliases: raw.externalId,
   };
   Object.assign(
     output,
@@ -110,20 +116,95 @@ export function mapZone(raw: m.Zone): s.AvigilonAltaZone {
   return output;
 }
 
-export function mapEntry(raw: m.EntryDetails): s.AvigilonAltaEntry {
+export function mapEntry(raw: m.Entry): s.AvigilonAltaEntry {
   const state = s.PhysicalEntry_status[raw.entryState?.name.toUpperCase() || 'UNKNOWN'];
+
+  // Derive entryType from boolean flags
+  const entryType = (raw.isIntercomEntry || raw.isReaderless) ? PhysicalEntry_type.DOOR : undefined;
+
+  // Build note from existing notes + muster point flag
+  const noteParts: string[] = [];
+  if (raw.notes) {
+    noteParts.push(raw.notes);
+  }
+  if (raw.isMusterPoint) {
+    noteParts.push('Muster Point');
+  }
+  const note = noteParts.length > 0 ? noteParts.join(' - ') : undefined;
+
   const output: s.AvigilonAltaEntry = {
     id: `${raw.id}`,
     name: raw.name || `Entry ${raw.id}`,
-    note: raw.notes,
+    note,
     zone: raw.zone?.id ? `${raw.zone.id}` : undefined,
     aliases: raw.externalUuid,
     state,
+    entryType,
   };
 
   Object.assign(output, {
     dateCreated: raw.createdAt?.toISOString().split('T')[0],
     dateLastModified: raw.updatedAt?.toISOString().split('T')[0],
   });
+  return output;
+}
+
+export function mapSchedule(raw: m.Schedule): s.AvigilonAltaSchedule {
+  // Build note from scheduleType + isActive
+  const noteParts: string[] = [];
+  if (raw.scheduleType) {
+    const typeLabel = raw.scheduleType.name || raw.scheduleType.code || `Type ${raw.scheduleType.id}`;
+    noteParts.push(`Schedule Type: ${typeLabel}`);
+  }
+  if (raw.isActive !== undefined) {
+    noteParts.push(raw.isActive ? 'Active' : 'Inactive');
+  }
+  const note = noteParts.length > 0 ? noteParts.join(' - ') : undefined;
+
+  const output: s.AvigilonAltaSchedule = {
+    id: `${raw.id}`,
+    name: raw.name || `Schedule ${raw.id}`,
+    description: raw.description,
+    note,
+  };
+
+  Object.assign(output, {
+    dateCreated: raw.createdAt?.toISOString().split('T')[0],
+    dateLastModified: raw.updatedAt?.toISOString().split('T')[0],
+  });
+
+  return output;
+}
+
+export function mapAccessRule(
+  principalId: string,
+  principalType: 'user' | 'group',
+  resources: { entries?: string[] | Set<string>; zones?: string[] | Set<string>; sites?: string[] | Set<string> },
+  schedules?: string[] | Set<string>,
+  name?: string
+): s.AvigilonAltaAccessRule {
+  // Convert Sets to Arrays and combine
+  const resourceIds = [
+    ...(resources.entries ? Array.from(resources.entries) : []),
+    ...(resources.zones ? Array.from(resources.zones) : []),
+    ...(resources.sites ? Array.from(resources.sites) : []),
+  ];
+
+  // Dedupe and sort to prevent false change detection
+  const uniqueSortedResources = Array.from(new Set(resourceIds)).sort();
+  const uniqueSortedSchedules = schedules
+    ? Array.from(schedules).sort()
+    : undefined;
+
+  const ruleName = name || `${principalType === 'user' ? 'User' : 'Group'} ${principalId} Access Rule`;
+
+  const output: s.AvigilonAltaAccessRule = {
+    id: `${principalId}-${principalType}-access`,
+    name: ruleName,
+    principals: [principalId],
+    resources: uniqueSortedResources,
+    schedules: uniqueSortedSchedules,
+  };
+
   return output;
 }

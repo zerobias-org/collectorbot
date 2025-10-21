@@ -36,16 +36,16 @@
     "directory": "package/avigilon/alta/access"
   },
   "dependencies": {
-    "@auditlogic/schema-avigilon-alta-access": "^1.1.4",
-    "@auditlogic/schema-avigilon-alta-access-ts": "^1.1.3",
+    "@auditlogic/schema-avigilon-alta-access": "^1.1.6",
+    "@auditlogic/schema-avigilon-alta-access-ts": "^1.1.6",
     "@auditmation/hub-client": "^8.8.72",
     "@auditmation/hub-core": "^4.5.24",
     "@auditmation/module-auditmation-auditmation-hub": "^3.13.39",
-    "@auditmation/module-auditmation-auditmation-platform": "^5.1.43",
+    "@auditmation/module-auditmation-auditmation-platform": "^5.1.46",
     "@auditmation/types-core-js": "^4.10.2",
     "@auditmation/util-collector-utils": "^4.3.6",
     "@supercharge/promise-pool": "^3.2.0",
-    "@zerobias-org/module-avigilon-alta-access": "^0.3.0",
+    "@zerobias-org/module-avigilon-alta-access": "^0.4.0",
     "@zerobias-org/product-avigilon-alta-access": "^2.0.1",
     "inversify": "^6.0.2",
     "reflect-metadata": "^0.1.13"
