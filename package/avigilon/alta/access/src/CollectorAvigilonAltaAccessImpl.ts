@@ -1,7 +1,9 @@
 import {
   AvigilonAltaAccessRule,
+  AvigilonAltaCredential,
   AvigilonAltaEntry,
   AvigilonAltaGroup,
+  AvigilonAltaRole,
   AvigilonAltaSchedule,
   AvigilonAltaSite,
   AvigilonAltaUser,
@@ -17,9 +19,10 @@ import { Batch } from '@auditmation/util-collector-utils/dist/src';
 import { Parameters } from 'generated/model';
 import { injectable } from 'inversify';
 import PromisePool from '@supercharge/promise-pool';
+import type { OrgCredential, RoleInfo } from '@zerobias-org/module-avigilon-alta-access';
 import { Entry, Group, Schedule, User } from '@zerobias-org/module-avigilon-alta-access';
 import { BaseClient } from '../generated/BaseClient';
-import { mapAccessRule, mapEntry, mapGroup, mapSchedule, mapSite, mapUser, mapZone } from './Mappers';
+import { mapAccessRule, mapCredential, mapEntry, mapGroup, mapRole, mapSchedule, mapSite, mapUser, mapZone } from './Mappers';
 
 @injectable()
 export class CollectorAvigilonAltaAccessImpl extends BaseClient {
@@ -66,6 +69,8 @@ export class CollectorAvigilonAltaAccessImpl extends BaseClient {
     entry: AvigilonAltaEntry,
     schedule: AvigilonAltaSchedule,
     accessRule: AvigilonAltaAccessRule,
+    credential: AvigilonAltaCredential,
+    role: AvigilonAltaRole,
   };
 
   private async init() {
@@ -114,7 +119,19 @@ export class CollectorAvigilonAltaAccessImpl extends BaseClient {
     const usersPr = await this.access.getUserApi().list(this.orgId);
     await usersPr.forEach(async (user) => {
       this.users.push(user);
-      await userBatch.add(mapUser(user), user);
+
+      // Check if user has MFA enabled by checking for MFA credentials
+      let mfaEnabled = false;
+      try {
+        const mfaCredsPr = await this.access.getUserApi().listMfaCredentials(this.orgId, user.id);
+        await mfaCredsPr.forEach(async () => {
+          mfaEnabled = true;
+        }, 1, 1); // Just check if at least one exists
+      } catch (error) {
+        this.logger.warn(`Could not retrieve MFA credentials for user ${user.id}: ${error.message}`);
+      }
+
+      await userBatch.add(mapUser(user, mfaEnabled), user);
     }, 3, this.previewCount);
     await userBatch.end();
   }
@@ -175,6 +192,37 @@ export class CollectorAvigilonAltaAccessImpl extends BaseClient {
         await entryBatch.add(mapEntry(entry), entry);
       });
     await entryBatch.end();
+  }
+
+  private async loadCredentials(): Promise<void> {
+    const credentialBatch = await this.initBatchForClass(this.classes.credential, this.orgId);
+    const credentialsPr = await this.access.getCredentialApi().listOrgCredentials(this.orgId);
+
+    await credentialsPr.forEach(async (credential: OrgCredential) => {
+      await credentialBatch.add(mapCredential(credential), credential);
+    }, 3, this.previewCount);
+
+    await credentialBatch.end();
+  }
+
+  private async loadRoles(): Promise<void> {
+    const roleBatch = await this.initBatchForClass(this.classes.role, this.orgId);
+    const rolesPr = await this.access.getRoleApi().listRoles(this.orgId);
+
+    await rolesPr.forEach(async (role: RoleInfo) => {
+      // Get users assigned to this role
+      const roleUsersPr = await this.access.getRoleApi().listRoleUsers(this.orgId, role.id);
+      const assigneeIds: string[] = [];
+      await roleUsersPr.forEach(async (roleUser) => {
+        if (roleUser.id) {
+          assigneeIds.push(`${roleUser.id}`);
+        }
+      });
+
+      await roleBatch.add(mapRole(role, assigneeIds), role);
+    }, 3, this.previewCount);
+
+    await roleBatch.end();
   }
 
   private async loadEntrySchedules(): Promise<void> {
@@ -349,6 +397,8 @@ export class CollectorAvigilonAltaAccessImpl extends BaseClient {
     await this.loadSites();
     await this.loadZones();
     await this.loadEntries();
+    await this.loadCredentials();
+    await this.loadRoles();
     await this.loadEntrySchedules();
     await this.loadAccessRules();
   }

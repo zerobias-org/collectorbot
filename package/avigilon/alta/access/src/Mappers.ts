@@ -1,5 +1,5 @@
 import * as s from '@auditlogic/schema-avigilon-alta-access-ts';
-import { PhysicalEntry_type, PrincipalType } from '@auditlogic/schema-avigilon-alta-access-ts';
+import { AccessCredential_type, PhysicalEntry_type, PrincipalType } from '@auditlogic/schema-avigilon-alta-access-ts';
 import { GeoCountry, GeoCountryDef, PhoneNumber } from '@auditmation/types-core-js';
 import * as m from '@zerobias-org/module-avigilon-alta-access';
 
@@ -16,7 +16,7 @@ function toUserStatus(raw?: m.User.StatusEnumDef): s.AccountStatus | undefined {
   }
 }
 
-export function mapUser(raw: m.User): s.Account {
+export function mapUser(raw: m.User, mfaEnabled?: boolean): s.Account {
   // Build description from title and department
   const descriptionParts = [raw.title, raw.department].filter(Boolean);
   const description = descriptionParts.length > 0 ? descriptionParts.join(' - ') : undefined;
@@ -31,6 +31,7 @@ export function mapUser(raw: m.User): s.Account {
     status: toUserStatus(raw.status),
     principalType: PrincipalType.USER,
     description,
+    mfaEnabled,
     aliases: raw.externalId,
   };
   Object.assign(
@@ -166,6 +167,81 @@ export function mapSchedule(raw: m.Schedule): s.AvigilonAltaSchedule {
     name: raw.name || `Schedule ${raw.id}`,
     description: raw.description,
     note,
+  };
+
+  Object.assign(output, {
+    dateCreated: raw.createdAt?.toISOString().split('T')[0],
+    dateLastModified: raw.updatedAt?.toISOString().split('T')[0],
+  });
+
+  return output;
+}
+
+export function mapCredential(raw: m.OrgCredential): s.AvigilonAltaCredential {
+  // Map credential type
+  let credentialType: AccessCredential_type | undefined;
+  if (raw.credentialType) {
+    const typeName = raw.credentialType.name?.toUpperCase() || raw.credentialType.modelName?.toUpperCase();
+    if (typeName) {
+      if (typeName.includes('CARD')) credentialType = AccessCredential_type.CARD;
+      else if (typeName.includes('MOBILE')) credentialType = AccessCredential_type.MOBILE;
+      else if (typeName.includes('PIN')) credentialType = AccessCredential_type.PIN;
+      else if (typeName.includes('FOB')) credentialType = AccessCredential_type.FOB;
+      else if (typeName.includes('BIOMETRIC')) credentialType = AccessCredential_type.BIOMETRIC;
+      else if (typeName.includes('QR')) credentialType = AccessCredential_type.QR_CODE;
+      else if (typeName.includes('NFC')) credentialType = AccessCredential_type.NFC;
+      else if (typeName.includes('BLUETOOTH')) credentialType = AccessCredential_type.BLUETOOTH;
+      else credentialType = AccessCredential_type.OTHER;
+    }
+  }
+
+  // Build name from credential type and card/mobile info
+  let name = `Credential ${raw.id}`;
+  if (raw.card?.facilityCode && raw.card?.number) {
+    name = `Card ${raw.card.facilityCode}-${raw.card.number}`;
+  } else if (raw.mobile?.name) {
+    name = `Mobile ${raw.mobile.name}`;
+  }
+
+  const output: s.AvigilonAltaCredential = {
+    id: `${raw.id}`,
+    name,
+    credentialType,
+    validFrom: raw.startDate,
+    validUntil: raw.endDate,
+    principal: raw.userId,
+  };
+
+  Object.assign(output, {
+    dateCreated: raw.createdAt?.toISOString().split('T')[0],
+    dateLastModified: raw.updatedAt?.toISOString().split('T')[0],
+  });
+
+  return output;
+}
+
+export function mapRole(raw: m.RoleInfo, assigneeIds: string[]): s.AvigilonAltaRole {
+  // Build note from flags
+  const noteParts: string[] = [];
+  if (raw.isSiteSpecific) {
+    noteParts.push('Site-Specific');
+  }
+  if (raw.isMfaRequired) {
+    noteParts.push('MFA Required');
+  }
+  if (raw.isEditable === false) {
+    noteParts.push('System Role');
+  }
+  const note = noteParts.length > 0 ? noteParts.join(' - ') : undefined;
+
+  const output: s.AvigilonAltaRole = {
+    id: `${raw.id}`,
+    name: raw.name || `Role ${raw.id}`,
+    description: raw.description,
+    note,
+    isBuiltIn: raw.isEditable === false,
+    assignees: assigneeIds,
+    sites: raw.sites?.map((site) => `${site.id}`),
   };
 
   Object.assign(output, {
