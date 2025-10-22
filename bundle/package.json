@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/collectorbot-bundle",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "description": "All installable collectorbots",
   "author": "team@auditmation.io",
   "license": "ISC",
@@ -19,6 +19,6 @@
   },
   "dependencies": {
     "@zerobias-org/collectorbot-auditmation-generic-tls": "0.1.3",
-    "@zerobias-org/collectorbot-avigilon-alta-access": "1.1.1"
+    "@zerobias-org/collectorbot-avigilon-alta-access": "1.1.2"
   }
 }
