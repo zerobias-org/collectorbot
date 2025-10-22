@@ -7,5 +7,7 @@ classes:
         - AvigilonAltaSite
         - AvigilonAltaZone
         - AvigilonAltaEntry
+        - AvigilonAltaCredential
+        - AvigilonAltaRole
         - AvigilonAltaAccessRule
         - AvigilonAltaSchedule
