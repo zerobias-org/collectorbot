@@ -207,12 +207,12 @@ export function mapCredential(raw: m.OrgCredential): s.AvigilonAltaCredential {
     id: `${raw.id}`,
     name,
     credentialType,
-    validFrom: raw.startDate,
-    validUntil: raw.endDate,
     principal: raw.userId,
   };
 
   Object.assign(output, {
+    validFrom: raw.startDate?.toISOString().split('T')[0],
+    validUntil: raw.endDate?.toISOString().split('T')[0],
     dateCreated: raw.createdAt?.toISOString().split('T')[0],
     dateLastModified: raw.updatedAt?.toISOString().split('T')[0],
   });
