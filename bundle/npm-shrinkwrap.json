@@ -1,12 +1,12 @@
 {
   "name": "@zerobias-org/collectorbot-bundle",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "lockfileVersion": 2,
   "requires": true,
   "packages": {
     "": {
       "name": "@zerobias-org/collectorbot-bundle",
-      "version": "0.0.22",
+      "version": "0.0.23",
       "license": "ISC",
       "dependencies": {
         "@zerobias-org/collectorbot-auditmation-generic-tls": "0.1.3",
