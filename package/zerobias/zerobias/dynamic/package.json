@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/collectorbot-zerobias-zerobias-dynamic",
-  "version": "0.0.0",
+  "version": "0.1.0-rc.0",
   "description": "ZeroBias Data Producer Interface Collectorbot",
   "license": "UNLICENSED",
   "author": "ctamas@zerobias.com",
