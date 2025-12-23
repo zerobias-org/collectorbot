@@ -1,0 +1,68 @@
+{
+  "name": "@zerobias-org/collectorbot-zerobias-zerobias-dynamic",
+  "version": "0.0.0",
+  "description": "ZeroBias Data Producer Interface Collectorbot",
+  "license": "UNLICENSED",
+  "author": "ctamas@zerobias.com",
+  "main": "dist/src/index.js",
+  "directories": {
+    "src": "src"
+  },
+  "files": [
+    "dist",
+    "pnpm-lock.yaml",
+    "*.yml",
+    "*.md"
+  ],
+  "scripts": {
+    "build": "npm run generate && npm run transpile",
+    "clean": "rm -rf generated && rm -rf dist",
+    "generate": "npm run generate:models && npm run generate:hub-client",
+    "generate:hub-client": "node node_modules/@auditmation/hub-client-codegen/dist/index.js",
+    "generate:models": "hub-generator generate -g hub-module -i ./parameters.yml -o generated/ --global-property models,supportingFiles=index.ts && rm ./generated/api/index.ts",
+    "lint": "eslint src/",
+    "lint:fix": "eslint --fix src/",
+    "test": "",
+    "test:integration": "mocha --exit --inline-diffs --reporter=list test/integration/**/*.ts",
+    "transpile": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:zerobias-org/collectorbot.git",
+    "directory": "package/zerobias/zerobias/dynamic"
+  },
+  "dependencies": {
+    "@auditlogic/module-auditmation-interface-dataproducer": "^1.1.4",
+    "@auditmation/hub-client": "8.10.4",
+    "@auditmation/hub-core": "4.7.5",
+    "@auditmation/module-auditmation-auditmation-hub": "3.15.14",
+    "@auditmation/module-auditmation-auditmation-platform": "5.3.0",
+    "@auditmation/types-core-js": "^4.x.x",
+    "@auditmation/util-collector-utils": "4.3.7",
+    "@zerobias-org/product-zerobias-zerobias": "2.0.1",
+    "inversify": "6.0.2",
+    "reflect-metadata": "0.1.13"
+  },
+  "peerDependencies": {
+    "@auditmation/types-core-js": "^4.x.x",
+    "axios": "0.27.2"
+  },
+  "devDependencies": {
+    "@auditmation/eslint-config": "2.0.2",
+    "@auditmation/hub-client-codegen": "2.1.4",
+    "@auditmation/hub-secrets-manager": "2.2.4",
+    "@auditmation/util-codegen": "5.6.0",
+    "@types/chai": "5.2.3",
+    "@types/mocha": "10.0.10",
+    "@types/node": "25.0.3",
+    "chai": "6.2.2",
+    "mocha": "11.7.5",
+    "ts-node": "10.9.2",
+    "typescript": "5.9.3"
+  },
+  "auditmation": {
+    "package": "zerobias.zerobias.dynamic.collectorbot",
+    "dataloader-version": "0.5.4",
+    "import-artifact": "collectorbot"
+  }
+}
