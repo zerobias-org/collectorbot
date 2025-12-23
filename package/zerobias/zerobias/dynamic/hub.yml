@@ -1,10 +1,10 @@
 modules:
   '@auditlogic/module-auditmation-interface-dataproducer':
-    id: TBD
+    id: a2b032b3-eb87-4cb8-8916-8fbbd4c3fcef
     name: module-auditmation-interface-dataproducer
     module: DynamicDataProducer
     version: 1.1.2
 products:
   zerobias.zerobias:
-    id: TBD
+    id: a1d77368-ba26-46ad-91ef-44c53cf4e046
     name: ZeroBias Data Producer Interface
