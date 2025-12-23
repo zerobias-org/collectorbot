@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.1.0-rc.1](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-zerobias-zerobias-dynamic@0.1.0-rc.0...@zerobias-org/collectorbot-zerobias-zerobias-dynamic@0.1.0-rc.1) (2025-12-23)
+
+
+### Bug Fixes
+
+* update module and produc ids ([c1638e7](https://github.com/zerobias-org/collectorbot/commit/c1638e71a36312ff6d5d385a5e2e6936435a9287))
+
+
+
+
+
 # 0.1.0-rc.0 (2025-12-23)
 
 
