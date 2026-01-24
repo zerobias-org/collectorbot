@@ -83,11 +83,11 @@ Suggestion: Remove - module already depends on it (transitive dependency)
 ### Required Core Dependencies
 
 **Must have:**
-- [ ] `@auditmation/hub-client`
-- [ ] `@auditmation/hub-core`
-- [ ] `@auditmation/util-collector-utils`
+- [ ] `@com/hub-client`
+- [ ] `@com/hub-core`
+- [ ] `@com/util-collector-utils`
 - [ ] `@auditmation/module-auditmation-auditmation-platform`
-- [ ] `@auditmation/types-core-js` (can be in peerDependencies)
+- [ ] `@org/types-core-js` (can be in peerDependencies)
 - [ ] `inversify`
 - [ ] `reflect-metadata`
 - [ ] `@auditlogic/vendor-neverfail`
@@ -102,9 +102,9 @@ Suggestion: Remove - module already depends on it (transitive dependency)
 
 **Must have:**
 - [ ] `@auditmation/eslint-config`
-- [ ] `@auditmation/hub-client-codegen`
-- [ ] `@auditmation/hub-secrets-manager`
-- [ ] `@auditmation/util-codegen`
+- [ ] `@com/hub-client-codegen`
+- [ ] `@com/hub-secrets-manager`
+- [ ] `@com/util-codegen`
 - [ ] `@types/chai`
 - [ ] `@types/mocha`
 - [ ] `@types/node`
@@ -116,7 +116,7 @@ Suggestion: Remove - module already depends on it (transitive dependency)
 ### PeerDependencies
 
 **Should have:**
-- [ ] `@auditmation/types-core-js` (if not in dependencies)
+- [ ] `@org/types-core-js` (if not in dependencies)
 - [ ] `axios: 0.27.2` (exact version)
 
 ### Import Validation

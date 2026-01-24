@@ -142,7 +142,7 @@ Collector bots are invoked via:
 ## Integration with Platform
 
 ### Dataloader Integration
-**Handler Location:** `../../auditmation/platform/dataloader/src/processors/collectorbot/`
+**Handler Location:** `../../com/platform/dataloader/src/processors/collectorbot/`
 **Database Table:** `catalog.collector_bot`
 
 ### Runtime Integration
@@ -183,8 +183,8 @@ Collector Bot
 | **Product packages** | `@zerobias-org/product-*` | `@zerobias-org/product-avigilon-alta-access` |
 | **Schema packages** | `@auditlogic/schema-*` | `@auditlogic/schema-avigilon-alta-access` |
 | **Schema TypeScript** | `@auditlogic/schema-*-ts` | `@auditlogic/schema-avigilon-alta-access-ts` |
-| **Hub infrastructure** | `@auditmation/hub-*` | `@auditmation/hub-client` |
-| **Utility packages** | `@auditmation/util-*` | `@auditmation/util-collector-utils` |
+| **Hub infrastructure** | `@com/hub-*` | `@com/hub-client` |
+| **Utility packages** | `@com/util-*` | `@com/util-collector-utils` |
 
 ### Package Naming Convention
 
@@ -233,8 +233,8 @@ When resolving dependencies:
 
 - **[Root README.md](../../README.md)** - Meta-repo overview
 - **[ContentArtifacts.md](../../ContentArtifacts.md)** - Content catalog system (Collector Bots section)
-- **[platform/dataloader/CLAUDE.md](../../auditmation/platform/dataloader/CLAUDE.md)** - Dataloader system
-- **[hub/CLAUDE.md](../../auditmation/hub/CLAUDE.md)** - Hub platform integration
+- **[platform/dataloader/CLAUDE.md](../../com/platform/dataloader/CLAUDE.md)** - Dataloader system
+- **[hub/CLAUDE.md](../../com/hub/CLAUDE.md)** - Hub platform integration
 - **[module/CLAUDE.md](../module/CLAUDE.md)** - Hub module development
 - **[schema/CLAUDE.md](../schema/CLAUDE.md)** - Schema definitions
 

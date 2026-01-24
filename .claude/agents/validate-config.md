@@ -52,7 +52,7 @@ Read and validate against: `.claude/COLLECTORBOT_RULES.md` sections:
 - [ ] Has `components.schemas.Parameters`
 - [ ] Parameters is type `object`
 - [ ] Has required stub path `/foo` with GET operation
-- [ ] info.title is `@auditmation/hub-client-codegen`
+- [ ] info.title is `@com/hub-client-codegen`
 
 ### tsconfig.json
 - [ ] experimentalDecorators: true
