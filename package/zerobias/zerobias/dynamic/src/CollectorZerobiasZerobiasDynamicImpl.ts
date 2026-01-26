@@ -3,9 +3,8 @@ import { UnexpectedError, UUID } from '@auditmation/types-core-js';
 import { Batch } from '@auditmation/util-collector-utils';
 import { injectable } from 'inversify';
 import { BaseClient } from '../generated/BaseClient';
-import { OperationConfig } from '../generated/model/OperationConfig';
-import { Parameters } from '../generated/model/Parameters';
-import { toMultipleElements, toSingleElement } from './Mappers';
+import { applyMappings } from './Mappers';
+import { DataMapping, DataMappingParams } from './types';
 
 @injectable()
 export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
@@ -13,7 +12,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
 
   private _jobId?: UUID;
 
-  private _parameters?: Parameters;
+  private _parameters?: DataMappingParams;
 
   // Preview mode support
   private previewCount?: number = this.context.previewMode
@@ -27,14 +26,14 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     return this._jobId;
   }
 
-  get parameters(): Parameters {
+  get parameters(): DataMappingParams {
     if (!this._parameters) {
       throw new UnexpectedError('No Parameters were provided');
     }
     return this._parameters;
   }
 
-  set parameters(parameters: Parameters) {
+  set parameters(parameters: DataMappingParams) {
     this._parameters = parameters;
   }
 
@@ -65,166 +64,118 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     return batch;
   }
 
-  private async processMultipleElementOperation(
-    operation: OperationConfig,
+  /**
+   * Process a single data mapping configuration
+   * - Fetches data from the source using getCollectionElements
+   * - Applies field mappings using DataMapper
+   * - Adds transformed data to batch
+   */
+  private async processDataMapping(
+    dataMapping: DataMapping,
     groupId: string
   ): Promise<void> {
-    const opType = (operation.operationType as any).value || operation.operationType;
-    this.logger.info(`Processing operation ${opType} for class ${operation.className}`);
+    const { source, destination, mappings, metadata } = dataMapping;
 
-    const batch = await this.initBatchForClass(operation.className, groupId);
-    const params: any = operation.operationParameters || {};
+    this.logger.info(
+      `Processing data mapping: ${metadata.name || 'unnamed'} ` +
+      `(${source.objectName} -> ${destination.className})`
+    );
 
-    const objectsApi = this.dataproducer.getObjectsApi();
+    // Initialize batch for the destination class
+    const batch = await this.initBatchForClass(destination.className, groupId);
+
+    // Get the collections API to fetch data
     const collectionsApi = this.dataproducer.getCollectionsApi();
-    let results;
 
-    // Route to the correct operation based on operationType
-    switch (opType) {
-      case 'getChildren':
-        results = await objectsApi.getChildren(
-          String(params.objectId),
-          Number(params.pageNumber) || 1,
-          Number(params.pageSize) || 1000,
-          params.sortBy,
-          params.sortDir
-        );
-        break;
-
-      case 'objectSearch':
-        results = await objectsApi.objectSearch(
-          String(params.objectId),
-          Number(params.pageNumber) || 1,
-          Number(params.pageSize) || 1000,
-          params.sortBy,
-          params.sortDir
-        );
-        break;
-
-      case 'getCollectionElements':
-        results = await collectionsApi.getCollectionElements(
-          String(params.objectId),
-          Number(params.pageNumber) || 1,
-          Number(params.pageSize) || 1000,
-          params.sortBy,
-          params.sortDir
-        );
-        break;
-
-      case 'searchCollectionElements':
-        results = await collectionsApi.searchCollectionElements(
-          String(params.objectId),
-          Number(params.pageNumber) || 1,
-          Number(params.pageSize) || 1000,
-          params.filter
-        );
-        break;
-
-      default:
-        throw new Error(`Unknown operation type: ${opType}`);
-    }
-
-    // Process results
-    await results.forEach(async (item: any) => {
-      try {
-        const mapped = toMultipleElements(item);
-        await batch.add(mapped, item);
-      } catch (err) {
-        await batch.error(
-          `Failed to process item: ${(err as Error).message}`,
-          item
-        );
-      }
-    }, undefined, this.previewCount);
-
-    await batch.end();
-    this.logger.info(`Completed operation ${opType}`);
-  }
-
-  private async processSingleElementOperation(
-    operation: OperationConfig,
-    groupId: string
-  ): Promise<void> {
-    const opType = (operation.operationType as any).value || operation.operationType;
-    this.logger.info(`Processing operation ${opType} for class ${operation.className}`);
-
-    const batch = await this.initBatchForClass(operation.className, groupId);
-    const params: any = operation.operationParameters || {};
-
-    const objectsApi = this.dataproducer.getObjectsApi();
-    const collectionsApi = this.dataproducer.getCollectionsApi();
-    let result;
-
-    // Route to the correct operation based on operationType
-    switch (opType) {
-      case 'getRootObject':
-        result = await objectsApi.getRootObject();
-        break;
-
-      case 'getObject':
-        result = await objectsApi.getObject(String(params.objectId));
-        break;
-
-      case 'getCollectionElement':
-        result = await collectionsApi.getCollectionElement(
-          String(params.objectId),
-          String(params.elementKey)
-        );
-        break;
-
-      default:
-        throw new Error(`Unknown operation type: ${opType}`);
-    }
-
-    // Process single result
     try {
-      const mapped = toSingleElement(result);
-      await batch.add(mapped, result);
-    } catch (err) {
-      await batch.error(
-        `Failed to process result: ${(err as Error).message}`,
-        result
-      );
-    }
+      // Fetch collection elements using the source objectId
+      this.logger.info(`Fetching collection elements from: ${source.objectId}`);
 
-    await batch.end();
-    this.logger.info(`Completed operation ${opType}`);
+      const results = await collectionsApi.getCollectionElements(
+        source.objectId,
+        1,     // pageNumber
+        100,   // pageSize (max is 100)
+        undefined, // sortBy
+        undefined  // sortDir
+      );
+
+      // Process each item through the mappings
+      let processedCount = 0;
+      let errorCount = 0;
+
+      for await (const item of results) {
+        // Check preview limit
+        if (this.previewCount && processedCount >= this.previewCount) {
+          break;
+        }
+
+        try {
+          // Apply mappings to transform the item
+          const { result: mappedItem, errors } = await applyMappings(item, mappings);
+
+          if (errors.length > 0) {
+            this.logger.warn(
+              `Mapping warnings for item: ${errors.join(', ')}`
+            );
+          }
+
+          // Add the mapped item to the batch
+          await batch.add(mappedItem, item);
+          processedCount++;
+
+        } catch (err) {
+          errorCount++;
+          await batch.error(
+            `Failed to process item: ${(err as Error).message}`,
+            item
+          );
+        }
+      }
+
+      this.logger.info(
+        `Completed mapping ${metadata.name || 'unnamed'}: ` +
+        `${processedCount} items processed, ${errorCount} errors`
+      );
+
+    } catch (error) {
+      this.logger.error(
+        `Failed to fetch collection elements: ${(error as Error).message}`
+      );
+      throw error;
+    } finally {
+      await batch.end();
+    }
   }
 
   public async run(): Promise<void> {
     await this.init();
 
-    const { operations } = this.parameters;
+    const { params } = this.parameters;
+    const { dataMappings } = params;
 
-    if (!operations || operations.length === 0) {
-      this.logger.warn('No operations configured');
+    if (!dataMappings || dataMappings.length === 0) {
+      this.logger.warn('No data mappings configured');
       return;
     }
 
-    this.logger.info(`Processing ${operations.length} operation(s)`);
+    this.logger.info(`Processing ${dataMappings.length} data mapping(s)`);
 
-    // Use pipeline ID for groupId as per user requirements
+    // Use pipeline ID for groupId as per requirements
     const pipelineId = this.context.pipelineId || 'default';
     const groupId = `${pipelineId}`;
 
-    // Multiple element operations
-    const multipleElementOps = ['getChildren', 'objectSearch', 'getCollectionElements', 'searchCollectionElements'];
-
-    // Single element operations
-    const singleElementOps = ['getRootObject', 'getObject', 'getCollectionElement'];
-
-    for (const operation of operations) {
-      const opValue = (operation.operationType as any).value || operation.operationType;
-
-      if (multipleElementOps.includes(opValue)) {
-        await this.processMultipleElementOperation(operation, groupId);
-      } else if (singleElementOps.includes(opValue)) {
-        await this.processSingleElementOperation(operation, groupId);
-      } else {
-        this.logger.error(`Unknown operation type: ${opValue}`);
+    // Process each data mapping
+    for (const dataMapping of dataMappings) {
+      try {
+        await this.processDataMapping(dataMapping, groupId);
+      } catch (error) {
+        this.logger.error(
+          `Failed to process data mapping ${dataMapping.id}: ${(error as Error).message}`
+        );
+        // Continue with other mappings even if one fails
       }
     }
 
-    this.logger.info('All operations completed');
+    this.logger.info('All data mappings completed');
   }
 }

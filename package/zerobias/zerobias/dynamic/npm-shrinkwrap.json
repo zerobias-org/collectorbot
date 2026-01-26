@@ -1,12 +1,12 @@
 {
   "name": "@zerobias-org/collectorbot-zerobias-zerobias-dynamic",
-  "version": "0.0.0",
+  "version": "0.1.0-rc.0",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "@zerobias-org/collectorbot-zerobias-zerobias-dynamic",
-      "version": "0.0.0",
+      "version": "0.1.0-rc.0",
       "license": "UNLICENSED",
       "dependencies": {
         "@auditlogic/module-auditmation-interface-dataproducer": "^1.1.4",
@@ -14,8 +14,9 @@
         "@auditmation/hub-core": "4.7.5",
         "@auditmation/module-auditmation-auditmation-hub": "3.15.14",
         "@auditmation/module-auditmation-auditmation-platform": "5.3.0",
-        "@auditmation/types-core-js": "4.10.3",
+        "@auditmation/types-core-js": "^4.x.x",
         "@auditmation/util-collector-utils": "4.3.7",
+        "@auditmation/zb-client-data-utils": "^0.7.0",
         "@zerobias-org/product-zerobias-zerobias": "2.0.1",
         "inversify": "6.0.2",
         "reflect-metadata": "0.1.13"
@@ -72,6 +73,38 @@
       "peerDependencies": {
         "@auditmation/types-core": "^4.9.1",
         "@auditmation/types-core-js": "^4.10.2"
+      }
+    },
+    "node_modules/@auditlogic/module-auditmation-interface-dataproducer-client-ts": {
+      "version": "1.1.4",
+      "resolved": "https://pkg.zerobias.org/@auditlogic/module-auditmation-interface-dataproducer-client-ts/-/1afc17f51b4feff9ea02dbff1f85f37395f659d4",
+      "integrity": "sha512-7yiTzy4t5qmMi0JhR32DxdMQfK4/WNvihTbom6HBKL/F3AsAcPp3K7xt2XYfXpMSXD5VcTVEURZG49Jrc9p7+A==",
+      "license": "UNLICENSED",
+      "dependencies": {
+        "@auditlogic/product-auditmation-auditmation": "^1.5.1",
+        "@auditmation/hub-core": "4.4.49",
+        "@auditmation/util-api-invoker-api": "7.1.10",
+        "@auditmation/util-api-invoker-isomorphic": "7.1.17",
+        "jsonata": "1.8.6"
+      },
+      "peerDependencies": {
+        "@auditmation/types-amazon-js": "^4.2.9",
+        "@auditmation/types-core-js": "^4.10.2"
+      }
+    },
+    "node_modules/@auditlogic/module-auditmation-interface-dataproducer-client-ts/node_modules/@auditmation/hub-core": {
+      "version": "4.4.49",
+      "resolved": "https://pkg.zerobias.org/@auditmation/hub-core/-/440fea4b25403c59b569e2051b96ddf36375eb91",
+      "integrity": "sha512-F66EiyTDEDCE3iTTYY7zivY4dabbuw9Slerts3B8GUfbzqdxy7Lt1bQ3zZLu50Ljm5MfR5uDKyNa3nV/5kqpZw==",
+      "license": "ISC",
+      "dependencies": {
+        "winston": "3.2.1"
+      },
+      "peerDependencies": {
+        "@auditmation/types-core": "^4.8.3",
+        "@auditmation/types-core-js": "^4.9.11",
+        "@auditmation/util-logger": "^4.0.0",
+        "axios": ">=0.27.0 <1.0.0"
       }
     },
     "node_modules/@auditlogic/module-auditmation-interface-dataproducer/node_modules/@auditmation/hub-core": {
@@ -546,6 +579,35 @@
         "winston": "3.2.1",
         "winston-azure-functions": "0.0.3",
         "winston-sumologic-transport": "3.2.3"
+      }
+    },
+    "node_modules/@auditmation/zb-client-data-utils": {
+      "version": "0.7.0",
+      "resolved": "https://pkg.zerobias.org/@auditmation/zb-client-data-utils/-/15e5e102c1798c68479a81c14815f3b06ba2e3eb",
+      "integrity": "sha512-u46344anTZKznKDo0ktMKFXP6N9/BASvY10GKl9NGpXQfCXqhIzw3YEIdd0GO77lS5g8ScJpN/CV3N2Qslv/LQ==",
+      "license": "UNLICENSED",
+      "dependencies": {
+        "jsonata": "^2.1.0",
+        "yaml": "^2.3.0"
+      },
+      "engines": {
+        "node": ">=18.19.1",
+        "npm": ">=10.2.4"
+      },
+      "peerDependencies": {
+        "@auditlogic/module-auditmation-interface-dataproducer": ">=1.0.0",
+        "@auditlogic/module-auditmation-interface-dataproducer-client-ts": ">=1.0.0",
+        "@auditmation/types-core": "^4.9.2",
+        "@auditmation/types-core-js": "^4.10.2"
+      }
+    },
+    "node_modules/@auditmation/zb-client-data-utils/node_modules/jsonata": {
+      "version": "2.1.0",
+      "resolved": "https://registry.npmjs.org/jsonata/-/jsonata-2.1.0.tgz",
+      "integrity": "sha512-OCzaRMK8HobtX8fp37uIVmL8CY1IGc/a6gLsDqz3quExFR09/U78HUzWYr7T31UEB6+Eu0/8dkVD5fFDOl9a8w==",
+      "license": "MIT",
+      "engines": {
+        "node": ">= 8"
       }
     },
     "node_modules/@aws-crypto/crc32": {
@@ -7851,6 +7913,21 @@
       "resolved": "https://registry.npmjs.org/yallist/-/yallist-4.0.0.tgz",
       "integrity": "sha512-3wdGidZyq5PB084XLES5TpOSRA3wjXAlIWMhum2kRcv/41Sn2emQ0dycQW4uZXLejwKvg6EsvbdlVL+FYEct7A==",
       "license": "ISC"
+    },
+    "node_modules/yaml": {
+      "version": "2.8.2",
+      "resolved": "https://registry.npmjs.org/yaml/-/yaml-2.8.2.tgz",
+      "integrity": "sha512-mplynKqc1C2hTVYxd0PU2xQAc22TI1vShAYGksCCfxbn/dFwnHTNi1bvYsBTkhdUNtGIf5xNOg938rrSSYvS9A==",
+      "license": "ISC",
+      "bin": {
+        "yaml": "bin.mjs"
+      },
+      "engines": {
+        "node": ">= 14.6"
+      },
+      "funding": {
+        "url": "https://github.com/sponsors/eemeli"
+      }
     },
     "node_modules/yargs": {
       "version": "17.7.2",
