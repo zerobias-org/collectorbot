@@ -3,6 +3,17 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.1.0-rc.2](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-zerobias-zerobias-dynamic@0.1.0-rc.1...@zerobias-org/collectorbot-zerobias-zerobias-dynamic@0.1.0-rc.2) (2026-01-26)
+
+
+### Features
+
+* **dynamic:** implement data mapping with DataMapper ([9090301](https://github.com/zerobias-org/collectorbot/commit/9090301aedede1c02788d1cd0e6cb7c745f82d08))
+
+
+
+
+
 # [0.1.0-rc.1](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-zerobias-zerobias-dynamic@0.1.0-rc.0...@zerobias-org/collectorbot-zerobias-zerobias-dynamic@0.1.0-rc.1) (2025-12-23)
 
 
