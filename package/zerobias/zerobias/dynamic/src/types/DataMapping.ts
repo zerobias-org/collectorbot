@@ -203,9 +203,7 @@ export interface DataMapping {
  * Parameters structure containing data mappings
  */
 export interface DataMappingParams {
-  params: {
-    dataMappings: DataMapping[];
-  };
+  dataMappings: DataMapping[];
 }
 
 /**

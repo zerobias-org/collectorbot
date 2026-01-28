@@ -147,11 +147,13 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     }
   }
 
-  public async run(): Promise<void> {
+  public async run(parameters?: DataMappingParams): Promise<void> {
+    if (parameters) {
+      this.parameters = parameters;
+    }
     await this.init();
 
-    const { params } = this.parameters;
-    const { dataMappings } = params;
+    const { dataMappings } = this.parameters;
 
     if (!dataMappings || dataMappings.length === 0) {
       this.logger.warn('No data mappings configured');

@@ -23,13 +23,12 @@ describe('CollectorZerobiasZerobiasDynamicIT', function () {
       const params: DataMappingParams = JSON.parse(paramsContent);
 
       // Validate structure
-      expect(params).to.have.property('params');
-      expect(params.params).to.have.property('dataMappings');
-      expect(params.params.dataMappings).to.be.an('array');
-      expect(params.params.dataMappings.length).to.be.greaterThan(0);
+      expect(params).to.have.property('dataMappings');
+      expect(params.dataMappings).to.be.an('array');
+      expect(params.dataMappings.length).to.be.greaterThan(0);
 
       // Validate first data mapping structure
-      const firstMapping = params.params.dataMappings[0];
+      const firstMapping = params.dataMappings[0];
       expect(firstMapping).to.have.property('id');
       expect(firstMapping).to.have.property('source');
       expect(firstMapping).to.have.property('context');
@@ -61,7 +60,7 @@ describe('CollectorZerobiasZerobiasDynamicIT', function () {
       const paramsContent = fs.readFileSync(paramsPath, 'utf-8');
       const params: DataMappingParams = JSON.parse(paramsContent);
 
-      const firstMapping = params.params.dataMappings[0];
+      const firstMapping = params.dataMappings[0];
       const rules = toMappingRules(firstMapping.mappings);
 
       // Validate converted rules
@@ -92,7 +91,7 @@ describe('CollectorZerobiasZerobiasDynamicIT', function () {
       const paramsContent = fs.readFileSync(paramsPath, 'utf-8');
       const params: DataMappingParams = JSON.parse(paramsContent);
 
-      const firstMapping = params.params.dataMappings[0];
+      const firstMapping = params.dataMappings[0];
 
       // Create sample source data that matches the source schema
       const sampleData = {
