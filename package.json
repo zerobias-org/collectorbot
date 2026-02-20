@@ -1,23 +1,27 @@
 {
   "name": "@zerobias-org/collectorbot",
   "version": "1.0.0",
-  "main": "main.js",
+  "private": true,
+  "type": "module",
   "description": "Zerobias collectorbot artifacts",
+  "main": "main.js",
+  "workspaces": [
+    "package/**"
+  ],
   "scripts": {
+    "build": "nx run-many -t build",
+    "build:affected": "nx affected -t build",
+    "generate": "nx run-many -t generate",
+    "lint": "nx run-many -t lint",
+    "lint:affected": "nx affected -t lint",
+    "test": "nx run-many -t test",
+    "test:affected": "nx affected -t test",
+    "clean": "nx reset",
+    "clean:full": "nx reset && rm -rf node_modules",
+    "reset": "npm run clean:full && npm install",
     "lerna:dry-run": "lerna version --no-git-tag-version --no-push --conventional-commits",
-    "lerna:publish": "lerna publish --conventional-commits --no-verify-access",
-    "lerna:test": "lerna run test",
     "lerna:version": "lerna version --no-git-tag-version --no-push --conventional-commits --yes",
-    "nx:publish": "npm run correct:deps && lerna run nx:publish --since && ./scripts/commit.sh",
-    "prepublishtest": "npx lerna run prepublishtest --since --concurrency 10",
-    "validate": "npx lerna run validate --since --concurrency 10",
-    "postinstall": "husky install",
-    "build": "npx lerna run transpile --since && npx lerna exec \"npm shrinkwrap\" --concurrency=10",
-    "correct:deps": "npx lerna run correct:deps --concurrency=10",
-    "bootstrap": "npx lerna bootstrap --concurrency=10 --include-dependencies",
-    "clean": "npx nx reset && npx lerna run clean --since",
-    "clean:full": "npx lerna run clean --since && npx lerna clean --yes --since && nx reset",
-    "reset": "npm run clean:full && npm run correct:deps && npm run bootstrap && npm run build"
+    "prepublish-init": "prepublish-init"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
@@ -26,18 +30,24 @@
     "type": "git",
     "url": "git+https://github.com/zerobias-org/collectorbot.git"
   },
-  "author": "ctamas@zerobias.com",
+  "author": "team@zerobias.com",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/zerobias-org/collectorbot/issues"
   },
   "homepage": "https://github.com/zerobias-org/collectorbot#readme",
+  "overrides": {
+    "tar": "^7.5.7",
+    "@rollup/plugin-commonjs": "^28.0.0"
+  },
   "devDependencies": {
-    "@auditmation/devops-tools": "^0.17.3",
-    "@commitlint/cli": "^12.0.1",
-    "@commitlint/config-conventional": "^12.0.1",
-    "husky": "^5.1.3",
-    "lerna": "5.6.2",
-    "nx": "^15.4.5"
+    "@commitlint/cli": "^20.3.1",
+    "@commitlint/config-conventional": "^20.3.1",
+    "@zerobias-org/devops-tools": "^1.0.43",
+    "@zerobias-org/types-core-js": "^1.2.12",
+    "conventional-changelog-conventionalcommits": "^9.1.0",
+    "lerna": "^9.0.3",
+    "nx": "^22.4.3",
+    "tsx": "^4.21.0"
   }
 }
