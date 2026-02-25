@@ -1,0 +1,3 @@
+classes:
+    - "@zerobias-org/schema-zerobias-schemas-agentskills":
+        - AgentSkill
