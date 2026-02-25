@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/collectorbot-zerobias-schemas-agentskills",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Agent Skills Collectorbot - discovers SKILL.md files from GitHub repositories",
   "type": "module",
   "main": "dist/src/index.js",
@@ -40,8 +40,8 @@
     "@octokit/rest": "^22.0.1",
     "@zerobias-com/hub-client": "latest",
     "@zerobias-com/platform-sdk": "latest",
-    "@zerobias-org/util-collector": "^1.0.29",
     "@zerobias-org/types-core-js": "latest",
+    "@zerobias-org/util-collector": "^1.0.29",
     "inversify": "6.0.2",
     "reflect-metadata": "^0.2.2",
     "yaml": "^2.8.2"

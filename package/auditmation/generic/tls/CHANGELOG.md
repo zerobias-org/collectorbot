@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>0.1.4 (2026-02-25)</small>
+
+* chore: modernize eslint to v9 flat config ([b7e2c3a](https://github.com/zerobias-org/collectorbot/commit/b7e2c3a))
+
+
+
+
+
 ## [0.1.3](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-auditmation-generic-tls@0.1.2...@zerobias-org/collectorbot-auditmation-generic-tls@0.1.3) (2025-09-22)
 
 **Note:** Version bump only for package @zerobias-org/collectorbot-auditmation-generic-tls
