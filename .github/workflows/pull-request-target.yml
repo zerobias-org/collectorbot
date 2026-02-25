@@ -16,7 +16,7 @@ permissions:
 jobs:
   pull-request:
     if: github.repository == 'zerobias-org/collectorbot'
-    uses: zerobias-org/devops/.github/workflows/pull-request-target-reusable.yml@main
+    uses: zerobias-org/devops/.github/workflows/pull-request-target-reusable-nx.yml@main
     secrets: inherit
     with:
       run-integration-tests: 'false'

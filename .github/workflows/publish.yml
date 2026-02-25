@@ -5,6 +5,10 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
   id-token: write
@@ -13,7 +17,7 @@ permissions:
 
 jobs:
   publish:
-    uses: zerobias-org/devops/.github/workflows/publish-reusable.yml@main
+    uses: zerobias-org/devops/.github/workflows/publish-reusable-nx.yml@main
     secrets: inherit
     with:
       skip-publish-announcement: 'false'
