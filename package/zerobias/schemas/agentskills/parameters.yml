@@ -1,0 +1,33 @@
+openapi: 3.0.3
+info:
+  description: Stub to use for codegen of parameters for a hub client
+  version: ''
+  title: '@auditmation/hub-client-codegen'
+paths:
+  /foo:
+    get:
+      tags:
+        - foo
+      operationId: getFoo
+      responses:
+        '204':
+          description: Foo
+components:
+  schemas:
+    Parameters:
+      type: object
+      properties:
+        repositories:
+          type: array
+          description: Additional GitHub repositories to scan (format "owner/repo"). Merged with repos discovered from skills.sh.
+          items:
+            type: string
+          example:
+            - anthropics/skills
+            - anthropics/claude-code
+        repoLimit:
+          type: integer
+          description: Maximum number of repositories to process (0 or unset for unlimited). Applies after merging explicit + discovered repos.
+        githubToken:
+          type: string
+          description: GitHub personal access token (optional, increases rate limit from 60 to 5000 req/hr)

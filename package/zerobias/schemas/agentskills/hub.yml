@@ -1,0 +1,5 @@
+modules: {}
+products:
+  zerobias.schemas.agentskills:
+    id: 24fd77dd-bd66-490a-b6b6-3b1b5a875332
+    name: Agent Skills
