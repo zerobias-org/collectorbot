@@ -18,7 +18,7 @@
   "scripts": {
     "build": "npm run generate && npm run transpile",
     "clean": "rm -rf generated && rm -rf dist",
-    "generate:hub-client": "hub-client-codegen",
+    "generate:hub-client": "node -e \"import('@zerobias-com/hub-client-codegen')\"",
     "generate:models": "hub-generator generate -g hub-module -i ./parameters.yml -o generated/ --global-property models,supportingFiles=index.ts && rm ./generated/api/index.ts",
     "generate": "npm run generate:models && npm run generate:hub-client",
     "lint:fix": "eslint --fix src/",
@@ -40,6 +40,8 @@
     "@octokit/rest": "^22.0.1",
     "@zerobias-com/hub-client": "latest",
     "@zerobias-com/platform-sdk": "latest",
+    "@zerobias-org/schema-zerobias-schemas-agentskills": "^1.0.0",
+    "@zerobias-org/schema-zerobias-schemas-agentskills-ts": "^1.0.0",
     "@zerobias-org/types-core-js": "latest",
     "@zerobias-org/util-collector": "^1.0.29",
     "inversify": "6.0.2",

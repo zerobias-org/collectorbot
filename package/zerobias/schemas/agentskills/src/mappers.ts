@@ -1,4 +1,36 @@
+import { URL } from '@zerobias-org/types-core-js';
 import { AgentSkill, SkillFrontmatter } from './types';
+
+/**
+ * Regex-based fallback for extracting frontmatter key-value pairs
+ * when the YAML parser fails on malformed content (e.g. unquoted commas, stray quotes).
+ */
+export function parseFrontmatterLoose(raw: string): SkillFrontmatter | undefined {
+  const result: Record<string, string> = {};
+
+  for (const line of raw.split('\n')) {
+    const match = line.match(/^(\w[\w-]*)\s*:\s*(.+)/);
+    if (match) {
+      const key = match[1].trim();
+      // Strip surrounding quotes and trailing commas from values
+      const value = match[2].replaceAll(/^["']|["'],?\s*$/g, '').trim();
+      if (value) result[key] = value;
+    }
+  }
+
+  if (!result.name) return undefined;
+
+  return {
+    name: result.name,
+    description: result.description,
+    license: result.license,
+    compatibility: result.compatibility,
+    'allowed-tools': result['allowed-tools'],
+    metadata: result.author || result.version
+      ? { ...(result.author && { author: result.author }), ...(result.version && { version: result.version }) }
+      : undefined,
+  };
+}
 
 /**
  * Parse SKILL.md content into frontmatter and body.
@@ -31,11 +63,14 @@ export function toAgentSkill(
   filePath: string
 ): AgentSkill {
   const repoUrl = `https://github.com/${owner}/${repo}`;
+  const externalId = `${owner}/${repo}:${filePath}`;
 
   return {
-    id: `${owner}/${repo}:${filePath}`,
+    id: externalId,
+    externalId,
     name: fm.name,
     description: fm.description,
+    url: new URL(`${repoUrl}/blob/HEAD/${filePath}`),
     license: fm.license,
     compatibility: fm.compatibility,
     author: fm.metadata?.author,

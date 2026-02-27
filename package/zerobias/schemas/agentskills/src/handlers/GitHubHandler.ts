@@ -2,7 +2,7 @@ import { Octokit } from '@octokit/rest';
 import { throttling } from '@octokit/plugin-throttling';
 import { parse as parseYaml } from 'yaml';
 import { AgentSkill, SkillFrontmatter } from '../types';
-import { parseFrontmatter, toAgentSkill } from '../mappers';
+import { parseFrontmatter, parseFrontmatterLoose, toAgentSkill } from '../mappers';
 
 const ThrottledOctokit = Octokit.plugin(throttling);
 
@@ -83,7 +83,17 @@ export class GitHubHandler {
           continue;
         }
 
-        const fm: SkillFrontmatter = parseYaml(fmRaw, { schema: 'failsafe' });
+        let fm: SkillFrontmatter;
+        try {
+          fm = parseYaml(fmRaw, { schema: 'failsafe' });
+        } catch {
+          const loose = parseFrontmatterLoose(fmRaw);
+          if (!loose) {
+            errors.push(`Unparseable frontmatter in ${filePath}`);
+            continue;
+          }
+          fm = loose;
+        }
 
         if (!fm.name) {
           errors.push(`No name in frontmatter for ${filePath}`);
