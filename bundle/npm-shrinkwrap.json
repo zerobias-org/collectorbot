@@ -1,18 +1,18 @@
 {
   "name": "@zerobias-org/collectorbot-bundle",
-  "version": "0.0.29",
+  "version": "0.0.30",
   "lockfileVersion": 2,
   "requires": true,
   "packages": {
     "": {
       "name": "@zerobias-org/collectorbot-bundle",
-      "version": "0.0.29",
+      "version": "0.0.30",
       "license": "ISC",
       "dependencies": {
-        "@zerobias-org/collectorbot-auditmation-generic-tls": "0.1.4",
-        "@zerobias-org/collectorbot-avigilon-alta-access": "1.1.3",
+        "@zerobias-org/collectorbot-auditmation-generic-tls": "0.1.5",
+        "@zerobias-org/collectorbot-avigilon-alta-access": "1.1.4",
         "@zerobias-org/collectorbot-zerobias-schemas-agentskills": "0.1.4",
-        "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": "0.1.0"
+        "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": "0.1.1"
       }
     },
     "node_modules/@auditlogic/module-amazon-aws-secretsmanager": {
@@ -6380,9 +6380,9 @@
       "license": "ISC"
     },
     "node_modules/@zerobias-org/collectorbot-auditmation-generic-tls": {
-      "version": "0.1.4",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-auditmation-generic-tls/-/collectorbot-auditmation-generic-tls-0.1.4.tgz",
-      "integrity": "sha512-eFQx0enQLd9kSv1ZNgEau18Wq2JnPdh3ED/AjSoN1k1UV+qMujtD0Zjd8L7zwOnzMWpHOr7QhAwJ1uEF1o61gg==",
+      "version": "0.1.5",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-auditmation-generic-tls/-/collectorbot-auditmation-generic-tls-0.1.5.tgz",
+      "integrity": "sha512-x8aKk9yu7zr32Pmu8F8BW96wDW3NPlXk44idVgy91efXjJvZTaIDxS64Rv+Adp+mhoNAXEtv6T+nA4bLA463NA==",
       "license": "UNLICENSED",
       "dependencies": {
         "@auditlogic/module-auditmation-generic-tls": "latest",
@@ -6440,9 +6440,9 @@
       "integrity": "sha512-urBwgfrvVP/eAyXx4hluJivBKzuEbSQs9rKWCrCkbSxNv8mxPcUZKeuoF3Uy4mJl3Lwprp6yy5/39VWigZ4K6Q=="
     },
     "node_modules/@zerobias-org/collectorbot-avigilon-alta-access": {
-      "version": "1.1.3",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-avigilon-alta-access/-/collectorbot-avigilon-alta-access-1.1.3.tgz",
-      "integrity": "sha512-Tk/kcuQi4CIqgarG71N/0HyS5dCaJLp5VJh1OZ3bAYLCfrjvCMSyqUnWuujaiefw0gjDZjJPYj4T+0Os/vGE+A==",
+      "version": "1.1.4",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-avigilon-alta-access/-/collectorbot-avigilon-alta-access-1.1.4.tgz",
+      "integrity": "sha512-2Nm+g9luE9VvmKN2cleQKLBRMBhABGTYteguP3nZtkXFVmH4dGrRIGHfSJvZeSyosaBK+H1GY71n1oKWoEmSMg==",
       "license": "UNLICENSED",
       "dependencies": {
         "@auditlogic/schema-avigilon-alta-access": "^1.1.6",
@@ -6555,9 +6555,9 @@
       "license": "Apache-2.0"
     },
     "node_modules/@zerobias-org/collectorbot-zerobias-zerobias-dynamic": {
-      "version": "0.1.0",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-zerobias-dynamic/-/collectorbot-zerobias-zerobias-dynamic-0.1.0.tgz",
-      "integrity": "sha512-GCBr7E0Dw7B3Xmdsk1uXSRFrF/OJLdWqoYeLJnS5bAWfXjf6buLJ2nLSdIfMThK15ml9uk0phuICnXqiZyBfpw==",
+      "version": "0.1.1",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-zerobias-dynamic/-/collectorbot-zerobias-zerobias-dynamic-0.1.1.tgz",
+      "integrity": "sha512-1cQMNWeAXDmFfoNooX3aB3Ui9b2SB0ARYZO3fmS0X4q6mGkKnwBcdDVqztJ7BSQV8woAcN/io7kOajf2Cttc6A==",
       "license": "UNLICENSED",
       "dependencies": {
         "@auditlogic/module-auditmation-interface-dataproducer": "^1.1.4",
@@ -16291,9 +16291,9 @@
       "integrity": "sha512-Ag/RNdRuossmZquOrtrK8YGoXwXjoPNNr5W0pAIPuJ4vG2C7Xt7W4x/cGg7SnUiSZ1NHpb4CIjVLjqWz0ZTiKg=="
     },
     "@zerobias-org/collectorbot-auditmation-generic-tls": {
-      "version": "0.1.4",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-auditmation-generic-tls/-/collectorbot-auditmation-generic-tls-0.1.4.tgz",
-      "integrity": "sha512-eFQx0enQLd9kSv1ZNgEau18Wq2JnPdh3ED/AjSoN1k1UV+qMujtD0Zjd8L7zwOnzMWpHOr7QhAwJ1uEF1o61gg==",
+      "version": "0.1.5",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-auditmation-generic-tls/-/collectorbot-auditmation-generic-tls-0.1.5.tgz",
+      "integrity": "sha512-x8aKk9yu7zr32Pmu8F8BW96wDW3NPlXk44idVgy91efXjJvZTaIDxS64Rv+Adp+mhoNAXEtv6T+nA4bLA463NA==",
       "requires": {
         "@auditlogic/module-auditmation-generic-tls": "latest",
         "@auditlogic/product-auditmation-generic-tls": "latest",
@@ -16344,9 +16344,9 @@
       }
     },
     "@zerobias-org/collectorbot-avigilon-alta-access": {
-      "version": "1.1.3",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-avigilon-alta-access/-/collectorbot-avigilon-alta-access-1.1.3.tgz",
-      "integrity": "sha512-Tk/kcuQi4CIqgarG71N/0HyS5dCaJLp5VJh1OZ3bAYLCfrjvCMSyqUnWuujaiefw0gjDZjJPYj4T+0Os/vGE+A==",
+      "version": "1.1.4",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-avigilon-alta-access/-/collectorbot-avigilon-alta-access-1.1.4.tgz",
+      "integrity": "sha512-2Nm+g9luE9VvmKN2cleQKLBRMBhABGTYteguP3nZtkXFVmH4dGrRIGHfSJvZeSyosaBK+H1GY71n1oKWoEmSMg==",
       "requires": {
         "@auditlogic/schema-avigilon-alta-access": "^1.1.6",
         "@auditlogic/schema-avigilon-alta-access-ts": "^1.1.6",
@@ -16434,9 +16434,9 @@
       }
     },
     "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": {
-      "version": "0.1.0",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-zerobias-dynamic/-/collectorbot-zerobias-zerobias-dynamic-0.1.0.tgz",
-      "integrity": "sha512-GCBr7E0Dw7B3Xmdsk1uXSRFrF/OJLdWqoYeLJnS5bAWfXjf6buLJ2nLSdIfMThK15ml9uk0phuICnXqiZyBfpw==",
+      "version": "0.1.1",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-zerobias-dynamic/-/collectorbot-zerobias-zerobias-dynamic-0.1.1.tgz",
+      "integrity": "sha512-1cQMNWeAXDmFfoNooX3aB3Ui9b2SB0ARYZO3fmS0X4q6mGkKnwBcdDVqztJ7BSQV8woAcN/io7kOajf2Cttc6A==",
       "requires": {
         "@auditlogic/module-auditmation-interface-dataproducer": "^1.1.4",
         "@auditmation/hub-client": "8.10.4",
