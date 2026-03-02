@@ -1,0 +1,2141 @@
+{
+  "dataMappings": [
+    {
+      "id": "mapping_1769434114879_wgl3nji",
+      "source": {
+        "schema": {
+          "id": "schema:shared:github.pulls.pullrequest",
+          "name": "",
+          "type": "object",
+          "fields": [
+            {
+              "name": "url",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "id",
+              "multi": false,
+              "dataType": "number",
+              "required": true,
+              "primaryKey": true
+            },
+            {
+              "name": "nodeId",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "htmlUrl",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "diffUrl",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "patchUrl",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "issueUrl",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "commitsUrl",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "reviewCommentsUrl",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "reviewCommentUrl",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "commentsUrl",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "statusesUrl",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "number",
+              "multi": false,
+              "dataType": "number",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "state",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "locked",
+              "multi": false,
+              "dataType": "boolean",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "title",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "user",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false,
+              "references": {
+                "schemaId": "schema:shared:github.users.user"
+              },
+              "description": "Simple User"
+            },
+            {
+              "name": "body",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "labels",
+              "multi": true,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "milestone",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false,
+              "description": "A collection of related issues and pull requests."
+            },
+            {
+              "name": "created",
+              "multi": false,
+              "format": "date-time",
+              "dataType": "date-time",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "updated",
+              "multi": false,
+              "format": "date-time",
+              "dataType": "date-time",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "closed",
+              "multi": false,
+              "format": "date-time",
+              "dataType": "date-time",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "merged",
+              "multi": false,
+              "format": "date-time",
+              "dataType": "date-time",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "mergeCommitSha",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "assignee",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false,
+              "description": "Simple User"
+            },
+            {
+              "name": "head",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "base",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "links",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "authorAssociation",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false,
+              "description": "How the author is associated with the repository."
+            },
+            {
+              "name": "autoMerge",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false,
+              "description": "The status of auto merging a pull request."
+            },
+            {
+              "name": "activeLockReason",
+              "multi": false,
+              "dataType": "string",
+              "required": false,
+              "primaryKey": false
+            },
+            {
+              "name": "assignees",
+              "multi": true,
+              "dataType": "string",
+              "required": false,
+              "primaryKey": false
+            },
+            {
+              "name": "requestedReviewers",
+              "multi": true,
+              "dataType": "string",
+              "required": false,
+              "primaryKey": false
+            },
+            {
+              "name": "requestedTeams",
+              "multi": true,
+              "dataType": "string",
+              "required": false,
+              "primaryKey": false
+            },
+            {
+              "name": "draft",
+              "multi": false,
+              "dataType": "boolean",
+              "required": false,
+              "primaryKey": false,
+              "description": "Indicates whether or not the pull request is a draft."
+            }
+          ],
+          "version": "1.0",
+          "metadata": {},
+          "required": [],
+          "dataTypes": [
+            {
+              "name": "string",
+              "isEnum": false,
+              "examples": [
+                "anything",
+                "can go here"
+              ],
+              "jsonType": "string",
+              "htmlInput": "text",
+              "description": "A string value"
+            },
+            {
+              "name": "number",
+              "isEnum": false,
+              "examples": [
+                142020229,
+                42
+              ],
+              "jsonType": "number",
+              "htmlInput": "number",
+              "description": "A number value"
+            },
+            {
+              "name": "boolean",
+              "isEnum": false,
+              "examples": [
+                true,
+                false
+              ],
+              "jsonType": "boolean",
+              "htmlInput": "text",
+              "description": "A boolean value"
+            },
+            {
+              "name": "date-time",
+              "isEnum": false,
+              "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]+)?Z$",
+              "examples": [
+                "1955-11-12T22:04:00.000Z",
+                "1985-10-25T08:18:00.000Z",
+                "1885-10-26T00:28:00.000Z"
+              ],
+              "jsonType": "string",
+              "htmlInput": "datetime-local",
+              "description": "An RFC3339/ISO8601 date-time string. Note that this format is defined by OpenAPI itself and exists here to shim into language bindings."
+            }
+          ],
+          "properties": [
+            {
+              "name": "url",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "id",
+              "multi": false,
+              "dataType": "number",
+              "required": true,
+              "primaryKey": true
+            },
+            {
+              "name": "nodeId",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "htmlUrl",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "diffUrl",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "patchUrl",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "issueUrl",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "commitsUrl",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "reviewCommentsUrl",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "reviewCommentUrl",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "commentsUrl",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "statusesUrl",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "number",
+              "multi": false,
+              "dataType": "number",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "state",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "locked",
+              "multi": false,
+              "dataType": "boolean",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "title",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "user",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false,
+              "references": {
+                "schemaId": "schema:shared:github.users.user"
+              },
+              "description": "Simple User"
+            },
+            {
+              "name": "body",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "labels",
+              "multi": true,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "milestone",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false,
+              "description": "A collection of related issues and pull requests."
+            },
+            {
+              "name": "created",
+              "multi": false,
+              "format": "date-time",
+              "dataType": "date-time",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "updated",
+              "multi": false,
+              "format": "date-time",
+              "dataType": "date-time",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "closed",
+              "multi": false,
+              "format": "date-time",
+              "dataType": "date-time",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "merged",
+              "multi": false,
+              "format": "date-time",
+              "dataType": "date-time",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "mergeCommitSha",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "assignee",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false,
+              "description": "Simple User"
+            },
+            {
+              "name": "head",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "base",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "links",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false
+            },
+            {
+              "name": "authorAssociation",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false,
+              "description": "How the author is associated with the repository."
+            },
+            {
+              "name": "autoMerge",
+              "multi": false,
+              "dataType": "string",
+              "required": true,
+              "primaryKey": false,
+              "description": "The status of auto merging a pull request."
+            },
+            {
+              "name": "activeLockReason",
+              "multi": false,
+              "dataType": "string",
+              "required": false,
+              "primaryKey": false
+            },
+            {
+              "name": "assignees",
+              "multi": true,
+              "dataType": "string",
+              "required": false,
+              "primaryKey": false
+            },
+            {
+              "name": "requestedReviewers",
+              "multi": true,
+              "dataType": "string",
+              "required": false,
+              "primaryKey": false
+            },
+            {
+              "name": "requestedTeams",
+              "multi": true,
+              "dataType": "string",
+              "required": false,
+              "primaryKey": false
+            },
+            {
+              "name": "draft",
+              "multi": false,
+              "dataType": "boolean",
+              "required": false,
+              "primaryKey": false,
+              "description": "Indicates whether or not the pull request is a draft."
+            }
+          ],
+          "additionalProperties": true
+        },
+        "objectId": "collection_pull_requests_zerobias-org/collectorbot",
+        "objectName": "Pull Requests",
+        "objectPath": [
+          "/",
+          "organizations",
+          "org_zerobias-org",
+          "repo_zerobias-org/collectorbot"
+        ]
+      },
+      "context": {
+        "scopeId": "f055b9d1-ead4-48ed-8284-624cf1529803",
+        "targetId": "db761d11-1225-421b-99f8-c89038b9737c",
+        "productId": "7129ca79-24d8-53f0-8491-e66977bee4a7",
+        "boundaryId": "c5dc2b00-5817-4411-8f32-99b0dceed7e2"
+      },
+      "mappings": [
+        {
+          "id": "mapping_1769433917318_yiixhz1sn",
+          "source": {
+            "key": "links",
+            "name": "links",
+            "type": "string",
+            "level": 0
+          },
+          "transform": {
+            "type": "direct"
+          },
+          "destination": {
+            "key": "_links",
+            "name": "_links",
+            "type": "array",
+            "level": 0,
+            "required": false
+          }
+        },
+        {
+          "id": "mapping_1769433917318_l4vctiw8m",
+          "source": {
+            "key": "assignee",
+            "name": "assignee",
+            "type": "string",
+            "level": 0
+          },
+          "transform": {
+            "type": "direct"
+          },
+          "destination": {
+            "key": "assignee",
+            "name": "assignee",
+            "type": "array",
+            "level": 0,
+            "required": false
+          }
+        },
+        {
+          "id": "mapping_1769433917318_xejjochq8",
+          "source": {
+            "key": "autoMerge",
+            "name": "autoMerge",
+            "type": "string",
+            "level": 0
+          },
+          "transform": {
+            "type": "direct"
+          },
+          "destination": {
+            "key": "autoMerge",
+            "name": "autoMerge",
+            "type": "string",
+            "level": 0,
+            "required": false
+          }
+        },
+        {
+          "id": "mapping_1769433917318_a4h478k2c",
+          "source": {
+            "key": "commentsUrl",
+            "name": "commentsUrl",
+            "type": "string",
+            "level": 0
+          },
+          "transform": {
+            "type": "direct"
+          },
+          "destination": {
+            "key": "commentsUrl",
+            "name": "commentsUrl",
+            "type": "string",
+            "level": 0,
+            "required": false
+          }
+        },
+        {
+          "id": "mapping_1769433917318_0vgd56g4g",
+          "source": {
+            "key": "commitsUrl",
+            "name": "commitsUrl",
+            "type": "string",
+            "level": 0
+          },
+          "transform": {
+            "type": "direct"
+          },
+          "destination": {
+            "key": "commitsUrl",
+            "name": "commitsUrl",
+            "type": "string",
+            "level": 0,
+            "required": false
+          }
+        },
+        {
+          "id": "mapping_1769433917319_pdobk9lvd",
+          "source": {
+            "key": "diffUrl",
+            "name": "diffUrl",
+            "type": "string",
+            "level": 0
+          },
+          "transform": {
+            "type": "direct"
+          },
+          "destination": {
+            "key": "diffUrl",
+            "name": "diffUrl",
+            "type": "string",
+            "level": 0,
+            "required": false
+          }
+        },
+        {
+          "id": "mapping_1769433917319_bag0saaqq",
+          "source": {
+            "key": "draft",
+            "name": "draft",
+            "type": "boolean",
+            "level": 0
+          },
+          "transform": {
+            "type": "direct"
+          },
+          "destination": {
+            "key": "draft",
+            "name": "draft",
+            "type": "string",
+            "level": 0,
+            "required": false
+          }
+        },
+        {
+          "id": "mapping_1769433917319_iu0eu2jcq",
+          "source": {
+            "key": "htmlUrl",
+            "name": "htmlUrl",
+            "type": "string",
+            "level": 0,
+            "sampleValue": "https://github.com/zerobias-org/collectorbot/pull/9"
+          },
+          "transform": {
+            "type": "direct"
+          },
+          "destination": {
+            "key": "htmlUrl",
+            "name": "htmlUrl",
+            "type": "string",
+            "level": 0,
+            "required": false
+          }
+        },
+        {
+          "id": "mapping_1769433917319_zd4r7ns0l",
+          "source": {
+            "key": "id",
+            "name": "id",
+            "type": "number",
+            "level": 0,
+            "sampleValue": 3207451383
+          },
+          "transform": {
+            "type": "direct"
+          },
+          "destination": {
+            "key": "id",
+            "name": "id",
+            "type": "string",
+            "level": 0,
+            "required": true
+          }
+        },
+        {
+          "id": "mapping_1769433917319_f6h9libvk",
+          "source": {
+            "key": "labels",
+            "name": "labels",
+            "type": "array",
+            "level": 0
+          },
+          "transform": {
+            "type": "direct"
+          },
+          "destination": {
+            "key": "labels",
+            "name": "labels",
+            "type": "array",
+            "level": 0,
+            "required": false
+          }
+        },
+        {
+          "id": "mapping_1769433917319_ndn4zq1rc",
+          "source": {
+            "key": "locked",
+            "name": "locked",
+            "type": "boolean",
+            "level": 0
+          },
+          "transform": {
+            "type": "direct"
+          },
+          "destination": {
+            "key": "locked",
+            "name": "locked",
+            "type": "string",
+            "level": 0,
+            "required": false
+          }
+        },
+        {
+          "id": "mapping_1769433917319_n75fudvwf",
+          "source": {
+            "key": "mergeCommitSha",
+            "name": "mergeCommitSha",
+            "type": "string",
+            "level": 0
+          },
+          "transform": {
+            "type": "direct"
+          },
+          "destination": {
+            "key": "mergeCommitSha",
+            "name": "mergeCommitSha",
+            "type": "string",
+            "level": 0,
+            "required": false
+          }
+        },
+        {
+          "id": "mapping_1769433917319_ln2bwic3c",
+          "source": {
+            "key": "nodeId",
+            "name": "nodeId",
+            "type": "string",
+            "level": 0
+          },
+          "transform": {
+            "type": "direct"
+          },
+          "destination": {
+            "key": "nodeId",
+            "name": "nodeId",
+            "type": "string",
+            "level": 0,
+            "required": false
+          }
+        },
+        {
+          "id": "mapping_1769433917319_0u68ips9e",
+          "source": {
+            "key": "patchUrl",
+            "name": "patchUrl",
+            "type": "string",
+            "level": 0
+          },
+          "transform": {
+            "type": "direct"
+          },
+          "destination": {
+            "key": "patchUrl",
+            "name": "patchUrl",
+            "type": "string",
+            "level": 0,
+            "required": false
+          }
+        },
+        {
+          "id": "mapping_1769433917319_jwrvi878r",
+          "source": {
+            "key": "reviewCommentsUrl",
+            "name": "reviewCommentsUrl",
+            "type": "string",
+            "level": 0
+          },
+          "transform": {
+            "type": "direct"
+          },
+          "destination": {
+            "key": "reviewCommentsUrl",
+            "name": "reviewCommentsUrl",
+            "type": "string",
+            "level": 0,
+            "required": false
+          }
+        },
+        {
+          "id": "mapping_1769433917319_jc7k2kez1",
+          "source": {
+            "key": "state",
+            "name": "state",
+            "type": "string",
+            "level": 0,
+            "sampleValue": "open"
+          },
+          "transform": {
+            "type": "direct"
+          },
+          "destination": {
+            "key": "state",
+            "name": "state",
+            "type": "string",
+            "level": 0,
+            "required": false
+          }
+        },
+        {
+          "id": "mapping_1769433917319_pobum3ivd",
+          "source": {
+            "key": "url",
+            "name": "url",
+            "type": "string",
+            "level": 0
+          },
+          "transform": {
+            "type": "direct"
+          },
+          "destination": {
+            "key": "url",
+            "name": "url",
+            "type": "string",
+            "level": 0,
+            "required": false
+          }
+        },
+        {
+          "id": "mapping_1769433965838_0974tnbgp",
+          "source": {
+            "key": "number",
+            "name": "number",
+            "type": "number",
+            "level": 0,
+            "sampleValue": 9
+          },
+          "transform": {
+            "type": "direct"
+          },
+          "destination": {
+            "key": "name",
+            "name": "name",
+            "type": "string",
+            "level": 0,
+            "required": true
+          }
+        },
+        {
+          "id": "mapping_1769434017105_dn4toqiw3",
+          "source": {
+            "key": "head",
+            "name": "head",
+            "type": "string",
+            "level": 0
+          },
+          "transform": {
+            "type": "direct"
+          },
+          "destination": {
+            "key": "target",
+            "name": "target",
+            "type": "string",
+            "level": 0,
+            "required": true
+          }
+        },
+        {
+          "id": "mapping_1769434034410_f0iovuoma",
+          "source": {
+            "key": "base",
+            "name": "base",
+            "type": "string",
+            "level": 0
+          },
+          "transform": {
+            "type": "direct"
+          },
+          "destination": {
+            "key": "source",
+            "name": "source",
+            "type": "string",
+            "level": 0,
+            "required": true
+          }
+        },
+        {
+          "id": "mapping_1769434061444_sn4dvc3x4",
+          "source": {
+            "key": "base",
+            "name": "base",
+            "type": "string",
+            "level": 0
+          },
+          "transform": {
+            "type": "expression",
+            "options": {
+              "expression": "$.repo"
+            }
+          },
+          "destination": {
+            "key": "repo",
+            "name": "repo",
+            "type": "string",
+            "level": 0,
+            "required": true
+          }
+        }
+      ],
+      "metadata": {
+        "name": "Untitled Mapping",
+        "createdAt": "2026-01-26T13:28:34.880Z",
+        "description": ""
+      },
+      "destination": {
+        "schema": {
+          "dataTypes": [],
+          "properties": [
+            {
+              "id": "3c748a02-aa41-419b-ad55-6ff50dae62b7",
+              "name": "_links",
+              "type": "class_property",
+              "keyed": false,
+              "multi": true,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": null,
+              "fieldId": "8d77d3fa-b939-4f8f-80eb-ed11014dc9ac",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": false,
+              "className": "Object",
+              "fieldName": "auditmation.auditmation.platform.schema.link",
+              "dataTypeId": "6f17e937-b88d-473b-8244-07f32f64af2a",
+              "description": "Describes Link attributes in the context of a join",
+              "displayName": "Link Info",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "link",
+              "dataTypeType": "object",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "fe58e9f7-5273-4da1-a4ba-3ebc4067d978",
+              "name": "aliases",
+              "type": "class_property",
+              "keyed": false,
+              "multi": true,
+              "created": "2024-11-26T18:55:07.630927",
+              "example": "00000000-0000-0000-0000-000000000000",
+              "fieldId": "5294b30e-faa9-4147-b3ca-31bf02dbb9d6",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-11-26T18:55:07.630927",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": false,
+              "className": "Object",
+              "fieldName": "auditmation.auditmation.platform.schema.object.alias",
+              "dataTypeId": "2f8c9d6b-6a28-4542-ae18-b601bb66bf81",
+              "description": "An alias for this object",
+              "displayName": "Object Alias",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "string",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "f98a78df-51d6-43ef-b363-21af81ff0b33",
+              "name": "assignee",
+              "type": "link",
+              "keyed": true,
+              "multi": true,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": "00000000-0000-0000-0000-000000000000",
+              "fieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.platform.schema.object.id",
+              "dataTypeId": "2f8c9d6b-6a28-4542-ae18-b601bb66bf81",
+              "description": "Link to prAssignee on SourceCodeMgmtAcct",
+              "displayName": "assignee",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "string",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {
+                "id": "38516186-8416-468d-90da-0d47cfd6ab07",
+                "name": "SourceCodeMgmtAcct",
+                "description": "Source Code Management (SCM) Account",
+                "linkedFieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+                "linkedFieldName": "auditmation.auditmation.platform.schema.object.id",
+                "linkedPropertyId": "83ac7834-870d-4649-83d4-dc834e4f072b",
+                "linkedPropertyName": "prAssignee"
+              }
+            },
+            {
+              "id": "f72dc7e1-6ea2-417f-a408-cdf3f1cfe972",
+              "name": "autoMerge",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T21:04:54.909726",
+              "example": null,
+              "fieldId": "081f2428-c983-49ac-8124-e9e834501ae0",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "a0470fb8-1ac8-4921-8eeb-c2eff455df98",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.base.schema.pullRequest.autoMerge",
+              "dataTypeId": "d1cb5a8d-cbed-4fbe-92f3-407ff2d1b79d",
+              "description": "Whether auto-merge is enabled for a Pull Request",
+              "displayName": "Auto Merge",
+              "packageCode": "auditmation.auditmation.base.schema",
+              "dataTypeName": "boolean",
+              "dataTypeType": "boolean",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "a242f81a-5db5-40ad-a15a-38ff6da07407",
+              "name": "commentsUrl",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T21:04:54.909726",
+              "example": null,
+              "fieldId": "244c3279-356f-45bd-9aac-039a31696ada",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "a0470fb8-1ac8-4921-8eeb-c2eff455df98",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.base.schema.scm.commentsUrl",
+              "dataTypeId": "9a7fde37-b7de-4a63-b2ee-3b355286d8a6",
+              "description": "URL for commiting to a branch",
+              "displayName": "Commit URL",
+              "packageCode": "auditmation.auditmation.base.schema",
+              "dataTypeName": "url",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "32f8fbaa-5d65-474c-abe9-fee87fdb9a5b",
+              "name": "commitsUrl",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T21:04:54.909726",
+              "example": null,
+              "fieldId": "2bbc460b-7839-4f1f-b54f-dd8d79bc00e5",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "a0470fb8-1ac8-4921-8eeb-c2eff455df98",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.base.schema.scm.commitsUrl",
+              "dataTypeId": "9a7fde37-b7de-4a63-b2ee-3b355286d8a6",
+              "description": "URL for commiting to a branch",
+              "displayName": "Commit URL",
+              "packageCode": "auditmation.auditmation.base.schema",
+              "dataTypeName": "url",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "370b4339-db4f-4970-a18a-d59115b49206",
+              "name": "dateClosed",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T21:04:54.909726",
+              "example": "2021-10-26T08:18:00.000Z",
+              "fieldId": "44b4155c-8196-42f5-b531-476811704a91",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "a0470fb8-1ac8-4921-8eeb-c2eff455df98",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.base.schema.pullRequest.dateClosed",
+              "dataTypeId": "fb11b834-76d5-4612-ad87-a6180cd101aa",
+              "description": "Timestamp in RFC339/ISO8601 date-time string when a PR closed",
+              "displayName": "Date Closed",
+              "packageCode": "auditmation.auditmation.base.schema",
+              "dataTypeName": "date-time",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "270651b4-db34-4604-b5cb-b8771bf8d92e",
+              "name": "dateCreated",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": null,
+              "fieldId": "f18b4676-0696-4b55-b6d8-637f0241792f",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": false,
+              "className": "Object",
+              "fieldName": "auditmation.auditmation.platform.schema.object.dateCreated",
+              "dataTypeId": "bd011056-c548-4875-bac2-125f54f357dc",
+              "description": "The time when this object was created in its source system",
+              "displayName": "Date Created",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "date",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "1f4f012b-6411-4bc9-a9b4-0a31ba8eb11d",
+              "name": "dateDeleted",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": null,
+              "fieldId": "ade2a900-6a95-42f4-8097-58b3db743366",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": false,
+              "className": "Object",
+              "fieldName": "auditmation.auditmation.platform.schema.object.dateDeleted",
+              "dataTypeId": "bd011056-c548-4875-bac2-125f54f357dc",
+              "description": "The ltime when this object was (soft) deleted in its source system",
+              "displayName": "Date Deleted",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "date",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "948d4634-a8ff-4e20-a07a-808d103f3370",
+              "name": "dateLastModified",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": null,
+              "fieldId": "950b48e7-7722-4efd-b796-9111fa6274b7",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": false,
+              "className": "Object",
+              "fieldName": "auditmation.auditmation.platform.schema.object.dateLastModified",
+              "dataTypeId": "bd011056-c548-4875-bac2-125f54f357dc",
+              "description": "The last time when this object was modified in its source system",
+              "displayName": "Date Last Modified",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "date",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "10e1fd75-97f0-4dfc-9671-a9397afb6722",
+              "name": "dateMerged",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T21:04:54.909726",
+              "example": "2021-10-26T08:18:00.000Z",
+              "fieldId": "335b25b9-a937-44aa-9f8b-c00ba3346867",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "a0470fb8-1ac8-4921-8eeb-c2eff455df98",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.base.schema.pullRequest.dateMerged",
+              "dataTypeId": "fb11b834-76d5-4612-ad87-a6180cd101aa",
+              "description": "Timestamp in RFC339/ISO8601 date-time string when a PR was merged",
+              "displayName": "Date Merged",
+              "packageCode": "auditmation.auditmation.base.schema",
+              "dataTypeName": "date-time",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "1ef81f0e-4364-44ef-9c46-7efa605208a6",
+              "name": "description",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": null,
+              "fieldId": "62bd7e64-ebf2-4b25-b27f-41ff2b4475f2",
+              "indexed": false,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": false,
+              "className": "Object",
+              "fieldName": "auditmation.auditmation.platform.schema.object.description",
+              "dataTypeId": "2f8c9d6b-6a28-4542-ae18-b601bb66bf81",
+              "description": "A generic description",
+              "displayName": "Description",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "string",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "5b74e2c0-8c7c-457d-9cbb-13f34dbd9e9f",
+              "name": "diffUrl",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T21:04:54.909726",
+              "example": null,
+              "fieldId": "a797e889-4434-497a-bf24-3914fc8993ff",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "a0470fb8-1ac8-4921-8eeb-c2eff455df98",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.base.schema.scm.diffUrl",
+              "dataTypeId": "9a7fde37-b7de-4a63-b2ee-3b355286d8a6",
+              "description": "URL for retrieving a diff for an SCM object",
+              "displayName": "Diff URL",
+              "packageCode": "auditmation.auditmation.base.schema",
+              "dataTypeName": "url",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "bb7b70a3-c7cf-4b4e-b49e-6f3341d47e2b",
+              "name": "draft",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T21:04:54.909726",
+              "example": null,
+              "fieldId": "0c07963f-a8c4-4ee8-8938-1d724bc744ba",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "a0470fb8-1ac8-4921-8eeb-c2eff455df98",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.base.schema.pullRequest.draft",
+              "dataTypeId": "d1cb5a8d-cbed-4fbe-92f3-407ff2d1b79d",
+              "description": "Whether a Pull Request is a draft",
+              "displayName": "Draft",
+              "packageCode": "auditmation.auditmation.base.schema",
+              "dataTypeName": "boolean",
+              "dataTypeType": "boolean",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "7c269048-151e-4197-b261-43f5fc0f6572",
+              "name": "findings",
+              "type": "link",
+              "keyed": true,
+              "multi": false,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": "00000000-0000-0000-0000-000000000000",
+              "fieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.platform.schema.object.id",
+              "dataTypeId": "2f8c9d6b-6a28-4542-ae18-b601bb66bf81",
+              "description": "Link to pullRequest on SourceCodeMgmtFinding",
+              "displayName": "findings",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "string",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {
+                "id": "c580bda4-e19b-4efa-9c8d-e919e6c69fdd",
+                "name": "SourceCodeMgmtFinding",
+                "description": "A vulnerability or other issue that has been identified in a source code management system",
+                "linkedFieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+                "linkedFieldName": "auditmation.auditmation.platform.schema.object.id",
+                "linkedPropertyId": "83ac7834-870d-4649-83d4-dc834e4f072b",
+                "linkedPropertyName": "pullRequest"
+              }
+            },
+            {
+              "id": "a63528d8-c156-413a-b5aa-8054c9ec6c9a",
+              "name": "group",
+              "type": "link",
+              "keyed": true,
+              "multi": false,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": "00000000-0000-0000-0000-000000000000",
+              "fieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.platform.schema.object.id",
+              "dataTypeId": "2f8c9d6b-6a28-4542-ae18-b601bb66bf81",
+              "description": "Link to pullRequests on SourceCodeMgmtGroup",
+              "displayName": "group",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "string",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {
+                "id": "4e4bd510-1ad1-405b-885c-30f62b511dad",
+                "name": "SourceCodeMgmtGroup",
+                "description": "Source Code Management (SCM) Group",
+                "linkedFieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+                "linkedFieldName": "auditmation.auditmation.platform.schema.object.id",
+                "linkedPropertyId": "83ac7834-870d-4649-83d4-dc834e4f072b",
+                "linkedPropertyName": "pullRequests"
+              }
+            },
+            {
+              "id": "210bc7ce-1c39-4fb5-9155-c6fa056146ed",
+              "name": "htmlUrl",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T21:04:54.909726",
+              "example": null,
+              "fieldId": "2653bc42-11fc-408b-943a-bfad49c8163e",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "a0470fb8-1ac8-4921-8eeb-c2eff455df98",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.base.schema.scm.htmlUrl",
+              "dataTypeId": "9a7fde37-b7de-4a63-b2ee-3b355286d8a6",
+              "description": "HTML / Human URL for viewing an SCM object",
+              "displayName": "HTML URL",
+              "packageCode": "auditmation.auditmation.base.schema",
+              "dataTypeName": "url",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "7cee6372-0506-4ae1-8cf6-15581b392196",
+              "name": "icon",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": null,
+              "fieldId": "516077d0-87eb-4988-a178-25ba141d4773",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": false,
+              "className": "Object",
+              "fieldName": "auditmation.auditmation.platform.schema.object.icon",
+              "dataTypeId": "9a7fde37-b7de-4a63-b2ee-3b355286d8a6",
+              "description": "The (absolute or relative) URL for an icon representing the object",
+              "displayName": "Icon",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "url",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "83ac7834-870d-4649-83d4-dc834e4f072b",
+              "name": "id",
+              "type": "class_property",
+              "keyed": true,
+              "multi": false,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": "00000000-0000-0000-0000-000000000000",
+              "fieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": true,
+              "className": "Object",
+              "fieldName": "auditmation.auditmation.platform.schema.object.id",
+              "dataTypeId": "2f8c9d6b-6a28-4542-ae18-b601bb66bf81",
+              "description": "The object's external ID in the payload data",
+              "displayName": "Object ID",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "string",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "a4113517-3b38-4434-8eca-f0310f75cc76",
+              "name": "includes",
+              "type": "class_property",
+              "keyed": false,
+              "multi": true,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": null,
+              "fieldId": "f1925aa4-6352-43da-8f97-c3be144142dd",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": false,
+              "className": "Object",
+              "fieldName": "auditmation.auditmation.platform.schema.object.include",
+              "dataTypeId": "2f8c9d6b-6a28-4542-ae18-b601bb66bf81",
+              "description": "Describes an object stored in other object",
+              "displayName": "Include",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "string",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "4d70ea71-6cc2-4d94-b264-e42e619f1b0b",
+              "name": "issuesUrl",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T21:04:54.909726",
+              "example": null,
+              "fieldId": "11411a5b-fbb1-426a-ad17-fb8a6bb36a0e",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "a0470fb8-1ac8-4921-8eeb-c2eff455df98",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.base.schema.scm.issuesUrl",
+              "dataTypeId": "9a7fde37-b7de-4a63-b2ee-3b355286d8a6",
+              "description": "URL for related issues of an SCM object",
+              "displayName": "Issues URL",
+              "packageCode": "auditmation.auditmation.base.schema",
+              "dataTypeName": "url",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "ff240620-6ac5-454c-987a-0c860cc88e5a",
+              "name": "labels",
+              "type": "link",
+              "keyed": true,
+              "multi": true,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": "00000000-0000-0000-0000-000000000000",
+              "fieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.platform.schema.object.id",
+              "dataTypeId": "2f8c9d6b-6a28-4542-ae18-b601bb66bf81",
+              "description": "Link to pullRequests on RepoLabel",
+              "displayName": "labels",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "string",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {
+                "id": "b977be9f-a4d2-498b-ba1e-c11e80d690aa",
+                "name": "RepoLabel",
+                "description": "A Repository Label",
+                "linkedFieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+                "linkedFieldName": "auditmation.auditmation.platform.schema.object.id",
+                "linkedPropertyId": "83ac7834-870d-4649-83d4-dc834e4f072b",
+                "linkedPropertyName": "pullRequests"
+              }
+            },
+            {
+              "id": "6e0b2b23-9c66-4929-b9d8-928e92e98e1e",
+              "name": "lockReason",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T21:04:54.909726",
+              "example": null,
+              "fieldId": "d2d1a74e-bd8a-4f9f-8270-f63d8264b525",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "a0470fb8-1ac8-4921-8eeb-c2eff455df98",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.base.schema.pullRequest.lockReason",
+              "dataTypeId": "2f8c9d6b-6a28-4542-ae18-b601bb66bf81",
+              "description": "Reason why a Pull Request is locked",
+              "displayName": "Locked Reason",
+              "packageCode": "auditmation.auditmation.base.schema",
+              "dataTypeName": "string",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "b47f6254-4440-44eb-ae16-a696ce7b01ba",
+              "name": "locked",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T21:04:54.909726",
+              "example": null,
+              "fieldId": "9b0695c9-2c4a-4d84-9f71-527421c4104b",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "a0470fb8-1ac8-4921-8eeb-c2eff455df98",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.base.schema.pullRequest.locked",
+              "dataTypeId": "d1cb5a8d-cbed-4fbe-92f3-407ff2d1b79d",
+              "description": "Whether a Pull Request is locked or not",
+              "displayName": "Locked",
+              "packageCode": "auditmation.auditmation.base.schema",
+              "dataTypeName": "boolean",
+              "dataTypeType": "boolean",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "e0af22fb-50f2-4d8a-9c7b-55c715932946",
+              "name": "mergeCommitSha",
+              "type": "class_property",
+              "keyed": true,
+              "multi": false,
+              "created": "2024-02-27T21:04:54.909726",
+              "example": null,
+              "fieldId": "8ac19e26-63fa-4554-a53b-45e4b899c948",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "a0470fb8-1ac8-4921-8eeb-c2eff455df98",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.base.schema.scm.sha",
+              "dataTypeId": "2f8c9d6b-6a28-4542-ae18-b601bb66bf81",
+              "description": "SHA digest ID for SCM object",
+              "displayName": "SHA",
+              "packageCode": "auditmation.auditmation.base.schema",
+              "dataTypeName": "string",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "3db1190e-a953-4634-93e7-bb5585fe84fb",
+              "name": "metadata",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": null,
+              "fieldId": "d63f3bca-9b1f-44f2-8758-41cb12513b46",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": false,
+              "className": "Object",
+              "fieldName": "auditmation.auditmation.platform.schema.objectMetadata",
+              "dataTypeId": "b76ed36e-ea25-42c9-b1d2-ea1959e29b7c",
+              "description": "Metadata Store for Concrete Object Data",
+              "displayName": "Object Metadata",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "objectMetadata",
+              "dataTypeType": "object",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "c8c6e8dc-dc9b-4ad0-8e3b-44b902989616",
+              "name": "name",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": null,
+              "fieldId": "f32de34f-4542-4c03-b9e7-a541fedef575",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": true,
+              "className": "Object",
+              "fieldName": "auditmation.auditmation.platform.schema.object.name",
+              "dataTypeId": "2f8c9d6b-6a28-4542-ae18-b601bb66bf81",
+              "description": "The name of an object",
+              "displayName": "Name",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "string",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "b9b5529d-0aca-4b58-97f3-daedbf20f633",
+              "name": "nodeId",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T21:17:03.84307",
+              "example": null,
+              "fieldId": "e792a4fc-40d4-44e6-a018-7ea400fb836b",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "95404c15-305c-4b56-a38c-c6d9c02a8e44",
+              "required": false,
+              "className": "GitHubObject",
+              "fieldName": "github.github.schema.team.nodeId",
+              "dataTypeId": "2f8c9d6b-6a28-4542-ae18-b601bb66bf81",
+              "description": "GitHub Team Node Identifier",
+              "displayName": "Node ID",
+              "packageCode": "github.github.schema",
+              "dataTypeName": "string",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "e688218e-8073-479b-8045-a8f6c060228c",
+              "name": "note",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": null,
+              "fieldId": "67440ecb-d0ee-4a81-bee6-28992a99a1f5",
+              "indexed": false,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": false,
+              "className": "Object",
+              "fieldName": "auditmation.auditmation.platform.schema.object.note",
+              "dataTypeId": "2f8c9d6b-6a28-4542-ae18-b601bb66bf81",
+              "description": "A generic note",
+              "displayName": "Note",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "string",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "bf46e779-baf4-4950-a459-0e60e36d7b87",
+              "name": "patchUrl",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T21:04:54.909726",
+              "example": null,
+              "fieldId": "e25b8f59-e26c-4bd0-b4e8-e489eac5e88e",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "a0470fb8-1ac8-4921-8eeb-c2eff455df98",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.base.schema.scm.patchUrl",
+              "dataTypeId": "9a7fde37-b7de-4a63-b2ee-3b355286d8a6",
+              "description": "URL for patches of an SCM object",
+              "displayName": "Patch URL",
+              "packageCode": "auditmation.auditmation.base.schema",
+              "dataTypeName": "url",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "11607bb8-2ae9-403f-97dc-49307125d64c",
+              "name": "product",
+              "type": "link",
+              "keyed": true,
+              "multi": false,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": "00000000-0000-0000-0000-000000000000",
+              "fieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": false,
+              "className": "Object",
+              "fieldName": "auditmation.auditmation.platform.schema.object.id",
+              "dataTypeId": "2f8c9d6b-6a28-4542-ae18-b601bb66bf81",
+              "description": "Link to metadata on Product",
+              "displayName": "product",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "string",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {
+                "id": "a902495f-e70a-43d0-80f3-c1e70d7b92bf",
+                "name": "Product",
+                "description": "Describes a Product",
+                "linkedFieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+                "linkedFieldName": "auditmation.auditmation.platform.schema.object.id",
+                "linkedPropertyId": "83ac7834-870d-4649-83d4-dc834e4f072b",
+                "linkedPropertyName": "metadata"
+              }
+            },
+            {
+              "id": "07bc3535-c2dc-4f2e-b7e1-cc519960dc45",
+              "name": "repo",
+              "type": "link",
+              "keyed": true,
+              "multi": false,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": "00000000-0000-0000-0000-000000000000",
+              "fieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": true,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.platform.schema.object.id",
+              "dataTypeId": "2f8c9d6b-6a28-4542-ae18-b601bb66bf81",
+              "description": "Link to pullRequests on Repository",
+              "displayName": "repo",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "string",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {
+                "id": "5f632cd5-680d-4df2-9826-a0ac6c719e6f",
+                "name": "Repository",
+                "description": "Source control repository",
+                "linkedFieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+                "linkedFieldName": "auditmation.auditmation.platform.schema.object.id",
+                "linkedPropertyId": "83ac7834-870d-4649-83d4-dc834e4f072b",
+                "linkedPropertyName": "pullRequests"
+              }
+            },
+            {
+              "id": "a1b0a72b-2e61-4b28-8cf1-cec685590b97",
+              "name": "reviewCommentsUrl",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T21:04:54.909726",
+              "example": null,
+              "fieldId": "c7d0a1ce-62e8-49cd-ad07-ecb86ed7482b",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "a0470fb8-1ac8-4921-8eeb-c2eff455df98",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.base.schema.scm.reviewCommentsUrl",
+              "dataTypeId": "9a7fde37-b7de-4a63-b2ee-3b355286d8a6",
+              "description": "URL for reviewing comments of an SCM object",
+              "displayName": "Review Comments URL",
+              "packageCode": "auditmation.auditmation.base.schema",
+              "dataTypeName": "url",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "d5119cd9-08c0-4137-b64d-13e054806084",
+              "name": "reviewer",
+              "type": "link",
+              "keyed": true,
+              "multi": true,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": "00000000-0000-0000-0000-000000000000",
+              "fieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.platform.schema.object.id",
+              "dataTypeId": "2f8c9d6b-6a28-4542-ae18-b601bb66bf81",
+              "description": "Link to prReviewer on SourceCodeMgmtAcct",
+              "displayName": "reviewer",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "string",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {
+                "id": "38516186-8416-468d-90da-0d47cfd6ab07",
+                "name": "SourceCodeMgmtAcct",
+                "description": "Source Code Management (SCM) Account",
+                "linkedFieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+                "linkedFieldName": "auditmation.auditmation.platform.schema.object.id",
+                "linkedPropertyId": "83ac7834-870d-4649-83d4-dc834e4f072b",
+                "linkedPropertyName": "prReviewer"
+              }
+            },
+            {
+              "id": "13d03fae-eb48-4eda-8deb-b6efc0b82e74",
+              "name": "reviews",
+              "type": "link",
+              "keyed": true,
+              "multi": true,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": "00000000-0000-0000-0000-000000000000",
+              "fieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.platform.schema.object.id",
+              "dataTypeId": "2f8c9d6b-6a28-4542-ae18-b601bb66bf81",
+              "description": "Link to pullRequest on CodeReview",
+              "displayName": "reviews",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "string",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {
+                "id": "1fab48bc-1129-4e39-8210-9a346e2c1b33",
+                "name": "CodeReview",
+                "description": "A Review of a Pull Request",
+                "linkedFieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+                "linkedFieldName": "auditmation.auditmation.platform.schema.object.id",
+                "linkedPropertyId": "83ac7834-870d-4649-83d4-dc834e4f072b",
+                "linkedPropertyName": "pullRequest"
+              }
+            },
+            {
+              "id": "3235db10-08a6-4dff-9198-2f38dc506e11",
+              "name": "source",
+              "type": "link",
+              "keyed": true,
+              "multi": false,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": "00000000-0000-0000-0000-000000000000",
+              "fieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": true,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.platform.schema.object.id",
+              "dataTypeId": "2f8c9d6b-6a28-4542-ae18-b601bb66bf81",
+              "description": "Link to outPullRequest on Branch",
+              "displayName": "source",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "string",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {
+                "id": "245c461d-598b-4fb2-86c6-962547fdbc4b",
+                "name": "Branch",
+                "description": "A Branch of a Repository",
+                "linkedFieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+                "linkedFieldName": "auditmation.auditmation.platform.schema.object.id",
+                "linkedPropertyId": "83ac7834-870d-4649-83d4-dc834e4f072b",
+                "linkedPropertyName": "outPullRequest"
+              }
+            },
+            {
+              "id": "ff8c704a-3a13-4520-b3f8-beb4050816db",
+              "name": "state",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T21:04:54.909726",
+              "example": null,
+              "fieldId": "2d300299-bd09-44a0-9182-29d2151c6d75",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "a0470fb8-1ac8-4921-8eeb-c2eff455df98",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.base.schema.pullRequestState",
+              "dataTypeId": "a2a7727e-159f-4058-841c-4bd16f0a2f04",
+              "description": "Pull Request Status",
+              "displayName": "Pull Request Status",
+              "packageCode": "auditmation.auditmation.base.schema",
+              "dataTypeName": "pullRequestState",
+              "dataTypeType": "enum",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "4909c648-25b8-453b-bcf9-fffe159ea6aa",
+              "name": "statusUrl",
+              "type": "class_property",
+              "keyed": false,
+              "multi": false,
+              "created": "2024-02-27T21:04:54.909726",
+              "example": null,
+              "fieldId": "64d8f36f-69cf-4b5f-8513-f93fa1d68b91",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "a0470fb8-1ac8-4921-8eeb-c2eff455df98",
+              "required": false,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.base.schema.scm.statusUrl",
+              "dataTypeId": "9a7fde37-b7de-4a63-b2ee-3b355286d8a6",
+              "description": "URL for the status(es) of an SCM object",
+              "displayName": "Status URL",
+              "packageCode": "auditmation.auditmation.base.schema",
+              "dataTypeName": "url",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "0b0c7051-e981-48bf-9545-5d4e9f6b02c7",
+              "name": "tag",
+              "type": "class_property",
+              "keyed": false,
+              "multi": true,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": null,
+              "fieldId": "5ba0300d-66b2-45da-b090-9e2294b422cf",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": false,
+              "className": "Object",
+              "fieldName": "auditmation.auditmation.platform.schema.tag",
+              "dataTypeId": "03947b57-cd8d-4613-92c9-135b67373588",
+              "description": "A tag that is applied to an Object",
+              "displayName": "Tag",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "tag",
+              "dataTypeType": "object",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            },
+            {
+              "id": "5579a206-4983-4675-9d5e-54ec1e3b4b22",
+              "name": "target",
+              "type": "link",
+              "keyed": true,
+              "multi": false,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": "00000000-0000-0000-0000-000000000000",
+              "fieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": true,
+              "className": "PullRequest",
+              "fieldName": "auditmation.auditmation.platform.schema.object.id",
+              "dataTypeId": "2f8c9d6b-6a28-4542-ae18-b601bb66bf81",
+              "description": "Link to inPullRequest on Branch",
+              "displayName": "target",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "string",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {
+                "id": "245c461d-598b-4fb2-86c6-962547fdbc4b",
+                "name": "Branch",
+                "description": "A Branch of a Repository",
+                "linkedFieldId": "25a7ce58-622a-4ae6-9295-b052ceac6626",
+                "linkedFieldName": "auditmation.auditmation.platform.schema.object.id",
+                "linkedPropertyId": "83ac7834-870d-4649-83d4-dc834e4f072b",
+                "linkedPropertyName": "inPullRequest"
+              }
+            },
+            {
+              "id": "f278b87d-0dff-446b-a7c8-5943e66365c6",
+              "name": "url",
+              "type": "class_property",
+              "keyed": true,
+              "multi": false,
+              "created": "2024-02-27T19:50:18.073132",
+              "example": null,
+              "fieldId": "da399a63-295e-476e-8b44-f79e274f2eec",
+              "indexed": true,
+              "ownerId": "00000000-0000-0000-0000-000000000000",
+              "updated": "2024-03-20T05:01:03.967204",
+              "parentId": "343c6317-32e2-44ef-a267-47d4dc0c3d9b",
+              "required": false,
+              "className": "Object",
+              "fieldName": "auditmation.auditmation.platform.schema.object.url",
+              "dataTypeId": "9a7fde37-b7de-4a63-b2ee-3b355286d8a6",
+              "description": "A URL/link for this Object in its source system",
+              "displayName": "URL",
+              "packageCode": "auditmation.auditmation.platform.schema",
+              "dataTypeName": "url",
+              "dataTypeType": "string",
+              "defaultValue": null,
+              "linkedClassInfo": {}
+            }
+          ]
+        },
+        "classId": "d5729ba7-50c0-4b6a-89e1-d0af0e24f57a",
+        "className": "GitHubPullRequest"
+      }
+    }
+  ]
+}

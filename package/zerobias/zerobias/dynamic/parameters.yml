@@ -1,0 +1,50 @@
+openapi: 3.0.3
+info:
+  description: Stub to use for codegen of parameters for a hub client
+  version: ""
+  title: '@auditmation/hub-client-codegen'
+paths:
+  /foo:
+    get:
+      tags:
+        - foo
+      operationId: getFoo
+      responses:
+        '204':
+          description: Foo
+components:
+  schemas:
+    Parameters:
+      type: object
+      required:
+        - operations
+      properties:
+        operations:
+          type: array
+          description: Array of operations to execute
+          items:
+            $ref: '#/components/schemas/OperationConfig'
+    OperationConfig:
+      type: object
+      required:
+        - operationType
+        - className
+      properties:
+        operationType:
+          type: string
+          description: Type of operation to execute
+          enum:
+            - getChildren
+            - objectSearch
+            - getCollectionElements
+            - searchCollectionElements
+            - getRootObject
+            - getObject
+            - getCollectionElement
+        className:
+          type: string
+          description: Target schema class name for the results
+        operationParameters:
+          type: object
+          description: Parameters to pass to the operation
+          additionalProperties: true
