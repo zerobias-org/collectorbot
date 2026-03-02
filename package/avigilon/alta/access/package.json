@@ -10,7 +10,7 @@
   },
   "files": [
     "dist",
-    "pnpm-lock.yaml",
+    "npm-shrinkwrap.json",
     "*.yml",
     "*.md"
   ],
