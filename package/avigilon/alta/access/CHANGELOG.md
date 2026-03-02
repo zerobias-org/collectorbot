@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>1.1.4 (2026-03-02)</small>
+
+* fix: include npm-shrinkwrap.json in published packages ([3c76efa](https://github.com/zerobias-org/collectorbot/commit/3c76efa))
+
+
+
+
+
 ## <small>1.1.3 (2026-02-25)</small>
 
 * chore: modernize eslint to v9 flat config ([b7e2c3a](https://github.com/zerobias-org/collectorbot/commit/b7e2c3a))

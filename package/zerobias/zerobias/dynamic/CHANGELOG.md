@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>0.1.1 (2026-03-02)</small>
+
+* fix: include npm-shrinkwrap.json in published packages ([3c76efa](https://github.com/zerobias-org/collectorbot/commit/3c76efa))
+
+
+
+
+
 ## 0.1.0 (2026-03-02)
 
 **Note:** Version bump only for package @zerobias-org/collectorbot-zerobias-zerobias-dynamic
