@@ -81,7 +81,8 @@ if [ "$2" = "--dry-run" ]; then
 else
   GENERATOR_DIR=$GENERATOR_DIR name=$name location=$tmpdir node $GENERATOR_DIR/src/index.js
 fi
-npx tsc
+echo "--- Compiling container entrypoint"
+npx tsc generated/run.ts --outDir dist --esModuleInterop --resolveJsonModule --skipLibCheck
 
 echo "--- Pruning dependencies"
 npm prune --omit=dev
