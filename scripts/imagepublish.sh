@@ -73,6 +73,9 @@ fi
 npm ci
 echo "--- Generating code"
 npm run generate
+echo "--- Compiling TypeScript"
+npx tsc
+echo "--- Generating container entrypoint"
 if [ "$2" = "--dry-run" ]; then
   GENERATOR_DIR=$GENERATOR_DIR name=$name location=$tmpdir node $GENERATOR_DIR/src/index.js --dry-run
 else
