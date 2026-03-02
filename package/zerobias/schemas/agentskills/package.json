@@ -11,7 +11,7 @@
   },
   "files": [
     "dist",
-    "pnpm-lock.yaml",
+    "package-lock.json",
     "*.yml",
     "*.md"
   ],
