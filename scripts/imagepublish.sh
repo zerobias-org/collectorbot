@@ -37,6 +37,8 @@ if [ "$2" = "--dry-run" ]; then
 else
   npm pack "$FULL_PACKAGE_VERSION" --loglevel warn
   tar xf *.tgz --strip-components=1
+  # Copy source files from repo checkout (not included in published tarball)
+  cp -R $LOCATION/src $tmpdir/
 fi;
 
 name=$(cat package.json | jq -r '.name | split("/")[1]')
@@ -68,8 +70,9 @@ cp $BASEDIR/package/avigilon/alta/access/tsconfig.json $tmpdir
 if [ -e "$LOCATION/tsconfig.json" ]; then
   cp $LOCATION/tsconfig.json $tmpdir || 'No specific tsconfig found'
 fi
-mkdir generated || echo "--- generated dir already exists"
 npm ci
+echo "--- Generating code"
+npm run generate
 if [ "$2" = "--dry-run" ]; then
   GENERATOR_DIR=$GENERATOR_DIR name=$name location=$tmpdir node $GENERATOR_DIR/src/index.js --dry-run
 else
