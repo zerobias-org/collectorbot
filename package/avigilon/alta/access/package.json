@@ -2,6 +2,7 @@
   "name": "@zerobias-org/collectorbot-avigilon-alta-access",
   "version": "1.1.4",
   "description": "Auditmation Avigilon Alta Access Collectorbot",
+  "type": "module",
   "main": "dist/src/index.js",
   "author": "ctamas@zerobias.com",
   "license": "UNLICENSED",
@@ -15,14 +16,14 @@
     "*.md"
   ],
   "scripts": {
+    "nx:build": "npm run build",
     "build": "npm run generate && npm run transpile",
     "clean": "rm -rf generated && rm -rf dist",
-    "generate:hub-client": "node node_modules/@auditmation/hub-client-codegen/dist/index.js",
-    "generate:models": "hub-generator generate -g hub-module -i ./parameters.yml -o generated/ --global-property models,supportingFiles=index.ts && rm ./generated/api/index.ts",
+    "generate:hub-client": "node -e \"import('@zerobias-com/hub-client-codegen')\"",
+    "generate:models": "node ../../../../node_modules/@zerobias-org/util-codegen/bin/hub-generator.js generate -g hub-module -i ./parameters.yml -o generated/ --global-property models,supportingFiles=index.ts && rm ./generated/api/index.ts",
     "generate": "npm run generate:models && npm run generate:hub-client",
     "lint:fix": "eslint --fix src/",
     "lint": "eslint src/",
-    "nx:publish": "../../../../scripts/publish.sh",
     "test:integration:watch": "npm run test:integration -- --watch --reporter=min",
     "test:integration": "mocha --exit --inline-diffs --reporter=list test/integration/**/*.ts",
     "test:watch": "npm run test -- --watch --reporter=min",
@@ -38,33 +39,31 @@
   "dependencies": {
     "@auditlogic/schema-avigilon-alta-access": "^1.1.6",
     "@auditlogic/schema-avigilon-alta-access-ts": "^1.1.6",
-    "@auditmation/hub-client": "^8.8.72",
-    "@auditmation/hub-core": "^4.5.24",
-    "@auditmation/module-auditmation-auditmation-hub": "^3.13.39",
-    "@auditmation/module-auditmation-auditmation-platform": "^5.1.46",
-    "@auditmation/types-core-js": "^4.10.2",
-    "@auditmation/util-collector-utils": "^4.3.6",
     "@supercharge/promise-pool": "^3.2.0",
+    "@zerobias-com/hub-client": "latest",
+    "@zerobias-com/platform-sdk": "latest",
     "@zerobias-org/module-avigilon-alta-access": "^0.4.0",
     "@zerobias-org/product-avigilon-alta-access": "^2.0.1",
-    "inversify": "^6.0.2",
-    "reflect-metadata": "^0.1.13"
+    "@zerobias-org/types-core-js": "latest",
+    "@zerobias-org/util-collector": "latest",
+    "inversify": "6.0.2",
+    "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
-    "@auditmation/hub-client-codegen": "^2.0.40",
-    "@auditmation/hub-secrets-manager": "^2.0.58",
-    "@auditmation/util-codegen": "^5.5.27",
-    "@types/chai": "^4.3.0",
-    "@types/mocha": "^9.1.0",
-    "@types/node": "^16.3.0",
-    "chai": "^4.3.5",
-    "mocha": "^9.2.0",
-    "ts-node": "^10.4.0",
-    "typescript": "^4.9.5"
+    "@types/chai": "^5.2.3",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^25.3.0",
+    "@zerobias-com/hub-client-codegen": "^1.0.37",
+    "@zerobias-com/hub-secrets-manager": "latest",
+    "@zerobias-org/util-codegen": "latest",
+    "chai": "^6.2.2",
+    "mocha": "^11.7.5",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   },
-  "auditmation": {
-    "package": "auditmation.generic.tls.collectorbot",
-    "dataloader-version": "0.5.4",
+  "zerobias": {
+    "package": "avigilon.alta.access.collectorbot",
+    "dataloader-version": "1.0.0",
     "import-artifact": "collectorbot"
   }
 }

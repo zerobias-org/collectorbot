@@ -8,25 +8,24 @@ import {
   AvigilonAltaSite,
   AvigilonAltaUser,
   AvigilonAltaZone
-} from '@auditlogic/schema-avigilon-alta-access-ts';
-import { ConnectionMetadata } from '@auditmation/hub-core';
+} from '@auditlogic/schema-avigilon-alta-access-ts/dist/index.js';
 import {
   InvalidStateError,
   UnexpectedError,
   UUID
-} from '@auditmation/types-core-js';
-import { Batch } from '@auditmation/util-collector-utils/dist/src';
-import { Parameters } from 'generated/model';
+} from '@zerobias-org/types-core-js';
+import { Batch } from '@zerobias-org/util-collector';
+import { Parameters } from '../generated/model/index.js';
 import { injectable } from 'inversify';
-import PromisePool from '@supercharge/promise-pool';
+import { PromisePool } from '@supercharge/promise-pool';
 import type { OrgCredential, RoleInfo } from '@zerobias-org/module-avigilon-alta-access';
 import { Entry, Group, Schedule, User } from '@zerobias-org/module-avigilon-alta-access';
-import { BaseClient } from '../generated/BaseClient';
-import { mapAccessRule, mapCredential, mapEntry, mapGroup, mapRole, mapSchedule, mapSite, mapUser, mapZone } from './Mappers';
+import { BaseClient } from '../generated/BaseClient.js';
+import { mapAccessRule, mapCredential, mapEntry, mapGroup, mapRole, mapSchedule, mapSite, mapUser, mapZone } from './Mappers.js';
 
 @injectable()
 export class CollectorAvigilonAltaAccessImpl extends BaseClient {
-  private metadata: ConnectionMetadata | undefined;
+  private metadata: any;
 
   private _jobId?: UUID;
 
@@ -131,7 +130,7 @@ export class CollectorAvigilonAltaAccessImpl extends BaseClient {
         this.logger.warn(`Could not retrieve MFA credentials for user ${user.id}: ${error.message}`);
       }
 
-      await userBatch.add(mapUser(user, mfaEnabled), user);
+      await userBatch.add(mapUser(user, mfaEnabled));
     }, 3, this.previewCount);
     await userBatch.end();
   }
@@ -146,7 +145,7 @@ export class CollectorAvigilonAltaAccessImpl extends BaseClient {
       await groupMembersPr.forEach(async (member) => {
         membersIds.push(`${member.id}`);
       });
-      await groupBatch.add(mapGroup(group, membersIds), group);
+      await groupBatch.add(mapGroup(group, membersIds));
     }, 3, this.previewCount);
     await groupBatch.end();
   }
@@ -160,7 +159,7 @@ export class CollectorAvigilonAltaAccessImpl extends BaseClient {
         await siteBatch.error(`Error processing site ${site.id}`, error);
       })
       .process(async (site) => {
-        await siteBatch.add(mapSite(site), site);
+        await siteBatch.add(mapSite(site));
       });
     await siteBatch.end();
   }
@@ -174,7 +173,7 @@ export class CollectorAvigilonAltaAccessImpl extends BaseClient {
         await zoneBatch.error(`Error processing zone ${zone.id}`, error);
       })
       .process(async (zone) => {
-        await zoneBatch.add(mapZone(zone), zone);
+        await zoneBatch.add(mapZone(zone));
       });
     await zoneBatch.end();
   }
@@ -189,7 +188,7 @@ export class CollectorAvigilonAltaAccessImpl extends BaseClient {
       })
       .process(async (entry) => {
         this.entries.push(entry);
-        await entryBatch.add(mapEntry(entry), entry);
+        await entryBatch.add(mapEntry(entry));
       });
     await entryBatch.end();
   }
@@ -199,7 +198,7 @@ export class CollectorAvigilonAltaAccessImpl extends BaseClient {
     const credentialsPr = await this.access.getCredentialApi().listOrgCredentials(this.orgId);
 
     await credentialsPr.forEach(async (credential: OrgCredential) => {
-      await credentialBatch.add(mapCredential(credential), credential);
+      await credentialBatch.add(mapCredential(credential));
     }, 3, this.previewCount);
 
     await credentialBatch.end();
@@ -219,7 +218,7 @@ export class CollectorAvigilonAltaAccessImpl extends BaseClient {
         }
       });
 
-      await roleBatch.add(mapRole(role, assigneeIds), role);
+      await roleBatch.add(mapRole(role, assigneeIds));
     }, 3, this.previewCount);
 
     await roleBatch.end();
@@ -235,7 +234,7 @@ export class CollectorAvigilonAltaAccessImpl extends BaseClient {
 
     await schedulesPr.forEach(async (schedule) => {
       scheduleMap.set(`${schedule.id}`, schedule);
-      await scheduleBatch.add(mapSchedule(schedule), schedule);
+      await scheduleBatch.add(mapSchedule(schedule));
     }, 3, this.previewCount);
 
     await scheduleBatch.end();

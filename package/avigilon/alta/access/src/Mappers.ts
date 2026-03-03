@@ -1,6 +1,6 @@
-import * as s from '@auditlogic/schema-avigilon-alta-access-ts';
-import { AccessCredential_type, PhysicalEntry_type, PrincipalType } from '@auditlogic/schema-avigilon-alta-access-ts';
-import { GeoCountry, GeoCountryDef, PhoneNumber } from '@auditmation/types-core-js';
+import * as s from '@auditlogic/schema-avigilon-alta-access-ts/dist/index.js';
+import { AccessCredential_type, PhysicalEntry_type, PrincipalType } from '@auditlogic/schema-avigilon-alta-access-ts/dist/index.js';
+import { GeoCountry, GeoCountryDef, PhoneNumber } from '@zerobias-org/types-core-js';
 import * as m from '@zerobias-org/module-avigilon-alta-access';
 
 function toUserStatus(raw?: m.User.StatusEnumDef): s.AccountStatus | undefined {
@@ -77,18 +77,22 @@ export function mapSite(raw: m.Site): s.AvigilonAltaSite {
     // ignore invalid phone numbers
   }
 
+  const location: Record<string, any> = {
+    address: {
+      addressLine: [`${raw.address}`, `${raw.address2}`].filter(Boolean).join(', '),
+      locality: raw.city,
+      postalCode: raw.zip,
+      country,
+    },
+  };
+  if (phoneNo) {
+    Object.assign(location, { phoneNumber: phoneNo });
+  }
+
   const output: s.AvigilonAltaSite = {
     id: `${raw.id}`,
     name: raw.name || `Site ${raw.id}`,
-    locations: [{
-      address: {
-        addressLine: [`${raw.address}`, `${raw.address2}`].filter(Boolean).join(', '),
-        locality: raw.city,
-        postalCode: raw.zip,
-        country,
-      },
-      phoneNumber: phoneNo,
-    }],
+    locations: [location],
   };
 
   Object.assign(

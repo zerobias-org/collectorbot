@@ -45,6 +45,7 @@
     "@commitlint/config-conventional": "^20.3.1",
     "@typescript-eslint/eslint-plugin": "^8.53.0",
     "@typescript-eslint/parser": "^8.53.0",
+    "@zerobias-com/hub-client-codegen": "^1.0.37",
     "@zerobias-org/devops-tools": "^1.0.43",
     "@zerobias-org/eslint-config": "latest",
     "@zerobias-org/types-core-js": "^1.2.12",
@@ -53,8 +54,5 @@
     "lerna": "^9.0.3",
     "nx": "^22.4.3",
     "tsx": "^4.21.0"
-  },
-  "dependencies": {
-    "@zerobias-com/hub-client-codegen": "^1.0.34"
   }
 }
