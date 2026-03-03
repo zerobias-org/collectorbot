@@ -20,7 +20,7 @@
     "build": "npm run generate && npm run transpile",
     "clean": "rm -rf generated && rm -rf dist",
     "generate:hub-client": "node -e \"import('@zerobias-com/hub-client-codegen')\"",
-    "generate:models": "node ../../../../node_modules/@zerobias-org/util-codegen/bin/hub-generator.js generate -g hub-module -i ./parameters.yml -o generated/ --global-property models,supportingFiles=index.ts && rm ./generated/api/index.ts",
+    "generate:models": "hub-generator generate -g hub-module -i ./parameters.yml -o generated/ --global-property models,supportingFiles=index.ts && rm ./generated/api/index.ts",
     "generate": "npm run generate:models && npm run generate:hub-client",
     "lint:fix": "eslint --fix src/",
     "lint": "eslint src/",
