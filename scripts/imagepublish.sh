@@ -70,6 +70,8 @@ if [ -e "$LOCATION/tsconfig.json" ]; then
   cp $LOCATION/tsconfig.json $tmpdir || echo 'No specific tsconfig found'
 fi
 npm ci
+echo "--- Installing container entrypoint dependencies"
+npm install axios@latest --no-save
 echo "--- Generating code"
 npm run generate
 echo "--- Compiling TypeScript"
