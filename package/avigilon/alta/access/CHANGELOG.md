@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>1.1.7 (2026-03-03)</small>
+
+* chore(alta-access): update package description ([3c795a2](https://github.com/zerobias-org/collectorbot/commit/3c795a2))
+
+
+
+
+
 ## <small>1.1.6 (2026-03-03)</small>
 
 * fix(alta-access): use hub-generator bin command instead of relative path ([037d4a2](https://github.com/zerobias-org/collectorbot/commit/037d4a2))
