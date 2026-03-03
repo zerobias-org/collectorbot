@@ -1,5 +1,5 @@
-import { getClient } from '@auditmation/hub-client';
-import { getLogger } from '@auditmation/util-logger';
+import { getClient } from '@zerobias-com/hub-client';
+import { LoggerEngine } from '@zerobias-org/logger';
 import axios from 'axios';
 
 {{#dryRun}}
@@ -9,7 +9,7 @@ import { container } from '../generated';
 import { container } from '../dist/generated';
 {{/dryRun}}
 
-const logger = getLogger('console');
+const logger = LoggerEngine.root().get('{{pascal}}');
 
 const apiKey = process.env.API_KEY!;
 const orgId = process.env.ORG_ID!;
@@ -28,8 +28,7 @@ const updateExecutionDetails = async (
       },
     });
   } catch (err) {
-    logger.error(`Error updating execution details: ${err.message}`);
-    logger.error(err);
+    logger.error(`Error updating execution details: ${err.message}`, err);
   }
 };
 
@@ -55,8 +54,7 @@ const sendError = async (err) => {
         },
       });
     } catch (axiosError) {
-      logger.error(`Error sending error callback: ${axiosError.message}`);
-      logger.error(axiosError);
+      logger.error(`Error sending error callback: ${axiosError.message}`, axiosError);
       process.exit(1);
     }
   } else {

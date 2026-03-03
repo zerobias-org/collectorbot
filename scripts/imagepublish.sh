@@ -66,9 +66,8 @@ set -e
 
 echo "--- Building docker module for $FULL_PACKAGE_VERSION in $(pwd)"
 cp $GENERATOR_DIR/templates/Dockerfile $tmpdir
-cp $BASEDIR/package/avigilon/alta/access/tsconfig.json $tmpdir
 if [ -e "$LOCATION/tsconfig.json" ]; then
-  cp $LOCATION/tsconfig.json $tmpdir || 'No specific tsconfig found'
+  cp $LOCATION/tsconfig.json $tmpdir || echo 'No specific tsconfig found'
 fi
 npm ci
 echo "--- Generating code"
@@ -82,7 +81,7 @@ else
   GENERATOR_DIR=$GENERATOR_DIR name=$name location=$tmpdir node $GENERATOR_DIR/src/index.js
 fi
 echo "--- Compiling container entrypoint"
-npx tsc generated/run.ts --outDir dist --esModuleInterop --resolveJsonModule --skipLibCheck
+npx tsc generated/run.ts --outDir dist --module nodenext --moduleResolution nodenext --target es2022 --esModuleInterop --resolveJsonModule --skipLibCheck
 
 echo "--- Pruning dependencies"
 npm prune --omit=dev
