@@ -16,6 +16,7 @@
     "*.md"
   ],
   "scripts": {
+    "nx:build": "npm run build",
     "build": "npm run generate && npm run transpile",
     "clean": "rm -rf generated && rm -rf dist",
     "generate:hub-client": "node -e \"import('@zerobias-com/hub-client-codegen')\"",
