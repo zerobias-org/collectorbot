@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>0.1.6 (2026-03-03)</small>
+
+* fix(agentskills): add nx:build script so CI builds dist before publish ([15435b4](https://github.com/zerobias-org/collectorbot/commit/15435b4))
+
+
+
+
+
 ## <small>0.1.5 (2026-03-03)</small>
 
 * chore(agentskills): update package description ([ff67e93](https://github.com/zerobias-org/collectorbot/commit/ff67e93))
