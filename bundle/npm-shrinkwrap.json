@@ -1,17 +1,17 @@
 {
   "name": "@zerobias-org/collectorbot-bundle",
-  "version": "0.0.31",
+  "version": "0.0.32",
   "lockfileVersion": 2,
   "requires": true,
   "packages": {
     "": {
       "name": "@zerobias-org/collectorbot-bundle",
-      "version": "0.0.31",
+      "version": "0.0.32",
       "license": "ISC",
       "dependencies": {
         "@zerobias-org/collectorbot-auditmation-generic-tls": "0.1.5",
         "@zerobias-org/collectorbot-avigilon-alta-access": "1.1.4",
-        "@zerobias-org/collectorbot-zerobias-schemas-agentskills": "0.1.5",
+        "@zerobias-org/collectorbot-zerobias-schemas-agentskills": "0.1.6",
         "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": "0.1.1"
       }
     },
@@ -6530,9 +6530,9 @@
       }
     },
     "node_modules/@zerobias-org/collectorbot-zerobias-schemas-agentskills": {
-      "version": "0.1.5",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-schemas-agentskills/-/collectorbot-zerobias-schemas-agentskills-0.1.5.tgz",
-      "integrity": "sha512-4PoRhh9ydmbWM7zdogHX92DMLnbjhPO+Sr/DKFQNbgOuwxXe4RcbMg2HbZjY8uma4/SLpPoYaujWdDWXS+yK1A==",
+      "version": "0.1.6",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-schemas-agentskills/-/collectorbot-zerobias-schemas-agentskills-0.1.6.tgz",
+      "integrity": "sha512-1VKnFJWO4qJAUPavD8u0fsIy3rAQJ0AsKchteZf80mvet3mICJCk+yABlLwmA+S9cHVa1Vs1vnwBBXCFgNXuUA==",
       "license": "UNLICENSED",
       "dependencies": {
         "@octokit/plugin-throttling": "^11.0.3",
@@ -16409,9 +16409,9 @@
       }
     },
     "@zerobias-org/collectorbot-zerobias-schemas-agentskills": {
-      "version": "0.1.5",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-schemas-agentskills/-/collectorbot-zerobias-schemas-agentskills-0.1.5.tgz",
-      "integrity": "sha512-4PoRhh9ydmbWM7zdogHX92DMLnbjhPO+Sr/DKFQNbgOuwxXe4RcbMg2HbZjY8uma4/SLpPoYaujWdDWXS+yK1A==",
+      "version": "0.1.6",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-schemas-agentskills/-/collectorbot-zerobias-schemas-agentskills-0.1.6.tgz",
+      "integrity": "sha512-1VKnFJWO4qJAUPavD8u0fsIy3rAQJ0AsKchteZf80mvet3mICJCk+yABlLwmA+S9cHVa1Vs1vnwBBXCFgNXuUA==",
       "requires": {
         "@octokit/plugin-throttling": "^11.0.3",
         "@octokit/rest": "^22.0.1",
