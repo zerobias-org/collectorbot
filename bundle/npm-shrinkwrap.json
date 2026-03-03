@@ -1,16 +1,16 @@
 {
   "name": "@zerobias-org/collectorbot-bundle",
-  "version": "0.0.35",
+  "version": "0.0.36",
   "lockfileVersion": 2,
   "requires": true,
   "packages": {
     "": {
       "name": "@zerobias-org/collectorbot-bundle",
-      "version": "0.0.35",
+      "version": "0.0.36",
       "license": "ISC",
       "dependencies": {
         "@zerobias-org/collectorbot-auditmation-generic-tls": "0.1.5",
-        "@zerobias-org/collectorbot-avigilon-alta-access": "1.1.5",
+        "@zerobias-org/collectorbot-avigilon-alta-access": "1.1.6",
         "@zerobias-org/collectorbot-zerobias-schemas-agentskills": "0.1.8",
         "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": "0.1.1"
       }
@@ -6440,9 +6440,9 @@
       "integrity": "sha512-urBwgfrvVP/eAyXx4hluJivBKzuEbSQs9rKWCrCkbSxNv8mxPcUZKeuoF3Uy4mJl3Lwprp6yy5/39VWigZ4K6Q=="
     },
     "node_modules/@zerobias-org/collectorbot-avigilon-alta-access": {
-      "version": "1.1.5",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-avigilon-alta-access/-/collectorbot-avigilon-alta-access-1.1.5.tgz",
-      "integrity": "sha512-XYxpujPFG8UpiUGu9oprL509bIpbzmsmK3KqlKrpGgaSP2+yO/3fuOiZCvegwqfXM71ezDYcL0/wD5IbT3B1eg==",
+      "version": "1.1.6",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-avigilon-alta-access/-/collectorbot-avigilon-alta-access-1.1.6.tgz",
+      "integrity": "sha512-DW1QyVe8P/+wm5cPOFmFgZCCQ0pqynf9T2VyAiBwQHd4J2bwUyR9RMa+TyJvIugRI6QsT3lKAqrofL6iX4YFbQ==",
       "license": "UNLICENSED",
       "dependencies": {
         "@auditlogic/schema-avigilon-alta-access": "^1.1.6",
@@ -16288,9 +16288,9 @@
       }
     },
     "@zerobias-org/collectorbot-avigilon-alta-access": {
-      "version": "1.1.5",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-avigilon-alta-access/-/collectorbot-avigilon-alta-access-1.1.5.tgz",
-      "integrity": "sha512-XYxpujPFG8UpiUGu9oprL509bIpbzmsmK3KqlKrpGgaSP2+yO/3fuOiZCvegwqfXM71ezDYcL0/wD5IbT3B1eg==",
+      "version": "1.1.6",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-avigilon-alta-access/-/collectorbot-avigilon-alta-access-1.1.6.tgz",
+      "integrity": "sha512-DW1QyVe8P/+wm5cPOFmFgZCCQ0pqynf9T2VyAiBwQHd4J2bwUyR9RMa+TyJvIugRI6QsT3lKAqrofL6iX4YFbQ==",
       "requires": {
         "@auditlogic/schema-avigilon-alta-access": "^1.1.6",
         "@auditlogic/schema-avigilon-alta-access-ts": "^1.1.6",
