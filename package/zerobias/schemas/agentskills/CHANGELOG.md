@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>0.1.7 (2026-03-03)</small>
+
+* fix(agentskills): full ESM support with nodenext and .js import extensions ([86903c7](https://github.com/zerobias-org/collectorbot/commit/86903c7))
+
+
+
+
+
 ## <small>0.1.6 (2026-03-03)</small>
 
 * fix(agentskills): add nx:build script so CI builds dist before publish ([15435b4](https://github.com/zerobias-org/collectorbot/commit/15435b4))
