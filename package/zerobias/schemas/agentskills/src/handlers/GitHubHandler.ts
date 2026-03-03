@@ -1,8 +1,8 @@
 import { Octokit } from '@octokit/rest';
 import { throttling } from '@octokit/plugin-throttling';
 import { parse as parseYaml } from 'yaml';
-import { AgentSkill, SkillFrontmatter } from '../types';
-import { parseFrontmatter, parseFrontmatterLoose, toAgentSkill } from '../mappers';
+import { AgentSkill, SkillFrontmatter } from '../types/index.js';
+import { parseFrontmatter, parseFrontmatterLoose, toAgentSkill } from '../mappers.js';
 
 const ThrottledOctokit = Octokit.plugin(throttling);
 

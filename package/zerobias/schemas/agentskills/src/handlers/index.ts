@@ -1,2 +1,2 @@
-export { GitHubHandler } from './GitHubHandler';
-export { discoverRepos } from './SkillsShHandler';
+export { GitHubHandler } from './GitHubHandler.js';
+export { discoverRepos } from './SkillsShHandler.js';

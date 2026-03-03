@@ -6,10 +6,10 @@
 import { UUID } from '@zerobias-org/types-core-js';
 import { BatchManager } from '@zerobias-org/util-collector';
 import { injectable } from 'inversify';
-import { BaseClient } from '../generated/BaseClient';
-import { Parameters } from '../generated/model';
+import { BaseClient } from '../generated/BaseClient.js';
+import { Parameters } from '../generated/model/index.js';
 
-import { GitHubHandler, discoverRepos } from './handlers';
+import { GitHubHandler, discoverRepos } from './handlers/index.js';
 
 import { LoggerEngine } from '@zerobias-org/logger';
 

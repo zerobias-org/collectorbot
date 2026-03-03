@@ -1,5 +1,5 @@
 import { URL } from '@zerobias-org/types-core-js';
-import { AgentSkill, SkillFrontmatter } from './types';
+import { AgentSkill, SkillFrontmatter } from './types/index.js';
 
 /**
  * Regex-based fallback for extracting frontmatter key-value pairs
