@@ -1,12 +1,12 @@
 import 'reflect-metadata';
 
-import { TestUtils } from '@auditmation/hub-client';
+import { getClient } from '@zerobias-com/hub-client';
 import { expect } from 'chai';
 import * as fs from 'fs';
 import * as path from 'path';
-import { container } from '../../generated';
-import { DataMappingParams, toMappingRules } from '../../src/types';
-import { applyMappings } from '../../src/Mappers';
+import { container } from '../../generated/index.js';
+import { DataMappingParams, toMappingRules } from '../../src/types/index.js';
+import { applyMappings } from '../../src/Mappers.js';
 
 describe('CollectorZerobiasZerobiasDynamicIT', function () {
   this.timeout(60000); // Allow up to 60 seconds for integration tests
@@ -146,7 +146,7 @@ describe('CollectorZerobiasZerobiasDynamicIT', function () {
       if (!hasHubConnection) {
         this.skip();
       } else {
-        client = await TestUtils.getClient(container);
+        client = await getClient(container);
       }
     });
 

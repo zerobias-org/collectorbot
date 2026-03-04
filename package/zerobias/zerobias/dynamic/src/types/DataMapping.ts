@@ -3,7 +3,7 @@
  * These types represent the input structure for dynamic data collection
  */
 
-import { MappingRule, SourceField, DestinationField, TransformConfig } from '@auditmation/zb-client-data-utils';
+import { MappingRule, SourceField, DestinationField, TransformConfig } from '@zerobias-org/data-utils';
 
 /**
  * Schema field definition from source system

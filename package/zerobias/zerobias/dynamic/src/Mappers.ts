@@ -1,9 +1,9 @@
 /**
- * Data mapping utilities using @auditmation/zb-client-data-utils
+ * Data mapping utilities using @zerobias-org/data-utils
  */
 
-import { DataMapper, MappingRule } from '@auditmation/zb-client-data-utils';
-import { ParamsMappingRule, toMappingRules } from './types';
+import { DataMapper, MappingRule } from '@zerobias-org/data-utils';
+import { ParamsMappingRule, toMappingRules } from './types/index.js';
 
 // Singleton DataMapper instance
 const dataMapper = new DataMapper();

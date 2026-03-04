@@ -1,7 +1,7 @@
 modules:
-  '@auditlogic/module-auditmation-interface-dataproducer':
+  '@zerobias-org/module-interface-dataproducer':
     id: a2b032b3-eb87-4cb8-8916-8fbbd4c3fcef
-    name: module-auditmation-interface-dataproducer
+    name: module-interface-dataproducer
     module: DynamicDataProducer
     version: 1.1.2
 products:

@@ -1,10 +1,10 @@
-import { ConnectionMetadata } from '@auditmation/hub-core';
-import { UnexpectedError, UUID } from '@auditmation/types-core-js';
-import { Batch } from '@auditmation/util-collector-utils';
+import { ConnectionMetadata } from '@zerobias-com/hub-core';
+import { UnexpectedError, UUID } from '@zerobias-org/types-core-js';
+import { Batch } from '@zerobias-org/util-collector';
 import { injectable } from 'inversify';
-import { BaseClient } from '../generated/BaseClient';
-import { applyMappings } from './Mappers';
-import { DataMapping, DataMappingParams } from './types';
+import { BaseClient } from '../generated/BaseClient.js';
+import { applyMappings } from './Mappers.js';
+import { DataMapping, DataMappingParams } from './types/index.js';
 
 @injectable()
 export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
@@ -93,10 +93,9 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
 
       const results = await collectionsApi.getCollectionElements(
         source.objectId,
-        1,     // pageNumber
-        100,   // pageSize (max is 100)
-        undefined, // sortBy
-        undefined  // sortDir
+        undefined, // pageToken
+        1,         // pageNumber
+        100,       // pageSize (max is 100)
       );
 
       // Process each item through the mappings

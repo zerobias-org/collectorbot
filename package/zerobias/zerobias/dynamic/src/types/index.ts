@@ -1,1 +1,1 @@
-export * from './DataMapping';
+export * from './DataMapping.js';
