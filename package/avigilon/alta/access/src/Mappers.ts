@@ -24,7 +24,6 @@ export function mapUser(raw: m.User, mfaEnabled?: boolean): s.Account {
   const output: s.Account = {
     id: `${raw.id}`,
     name: `${raw.identity?.firstName ?? ''} ${raw.identity?.lastName ?? ''}`.trim() || `User ${raw.id}`,
-    email: raw.identity?.email,
     identity: `${raw.identity?.email}`,
     login: `${raw.identity?.email}`,
     person: `${raw.identity?.email}`,
@@ -37,6 +36,7 @@ export function mapUser(raw: m.User, mfaEnabled?: boolean): s.Account {
   Object.assign(
     output,
     {
+      email: raw.identity?.email,
       dateCreated: raw.createdAt?.toISOString().split('T')[0],
       dateLastModified: raw.updatedAt?.toISOString().split('T')[0],
     }
