@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>0.1.2 (2026-03-04)</small>
+
+* feat(dynamic): migrate to ESM with @zerobias-org module ([c964cf6](https://github.com/zerobias-org/collectorbot/commit/c964cf6))
+
+
+
+
+
 ## <small>0.1.1 (2026-03-02)</small>
 
 * fix: include npm-shrinkwrap.json in published packages ([3c76efa](https://github.com/zerobias-org/collectorbot/commit/3c76efa))

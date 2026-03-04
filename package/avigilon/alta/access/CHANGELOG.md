@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>1.1.9 (2026-03-04)</small>
+
+* fix(alta-access): update module to latest, fix Email type conflict ([dbb13f0](https://github.com/zerobias-org/collectorbot/commit/dbb13f0))
+
+
+
+
+
 ## <small>1.1.8 (2026-03-03)</small>
 
 * chore(alta-access): trigger image rebuild ([8cfbb5e](https://github.com/zerobias-org/collectorbot/commit/8cfbb5e))

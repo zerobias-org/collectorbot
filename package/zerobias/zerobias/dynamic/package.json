@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/collectorbot-zerobias-zerobias-dynamic",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "ZeroBias Data Producer Interface Collector",
   "type": "module",
   "main": "dist/src/index.js",
