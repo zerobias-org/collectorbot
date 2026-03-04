@@ -1,5 +1,5 @@
-import { CollectorAuditmationGenericTlsImpl } from './CollectorAuditmationGenericTlsImpl';
+import { CollectorAuditmationGenericTlsImpl } from './CollectorAuditmationGenericTlsImpl.js';
 
 export default CollectorAuditmationGenericTlsImpl;
 /* eslint-disable */
-export * from '../generated';
+export * from '../generated/index.js';

@@ -5,8 +5,8 @@ import {
   ServiceEndpoint_sslVersions,
   ServiceEndpoint_tlsVersions,
   X509Certificate as X509CertificateSchema
-} from '@auditlogic/schema-auditmation-auditmation-base-ts';
-import { InvalidInputError, URL } from '@auditmation/types-core-js';
+} from '@auditlogic/schema-auditmation-auditmation-base-ts/dist/src/index.js';
+import { InvalidInputError, URL } from '@zerobias-org/types-core-js';
 
 export function toX509Certificate(cert: X509Certificate): X509CertificateSchema {
   const aliases: string[] = [];
@@ -22,8 +22,8 @@ export function toX509Certificate(cert: X509Certificate): X509CertificateSchema 
     id: `${cert.serialNumber}`,
     name: `${cert.subject?.cn}`,
     aliases,
-    issuer: cert.issuer,
-    certificate: cert,
+    issuer: cert.issuer as any,
+    certificate: cert as any,
   };
 
   Object.assign(

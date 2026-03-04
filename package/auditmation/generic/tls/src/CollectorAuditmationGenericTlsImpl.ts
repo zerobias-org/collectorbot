@@ -1,16 +1,16 @@
 import { newTls } from '@auditlogic/module-auditmation-generic-tls';
-import { ServiceEndpoint, X509Certificate } from '@auditlogic/schema-auditmation-auditmation-base-ts';
-import { ConnectionMetadata } from '@auditmation/hub-core';
+import { ServiceEndpoint, X509Certificate } from '@auditlogic/schema-auditmation-auditmation-base-ts/dist/src/index.js';
+import { ConnectionMetadata } from '@zerobias-com/hub-core';
 import {
   UnexpectedError,
   URL,
   UUID
-} from '@auditmation/types-core-js';
-import { Batch } from '@auditmation/util-collector-utils/dist/src';
+} from '@zerobias-org/types-core-js';
+import { Batch } from '@zerobias-org/util-collector';
 import { injectable } from 'inversify';
-import { BaseClient } from '../generated/BaseClient';
-import { Parameters } from '../generated/model';
-import { toServiceEndpoint, toX509Certificate } from './Mappers';
+import { BaseClient } from '../generated/BaseClient.js';
+import { Parameters } from '../generated/model/index.js';
+import { toServiceEndpoint, toX509Certificate } from './Mappers.js';
 
 @injectable()
 export class CollectorAuditmationGenericTlsImpl extends BaseClient {
