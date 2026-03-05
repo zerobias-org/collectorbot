@@ -8,7 +8,7 @@ import { Parameters } from '../../generated/model/index.js';
  * Environment variables:
  *   REPOS           — comma-separated extra "owner/repo" to add on top of discovery (optional)
  *   REPO_LIMIT      — max repos to process, 0 = unlimited (default: 0)
- *   GITHUB_TOKEN    — GitHub personal access token
+ *   CONCURRENCY     — parallel repo clones (default: 10)
  */
 describe('CollectorZerobiasAgentskillsIT', function () {
   this.timeout(1_200_000);
@@ -25,8 +25,8 @@ describe('CollectorZerobiasAgentskillsIT', function () {
         .filter(Boolean);
 
       const params = new Parameters(extraRepos.length > 0 ? extraRepos : undefined);
-      params.githubToken = process.env.GITHUB_TOKEN;
       params.repoLimit = Number(process.env.REPO_LIMIT) || 0;
+      params.concurrency = Number(process.env.CONCURRENCY) || 10;
 
       await client.run(params);
     } catch (e) {
