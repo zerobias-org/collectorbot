@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>0.1.9-rc.0 (2026-03-05)</small>
+
+* feat(agentskills): replace GitHub API with git sparse-checkout ([e1d5197](https://github.com/zerobias-org/collectorbot/commit/e1d5197))
+
+
+
+
+
 ## <small>0.1.8 (2026-03-03)</small>
 
 * chore(agentskills): update package description ([8247867](https://github.com/zerobias-org/collectorbot/commit/8247867))
