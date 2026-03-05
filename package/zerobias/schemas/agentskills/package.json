@@ -37,8 +37,6 @@
     "directory": "package/zerobias/schemas/agentskills"
   },
   "dependencies": {
-    "@octokit/plugin-throttling": "^11.0.3",
-    "@octokit/rest": "^22.0.1",
     "@zerobias-com/hub-client": "latest",
     "@zerobias-com/platform-sdk": "latest",
     "@zerobias-org/schema-zerobias-schemas-agentskills": "^1.0.0",

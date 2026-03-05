@@ -28,6 +28,7 @@ components:
         repoLimit:
           type: integer
           description: Maximum number of repositories to process (0 or unset for unlimited). Applies after merging explicit + discovered repos.
-        githubToken:
-          type: string
-          description: GitHub personal access token (optional, increases rate limit from 60 to 5000 req/hr)
+        concurrency:
+          type: integer
+          description: Number of repositories to clone in parallel (default 10). Higher values are faster but use more disk I/O and bandwidth.
+          default: 10

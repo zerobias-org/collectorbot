@@ -1,19 +1,23 @@
 /**
  * Agent Skills Collector - discovers SKILL.md files from GitHub repositories
  * and loads them into AuditgraphDB as AgentSkill objects.
+ *
+ * Uses git sparse-checkout (no auth required) to fetch only SKILL.md files
+ * from each repository, running repos in parallel for speed.
  */
 
 import { UUID } from '@zerobias-org/types-core-js';
-import { BatchManager } from '@zerobias-org/util-collector';
+import { BatchManager, splitArrayBySize } from '@zerobias-org/util-collector';
 import { injectable } from 'inversify';
 import { BaseClient } from '../generated/BaseClient.js';
 import { Parameters } from '../generated/model/index.js';
 
-import { GitHubHandler, discoverRepos } from './handlers/index.js';
+import { GitSparseHandler, discoverRepos } from './handlers/index.js';
 
 import { LoggerEngine } from '@zerobias-org/logger';
 
 const LOGGER_NAME = 'AgentSkillsCollector';
+const DEFAULT_CONCURRENCY = 10;
 
 @injectable()
 export class CollectorZerobiasAgentskillsImpl extends BaseClient {
@@ -81,17 +85,22 @@ export class CollectorZerobiasAgentskillsImpl extends BaseClient {
       repos = repos.slice(0, validatedParameters.repoLimit);
     }
 
-    this.logger.info(`Collecting skills from ${repos.length} repositories`);
+    const concurrency = validatedParameters.concurrency && validatedParameters.concurrency > 0
+      ? validatedParameters.concurrency
+      : DEFAULT_CONCURRENCY;
 
-    const handler = new GitHubHandler({ token: validatedParameters.githubToken });
+    this.logger.info(`Collecting skills from ${repos.length} repositories (concurrency: ${concurrency})`);
+
+    const handler = new GitSparseHandler();
     const batch = await this.batchManager.initBatch('AgentSkill', 'skills.sh');
 
-    for (let index = 0; index < repos.length; index++) {
-      const [owner, repo] = String(repos[index]).split('/');
-      const repoId = `${owner}/${repo}`;
-      const progress = `[${index + 1}/${repos.length}]`;
+    let completed = 0;
 
-      this.logger.info(`${progress} Scanning ${repoId}...`);
+    // Process repos in parallel with bounded concurrency using a simple pool
+    const processRepo = async (repoStr: string) => {
+      const [owner, repo] = String(repoStr).split('/');
+      const repoId = `${owner}/${repo}`;
+      const progress = `[${++completed}/${repos.length}]`;
 
       try {
         const { skills, errors } = await handler.collectSkills(owner, repo, this.previewCount);
@@ -99,16 +108,35 @@ export class CollectorZerobiasAgentskillsImpl extends BaseClient {
         this.logger.info(`${progress} Found ${skills.length} skills in ${repoId}`);
 
         for (const error of errors) {
-          this.logger.warn(`${progress} ${repoId}: ${error}`);
+          this.logger.warn(`${repoId}: ${error}`);
         }
 
-        for (const skill of skills) {
-          await batch.add(skill);
+        if (skills.length > 0) {
+          const { chunks, largeItems } = splitArrayBySize(skills);
+
+          for (const chunk of chunks) {
+            await batch.addItems(chunk.map((skill) => ({ payload: skill })));
+          }
+
+          for (const item of largeItems) {
+            await batch.add(item);
+          }
         }
       } catch (error) {
         this.logger.error(`${progress} Error collecting from ${repoId}: ${error.message}`, error);
       }
+    };
+
+    // Simple concurrency pool
+    const executing = new Set<Promise<void>>();
+    for (const repoStr of repos) {
+      const p = processRepo(repoStr).then(() => { executing.delete(p); });
+      executing.add(p);
+      if (executing.size >= concurrency) {
+        await Promise.race(executing);
+      }
     }
+    await Promise.all(executing);
 
     await batch.end();
 

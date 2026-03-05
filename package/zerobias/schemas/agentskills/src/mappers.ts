@@ -55,6 +55,9 @@ export function parseFrontmatter(content: string): { frontmatter: string; body: 
 /**
  * Map parsed SKILL.md frontmatter and body to an AgentSkill schema object.
  */
+// Characters forbidden in batch item IDs
+const INVALID_ID_CHARS = /[\s,{}[\]()]/g;
+
 export function toAgentSkill(
   fm: SkillFrontmatter,
   bodyContent: string,
@@ -63,16 +66,16 @@ export function toAgentSkill(
   filePath: string
 ): AgentSkill {
   const repoUrl = `https://github.com/${owner}/${repo}`;
-  const externalId = `${owner}/${repo}:${filePath}`;
+  const externalId = `${owner}/${repo}:${filePath}`.replaceAll(INVALID_ID_CHARS, '_');
 
   return {
     id: externalId,
     externalId,
-    name: fm.name,
-    description: fm.description,
+    name: String(fm.name),
+    description: fm.description != null ? String(fm.description) : undefined,
     url: new URL(`${repoUrl}/blob/HEAD/${filePath}`),
-    license: fm.license,
-    compatibility: fm.compatibility,
+    license: fm.license != null ? String(fm.license) : undefined,
+    compatibility: fm.compatibility != null ? String(fm.compatibility) : undefined,
     author: fm.metadata?.author,
     skillVersion: fm.metadata?.version,
     sourceRepo: repoUrl,
