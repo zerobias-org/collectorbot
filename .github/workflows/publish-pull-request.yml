@@ -19,3 +19,4 @@ jobs:
     secrets: inherit
     with:
       run-integration-tests: 'false'
+      test-timeout: 900
