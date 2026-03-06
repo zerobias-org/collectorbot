@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/collectorbot-zerobias-schemas-agentskills",
-  "version": "0.1.9-rc.0",
+  "version": "0.1.9-rc.1",
   "description": "Agent Skills Collector - discovers and collects SKILL.md definitions from GitHub repositories",
   "type": "module",
   "main": "dist/src/index.js",
