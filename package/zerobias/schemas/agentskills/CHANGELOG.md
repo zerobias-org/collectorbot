@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## <small>0.1.9 (2026-03-06)</small>
+
+* chore(release): bump version ([330098f](https://github.com/zerobias-org/collectorbot/commit/330098f))
+* chore(release): bump version ([2f3bde7](https://github.com/zerobias-org/collectorbot/commit/2f3bde7))
+* feat(agentskills): replace GitHub API with git sparse-checkout ([e1d5197](https://github.com/zerobias-org/collectorbot/commit/e1d5197))
+
+
+
+
+
 ## <small>0.1.9-rc.1 (2026-03-06)</small>
 
 * chore(release): bump version ([2f3bde7](https://github.com/zerobias-org/collectorbot/commit/2f3bde7))
