@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/collectorbot-zerobias-schemas-mcpservers",
-  "version": "0.1.0-rc.1",
+  "version": "0.1.0",
   "description": "MCP Servers Collector - discovers and catalogs Model Context Protocol servers and their tools",
   "type": "module",
   "main": "dist/src/index.js",
