@@ -1,0 +1,67 @@
+{
+  "name": "@zerobias-org/collectorbot-zerobias-schemas-mcpservers",
+  "version": "0.1.0-rc.1",
+  "description": "MCP Servers Collector - discovers and catalogs Model Context Protocol servers and their tools",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "author": "team@zerobias.com",
+  "license": "UNLICENSED",
+  "directories": {
+    "src": "src"
+  },
+  "files": [
+    "dist",
+    "npm-shrinkwrap.json",
+    "*.yml",
+    "*.md"
+  ],
+  "scripts": {
+    "nx:build": "npm run build",
+    "build": "npm run generate && npm run transpile",
+    "clean": "rm -rf generated && rm -rf dist",
+    "generate:hub-client": "node -e \"import('@zerobias-com/hub-client-codegen')\"",
+    "generate:models": "node ../../../../node_modules/@zerobias-org/util-codegen/bin/hub-generator.js generate -g hub-module -i ./parameters.yml -o generated/ --global-property models,supportingFiles=index.ts && rm ./generated/api/index.ts",
+    "generate": "npm run generate:models && npm run generate:hub-client",
+    "lint:fix": "eslint --fix src/",
+    "lint": "eslint src/",
+    "test:integration:watch": "npm run test:integration -- --watch --reporter=min",
+    "test:integration": "mocha --exit --inline-diffs --reporter=list test/integration/**/*.ts",
+    "test:watch": "npm run test -- --watch --reporter=min",
+    "test": "",
+    "transpile:watch": "tsc --watch",
+    "transpile": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:zerobias-org/collectorbot.git",
+    "directory": "package/zerobias/schemas/mcpservers"
+  },
+  "dependencies": {
+    "@zerobias-com/hub-client": "latest",
+    "@zerobias-com/platform-sdk": "latest",
+    "@zerobias-org/schema-zerobias-schemas-mcpservers": "^1.0.0",
+    "@zerobias-org/schema-zerobias-schemas-mcpservers-ts": "^1.0.1",
+    "@zerobias-org/types-core-js": "latest",
+    "@zerobias-org/util-collector": "^1.0.29",
+    "inversify": "6.0.2",
+    "reflect-metadata": "^0.2.2",
+    "yaml": "^2.8.2"
+  },
+  "devDependencies": {
+    "@types/chai": "^5.2.3",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^25.3.0",
+    "@zerobias-com/hub-client-codegen": "^1.0.37",
+    "@zerobias-com/hub-secrets-manager": "latest",
+    "@zerobias-org/util-codegen": "latest",
+    "chai": "^6.2.2",
+    "mocha": "^11.7.5",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "zerobias": {
+    "package": "zerobias.schemas.mcpservers.collectorbot",
+    "dataloader-version": "1.0.0",
+    "import-artifact": "collectorbot"
+  }
+}

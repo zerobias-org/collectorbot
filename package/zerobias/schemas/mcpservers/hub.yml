@@ -1,0 +1,5 @@
+modules: {}
+products:
+  zerobias.schemas.mcpservers:
+    id: c015a106-c60c-45a8-a8a1-fe9472327bd9
+    name: MCP Servers

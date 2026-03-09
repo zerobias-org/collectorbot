@@ -1,0 +1,38 @@
+openapi: 3.0.3
+info:
+  description: Stub to use for codegen of parameters for a hub client
+  version: ''
+  title: '@auditmation/hub-client-codegen'
+paths:
+  /foo:
+    get:
+      tags:
+        - foo
+      operationId: getFoo
+      responses:
+        '204':
+          description: Foo
+components:
+  schemas:
+    Parameters:
+      type: object
+      properties:
+        sources:
+          type: array
+          description: GitHub repositories to scan for MCP server definitions (format "owner/repo"). Defaults to official MCP servers list.
+          items:
+            type: string
+          example:
+            - modelcontextprotocol/servers
+            - awslabs/mcp
+        serverLimit:
+          type: integer
+          description: Maximum number of servers to process (0 or unset for unlimited).
+        concurrency:
+          type: integer
+          description: Number of sources to process in parallel (default 5).
+          default: 5
+        collectTools:
+          type: boolean
+          description: Whether to collect individual tool definitions from each server (default true).
+          default: true

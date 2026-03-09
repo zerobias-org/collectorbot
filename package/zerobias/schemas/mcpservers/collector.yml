@@ -1,0 +1,4 @@
+classes:
+    - "@zerobias-org/schema-zerobias-schemas-mcpservers":
+        - McpServer
+        - McpTool
