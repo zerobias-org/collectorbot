@@ -1,17 +1,18 @@
 {
   "name": "@zerobias-org/collectorbot-bundle",
-  "version": "0.0.41",
+  "version": "0.0.42",
   "lockfileVersion": 2,
   "requires": true,
   "packages": {
     "": {
       "name": "@zerobias-org/collectorbot-bundle",
-      "version": "0.0.41",
+      "version": "0.0.42",
       "license": "ISC",
       "dependencies": {
         "@zerobias-org/collectorbot-auditmation-generic-tls": "0.1.6",
         "@zerobias-org/collectorbot-avigilon-alta-access": "1.1.9",
         "@zerobias-org/collectorbot-zerobias-schemas-agentskills": "0.1.9",
+        "@zerobias-org/collectorbot-zerobias-schemas-mcpservers": "0.1.0",
         "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": "0.1.2"
       }
     },
@@ -5679,6 +5680,23 @@
         "yaml": "^2.8.2"
       }
     },
+    "node_modules/@zerobias-org/collectorbot-zerobias-schemas-mcpservers": {
+      "version": "0.1.0",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-schemas-mcpservers/-/collectorbot-zerobias-schemas-mcpservers-0.1.0.tgz",
+      "integrity": "sha512-ICjy/5JxpTDeiERvUNuhl7saWvH4l0mEkA9a96E6qMQ8pHnxpCVdd6xIjlcXPSZAkBQf4IVJICu/xidmwdqsPw==",
+      "license": "UNLICENSED",
+      "dependencies": {
+        "@zerobias-com/hub-client": "latest",
+        "@zerobias-com/platform-sdk": "latest",
+        "@zerobias-org/schema-zerobias-schemas-mcpservers": "^1.0.0",
+        "@zerobias-org/schema-zerobias-schemas-mcpservers-ts": "^1.0.1",
+        "@zerobias-org/types-core-js": "latest",
+        "@zerobias-org/util-collector": "^1.0.29",
+        "inversify": "6.0.2",
+        "reflect-metadata": "^0.2.2",
+        "yaml": "^2.8.2"
+      }
+    },
     "node_modules/@zerobias-org/collectorbot-zerobias-zerobias-dynamic": {
       "version": "0.1.2",
       "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-zerobias-dynamic/-/collectorbot-zerobias-zerobias-dynamic-0.1.2.tgz",
@@ -5831,6 +5849,15 @@
         "@zerobias-org/suite-zerobias-schemas": "latest"
       }
     },
+    "node_modules/@zerobias-org/product-zerobias-schemas-mcpservers": {
+      "version": "1.0.0",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/product-zerobias-schemas-mcpservers/-/product-zerobias-schemas-mcpservers-1.0.0.tgz",
+      "integrity": "sha512-vYsJeTX/c2hZlcKwnTCqDQQ8OWm6uZFTtP7BkhvjT6yogbm/OEBsJbJ4bKdHqlQMR+Va0bYf07/dYx4muLz3mg==",
+      "license": "ISC",
+      "dependencies": {
+        "@zerobias-org/suite-zerobias-schemas": "latest"
+      }
+    },
     "node_modules/@zerobias-org/product-zerobias-zerobias": {
       "version": "2.0.1",
       "resolved": "https://pkg.zerobias.org/@zerobias-org/product-zerobias-zerobias/-/product-zerobias-zerobias-2.0.1.tgz",
@@ -5855,6 +5882,27 @@
       "version": "1.0.1",
       "resolved": "https://pkg.zerobias.org/@zerobias-org/schema-zerobias-schemas-agentskills-ts/-/schema-zerobias-schemas-agentskills-ts-1.0.1.tgz",
       "integrity": "sha512-a/AFsb6B/Xgsyh/V/7DTmZn/vFTMjSWJwbWwfb2s1IcR2fuAf1pPnmPZhfjvCJ33yyDhKNxHehCSU954NUSKfg==",
+      "license": "ISC",
+      "engines": {
+        "node": ">=22.0.0",
+        "npm": ">=10.0.0"
+      }
+    },
+    "node_modules/@zerobias-org/schema-zerobias-schemas-mcpservers": {
+      "version": "1.0.1",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/schema-zerobias-schemas-mcpservers/-/schema-zerobias-schemas-mcpservers-1.0.1.tgz",
+      "integrity": "sha512-dzNt8ykDKqsZE5FfXB6li5dxK9BnbqESxs5fCus+Sh3Smo5fBV1FVE2zpva22heFPCCwSA6GkeND39kXflbiJw==",
+      "license": "ISC",
+      "dependencies": {
+        "@zerobias-com/schema-zerobias-zerobias-platform": "latest",
+        "@zerobias-org/product-zerobias-schemas-mcpservers": "latest",
+        "@zerobias-org/schema-zerobias-zerobias-base": "latest"
+      }
+    },
+    "node_modules/@zerobias-org/schema-zerobias-schemas-mcpservers-ts": {
+      "version": "1.0.1",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/schema-zerobias-schemas-mcpservers-ts/-/schema-zerobias-schemas-mcpservers-ts-1.0.1.tgz",
+      "integrity": "sha512-fUKRwYO20+RqXAwXSyOw4KdgpDaSdOUEFxrWccx73DvxdxrsKlZAUwaV1Q867eO1FmgRV/MBEwQziDYKaMaEKw==",
       "license": "ISC",
       "engines": {
         "node": ">=22.0.0",
@@ -14272,6 +14320,22 @@
         "yaml": "^2.8.2"
       }
     },
+    "@zerobias-org/collectorbot-zerobias-schemas-mcpservers": {
+      "version": "0.1.0",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-schemas-mcpservers/-/collectorbot-zerobias-schemas-mcpservers-0.1.0.tgz",
+      "integrity": "sha512-ICjy/5JxpTDeiERvUNuhl7saWvH4l0mEkA9a96E6qMQ8pHnxpCVdd6xIjlcXPSZAkBQf4IVJICu/xidmwdqsPw==",
+      "requires": {
+        "@zerobias-com/hub-client": "latest",
+        "@zerobias-com/platform-sdk": "latest",
+        "@zerobias-org/schema-zerobias-schemas-mcpservers": "^1.0.0",
+        "@zerobias-org/schema-zerobias-schemas-mcpservers-ts": "^1.0.1",
+        "@zerobias-org/types-core-js": "latest",
+        "@zerobias-org/util-collector": "^1.0.29",
+        "inversify": "6.0.2",
+        "reflect-metadata": "^0.2.2",
+        "yaml": "^2.8.2"
+      }
+    },
     "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": {
       "version": "0.1.2",
       "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-zerobias-dynamic/-/collectorbot-zerobias-zerobias-dynamic-0.1.2.tgz",
@@ -14405,6 +14469,14 @@
         "@zerobias-org/suite-zerobias-schemas": "latest"
       }
     },
+    "@zerobias-org/product-zerobias-schemas-mcpservers": {
+      "version": "1.0.0",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/product-zerobias-schemas-mcpservers/-/product-zerobias-schemas-mcpservers-1.0.0.tgz",
+      "integrity": "sha512-vYsJeTX/c2hZlcKwnTCqDQQ8OWm6uZFTtP7BkhvjT6yogbm/OEBsJbJ4bKdHqlQMR+Va0bYf07/dYx4muLz3mg==",
+      "requires": {
+        "@zerobias-org/suite-zerobias-schemas": "latest"
+      }
+    },
     "@zerobias-org/product-zerobias-zerobias": {
       "version": "2.0.1",
       "resolved": "https://pkg.zerobias.org/@zerobias-org/product-zerobias-zerobias/-/product-zerobias-zerobias-2.0.1.tgz",
@@ -14427,6 +14499,21 @@
       "version": "1.0.1",
       "resolved": "https://pkg.zerobias.org/@zerobias-org/schema-zerobias-schemas-agentskills-ts/-/schema-zerobias-schemas-agentskills-ts-1.0.1.tgz",
       "integrity": "sha512-a/AFsb6B/Xgsyh/V/7DTmZn/vFTMjSWJwbWwfb2s1IcR2fuAf1pPnmPZhfjvCJ33yyDhKNxHehCSU954NUSKfg=="
+    },
+    "@zerobias-org/schema-zerobias-schemas-mcpservers": {
+      "version": "1.0.1",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/schema-zerobias-schemas-mcpservers/-/schema-zerobias-schemas-mcpservers-1.0.1.tgz",
+      "integrity": "sha512-dzNt8ykDKqsZE5FfXB6li5dxK9BnbqESxs5fCus+Sh3Smo5fBV1FVE2zpva22heFPCCwSA6GkeND39kXflbiJw==",
+      "requires": {
+        "@zerobias-com/schema-zerobias-zerobias-platform": "latest",
+        "@zerobias-org/product-zerobias-schemas-mcpservers": "latest",
+        "@zerobias-org/schema-zerobias-zerobias-base": "latest"
+      }
+    },
+    "@zerobias-org/schema-zerobias-schemas-mcpservers-ts": {
+      "version": "1.0.1",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/schema-zerobias-schemas-mcpservers-ts/-/schema-zerobias-schemas-mcpservers-ts-1.0.1.tgz",
+      "integrity": "sha512-fUKRwYO20+RqXAwXSyOw4KdgpDaSdOUEFxrWccx73DvxdxrsKlZAUwaV1Q867eO1FmgRV/MBEwQziDYKaMaEKw=="
     },
     "@zerobias-org/schema-zerobias-zerobias-base": {
       "version": "2.0.1",
