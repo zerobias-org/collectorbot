@@ -1,0 +1,12 @@
+classes:
+  - "@zerobias-org/schema-hl7-fhir":
+    - FhirPatient
+    - FhirPractitioner
+    - FhirOrganization
+    - FhirAuditEvent
+    - FhirConsent
+    - FhirProvenance
+    - FhirEncounter
+    - FhirObservation
+    - FhirCondition
+    - FhirMedicationRequest
