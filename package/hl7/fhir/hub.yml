@@ -1,0 +1,5 @@
+modules: {}
+products:
+  hl7.fhir:
+    id: 9d394723-dab5-4bcf-96a0-97ce7e89b197
+    name: HL7 FHIR
