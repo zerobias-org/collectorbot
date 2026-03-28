@@ -28,10 +28,10 @@ describe('CollectorHl7FhirIT', function () {
         .map((r) => r.trim())
         .filter(Boolean);
 
-      const params = new Parameters();
-      params.fhirServerUrl = process.env.FHIR_SERVER_URL || 'https://hapi.fhir.org/baseR4';
-      params.pageSize = Number(process.env.PAGE_SIZE) || 10;
-      params.concurrency = Number(process.env.CONCURRENCY) || 2;
+      const fhirServerUrl = process.env.FHIR_SERVER_URL || 'https://hapi.fhir.org/baseR4';
+      const params = new Parameters(fhirServerUrl);
+      params.pageSize = Number(process.env.PAGE_SIZE) || 1000;
+      params.concurrency = Number(process.env.CONCURRENCY) || 5;
 
       if (resourceTypes.length > 0) {
         params.resourceTypes = resourceTypes;

@@ -32,9 +32,9 @@ components:
           description: FHIR resource types to collect (default collects all supported types)
         pageSize:
           type: integer
-          description: Number of resources per page (default 100)
-          default: 100
+          description: Number of resources per page (default 1000)
+          default: 1000
         concurrency:
           type: integer
-          description: Number of resource types to collect in parallel (default 3)
-          default: 3
+          description: Number of resource types to collect in parallel (default 5)
+          default: 5

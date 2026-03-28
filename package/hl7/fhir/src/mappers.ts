@@ -14,6 +14,15 @@ import type {
 
 const INVALID_ID_CHARS = /[^a-zA-Z0-9._-]/g;
 
+/**
+ * Schema `date` type validates against YYYY-MM-DD pattern.
+ * TS schema types declare Date but runtime serialization expects a date-only string.
+ */
+function toDateOnly(value?: string): Date | undefined {
+  if (!value) return undefined;
+  return value.substring(0, 10) as unknown as Date;
+}
+
 function fhirId(resource: Record<string, any>): string {
   const rt = resource.resourceType ?? 'Unknown';
   const id = resource.id ?? 'unknown';
@@ -106,7 +115,7 @@ export function toFhirAuditEvent(r: Record<string, any>): FhirAuditEvent {
     fhirId: r.id,
     action: r.action,
     outcome: r.outcome,
-    recorded: r.recorded ? Object.assign(new Date(r.recorded)) : undefined,
+    recorded: toDateOnly(r.recorded),
     agentName: agent?.name ?? agent?.who?.display,
     agentRole: codingDisplay(agent?.role?.[0]),
     sourceObserver: r.source?.observer?.display ?? r.source?.observer?.reference,
@@ -127,7 +136,7 @@ export function toFhirConsent(r: Record<string, any>): FhirConsent {
     status: r.status,
     scope: codingDisplay(r.scope),
     category: codingDisplay(r.category?.[0]),
-    dateTime: r.dateTime ? Object.assign(new Date(r.dateTime)) : undefined,
+    dateTime: toDateOnly(r.dateTime),
     patient: referenceId(r.patient),
     organization: referenceId(r.organization?.[0]),
   };
@@ -144,7 +153,7 @@ export function toFhirProvenance(r: Record<string, any>): FhirProvenance {
     url: undefined,
     resourceType: r.resourceType,
     fhirId: r.id,
-    recorded: r.recorded ? Object.assign(new Date(r.recorded)) : undefined,
+    recorded: toDateOnly(r.recorded),
     activity: codingDisplay(r.activity),
     agentType: codingDisplay(agent?.type),
     agentWho: agent?.who?.reference ?? agent?.who?.display,
@@ -165,8 +174,8 @@ export function toFhirEncounter(r: Record<string, any>): FhirEncounter {
     status: r.status,
     encounterClass: r.class?.code ?? r.class?.display,
     priority: codingDisplay(r.priority),
-    periodStart: r.period?.start ? Object.assign(new Date(r.period.start)) : undefined,
-    periodEnd: r.period?.end ? Object.assign(new Date(r.period.end)) : undefined,
+    periodStart: toDateOnly(r.period?.start),
+    periodEnd: toDateOnly(r.period?.end),
     reasonCode: codingDisplay(r.reasonCode?.[0]),
     subject: referenceId(r.subject),
     serviceProvider: referenceId(r.serviceProvider),
@@ -186,7 +195,7 @@ export function toFhirObservation(r: Record<string, any>): FhirObservation {
     status: r.status,
     category: codingDisplay(r.category?.[0]),
     observationCode: codingDisplay(r.code),
-    effectiveDateTime: r.effectiveDateTime ? Object.assign(new Date(r.effectiveDateTime)) : undefined,
+    effectiveDateTime: toDateOnly(r.effectiveDateTime),
     valueString: r.valueString ?? r.valueCodeableConcept?.text ?? codingDisplay(r.valueCodeableConcept),
     valueQuantity: r.valueQuantity ? JSON.stringify(r.valueQuantity) : undefined,
     interpretation: codingDisplay(r.interpretation?.[0]),
@@ -210,8 +219,8 @@ export function toFhirCondition(r: Record<string, any>): FhirCondition {
     category: codingDisplay(r.category?.[0]),
     conditionSeverity: codingDisplay(r.severity),
     conditionCode: codingDisplay(r.code),
-    onsetDateTime: r.onsetDateTime ? Object.assign(new Date(r.onsetDateTime)) : undefined,
-    abatementDateTime: r.abatementDateTime ? Object.assign(new Date(r.abatementDateTime)) : undefined,
+    onsetDateTime: toDateOnly(r.onsetDateTime),
+    abatementDateTime: toDateOnly(r.abatementDateTime),
     subject: referenceId(r.subject),
     encounter: referenceId(r.encounter),
   };
@@ -231,7 +240,7 @@ export function toFhirMedicationRequest(r: Record<string, any>): FhirMedicationR
     intent: r.intent,
     priority: r.priority,
     medicationCode: codingDisplay(r.medicationCodeableConcept),
-    authoredOn: r.authoredOn ? Object.assign(new Date(r.authoredOn)) : undefined,
+    authoredOn: toDateOnly(r.authoredOn),
     dosageInstruction: r.dosageInstruction ? JSON.stringify(r.dosageInstruction) : undefined,
     subject: referenceId(r.subject),
     encounter: referenceId(r.encounter),

@@ -2,6 +2,8 @@ import { LoggerEngine } from '@zerobias-org/logger';
 import type { FhirBundle, OAuthToken } from '../types/index.js';
 
 const LOGGER_NAME = 'CollectorHl7Fhir:FhirClient';
+const REQUEST_TIMEOUT_MS = 30_000;
+const MAX_PAGES_PER_RESOURCE = 500;
 
 export class FhirClient {
   private readonly logger = LoggerEngine.root().get(LOGGER_NAME);
@@ -48,6 +50,7 @@ export class FhirClient {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: body.toString(),
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
 
     if (!response.ok) {
@@ -69,7 +72,10 @@ export class FhirClient {
       headers['Authorization'] = `Bearer ${accessToken}`;
     }
 
-    const response = await fetch(url, { headers });
+    const response = await fetch(url, {
+      headers,
+      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+    });
     if (!response.ok) {
       throw new Error(`FHIR request failed: ${response.status} ${response.statusText} - ${url}`);
     }
@@ -93,8 +99,10 @@ export class FhirClient {
 
   async *paginateResources(resourceType: string, pageSize: number): AsyncGenerator<Record<string, any>[]> {
     let bundle = await this.searchResources(resourceType, pageSize);
+    let page = 0;
 
     while (true) {
+      page++;
       const entries = bundle.entry ?? [];
       if (entries.length === 0) break;
 
@@ -102,6 +110,11 @@ export class FhirClient {
 
       const nextLink = bundle.link?.find((l) => l.relation === 'next');
       if (!nextLink) break;
+
+      if (page >= MAX_PAGES_PER_RESOURCE) {
+        this.logger.warn(`${resourceType}: hit max page limit (${MAX_PAGES_PER_RESOURCE}), stopping pagination`);
+        break;
+      }
 
       bundle = await this.getNextPage(nextLink.url);
     }

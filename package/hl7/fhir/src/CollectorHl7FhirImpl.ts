@@ -9,8 +9,8 @@ import { RESOURCE_MAPPERS } from './mappers.js';
 import { SUPPORTED_RESOURCE_TYPES, type SupportedResourceType } from './types/index.js';
 
 const LOGGER_NAME = 'Hl7FhirCollector';
-const DEFAULT_CONCURRENCY = 3;
-const DEFAULT_PAGE_SIZE = 100;
+const DEFAULT_CONCURRENCY = 5;
+const DEFAULT_PAGE_SIZE = 1000;
 
 @injectable()
 export class CollectorHl7FhirImpl extends BaseClient {
@@ -32,6 +32,8 @@ export class CollectorHl7FhirImpl extends BaseClient {
   }
 
   public async run(parameters?: Parameters): Promise<any> {
+    const runStart = Date.now();
+
     if (!parameters?.fhirServerUrl) {
       throw new Error('fhirServerUrl parameter is required');
     }
@@ -51,8 +53,9 @@ export class CollectorHl7FhirImpl extends BaseClient {
 
     // Verify connectivity
     this.logger.info(`Connecting to FHIR server: ${fhirServerUrl}`);
+    const connectStart = Date.now();
     const capability = await client.getCapabilityStatement();
-    this.logger.info(`Connected — FHIR version: ${capability.fhirVersion}`);
+    this.logger.info(`Connected — FHIR version: ${capability.fhirVersion} (${Date.now() - connectStart}ms)`);
 
     // Determine resource types to collect
     let resourceTypes: string[];
@@ -64,7 +67,7 @@ export class CollectorHl7FhirImpl extends BaseClient {
       resourceTypes = [...SUPPORTED_RESOURCE_TYPES];
     }
 
-    this.logger.info(`Collecting ${resourceTypes.length} resource types (concurrency: ${concurrency})`);
+    this.logger.info(`Collecting ${resourceTypes.length} resource types, pageSize=${pageSize}, concurrency=${concurrency}`);
 
     const errors: string[] = [];
     let totalCollected = 0;
@@ -78,12 +81,19 @@ export class CollectorHl7FhirImpl extends BaseClient {
       }
 
       const progress = `[${++completed}/${resourceTypes.length}]`;
+      const typeStart = Date.now();
+      this.logger.info(`${progress} Starting ${resourceType}...`);
+
       const batch = await this.batchManager.initBatch(mapping.className, `fhir-${resourceType}`);
 
       try {
         let count = 0;
+        let pageNum = 0;
 
         for await (const resources of client.paginateResources(resourceType, pageSize)) {
+          pageNum++;
+          const pageStart = Date.now();
+
           const items: any[] = [];
           for (const resource of resources) {
             try {
@@ -92,8 +102,10 @@ export class CollectorHl7FhirImpl extends BaseClient {
               errors.push(`Failed to map ${resourceType}/${resource.id}: ${err.message}`);
             }
           }
+          const mapMs = Date.now() - pageStart;
 
           if (items.length > 0) {
+            const batchStart = Date.now();
             const { chunks, largeItems } = splitArrayBySize(items);
             for (const chunk of chunks) {
               await batch.addItems(chunk.map((item) => ({ payload: item })));
@@ -101,7 +113,10 @@ export class CollectorHl7FhirImpl extends BaseClient {
             for (const item of largeItems) {
               await batch.add(item);
             }
+            const batchMs = Date.now() - batchStart;
             count += items.length;
+
+            this.logger.debug(`${progress} ${resourceType} page ${pageNum}: ${items.length} items (fetch+map=${mapMs}ms, batch=${batchMs}ms, total=${count})`);
           }
 
           if (this.previewCount && count >= this.previewCount) {
@@ -110,7 +125,9 @@ export class CollectorHl7FhirImpl extends BaseClient {
           }
         }
 
-        this.logger.info(`${progress} Collected ${count} ${resourceType} resources`);
+        const typeMs = Date.now() - typeStart;
+        const rate = count > 0 ? Math.round(count / (typeMs / 1000)) : 0;
+        this.logger.info(`${progress} Collected ${count} ${resourceType} in ${(typeMs / 1000).toFixed(1)}s (${rate} items/s, ${pageNum} pages)`);
         totalCollected += count;
       } catch (err: any) {
         errors.push(`Failed to collect ${resourceType}: ${err.message}`);
@@ -131,7 +148,9 @@ export class CollectorHl7FhirImpl extends BaseClient {
     }
     await Promise.all(executing);
 
-    this.logger.info(`Collection complete: ${totalCollected} total resources. ${this.batchManager.getSummary()}`);
+    const totalMs = Date.now() - runStart;
+    const totalRate = totalCollected > 0 ? Math.round(totalCollected / (totalMs / 1000)) : 0;
+    this.logger.info(`Collection complete in ${(totalMs / 1000).toFixed(1)}s: ${totalCollected} resources (${totalRate} items/s). ${this.batchManager.getSummary()}`);
     if (errors.length > 0) {
       this.logger.warn(`${errors.length} errors during collection:`);
       for (const err of errors) {
