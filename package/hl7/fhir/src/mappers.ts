@@ -1,84 +1,64 @@
 import type {
-  FhirPatient,
-  FhirPractitioner,
-  FhirOrganization,
-  FhirAuditEvent,
-  FhirConsent,
-  FhirProvenance,
-  FhirEncounter,
-  FhirObservation,
-  FhirCondition,
-  FhirMedicationRequest,
-  SupportedResourceType,
+  FhirPatient, FhirPractitioner, FhirOrganization, FhirAuditEvent,
+  FhirConsent, FhirProvenance, FhirEncounter, FhirObservation,
+  FhirCondition, FhirMedicationRequest, FhirResource,
 } from './types/index.js';
 
-const INVALID_ID_CHARS = /[^a-zA-Z0-9._-]/g;
+// --- Shared helpers ---
 
-/**
- * Schema `date` type validates against YYYY-MM-DD pattern.
- * TS schema types declare Date but runtime serialization expects a date-only string.
- */
-function toDateOnly(value?: string): Date | undefined {
+const INVALID_ID_CHARS = /[^\w.-]/g;
+
+/** Schema date type requires YYYY-MM-DD. TS types declare Date but runtime needs a string. */
+function toDate(value?: string): Date | undefined {
   if (!value) return undefined;
-  return value.substring(0, 10) as unknown as Date;
+  return value.slice(0, 10) as unknown as Date;
 }
 
-function fhirId(resource: Record<string, any>): string {
-  const rt = resource.resourceType ?? 'Unknown';
-  const id = resource.id ?? 'unknown';
-  return `${rt}/${id}`.replaceAll(INVALID_ID_CHARS, '_');
+function makeId(r: FhirResource): string {
+  return `${r.resourceType ?? 'Unknown'}_${r.id ?? 'unknown'}`.replaceAll(INVALID_ID_CHARS, '_');
 }
 
-function humanName(nameArray?: any[]): string | undefined {
-  if (!nameArray?.length) return undefined;
-  const n = nameArray[0];
-  const parts = [n.prefix, n.given, n.family, n.suffix]
-    .flat()
-    .filter(Boolean);
+function base(r: FhirResource, name: string) {
+  const id = makeId(r);
+  return { id, externalId: id, name, resourceType: r.resourceType, fhirId: r.id };
+}
+
+function humanName(names?: any[]): string | undefined {
+  if (!names?.length) return undefined;
+  const n = names[0];
+  const parts = [n.prefix, n.given, n.family, n.suffix].flat().filter(Boolean);
   return parts.length > 0 ? parts.join(' ') : n.text;
 }
 
-function codingDisplay(codeable?: Record<string, any>): string | undefined {
+function coding(codeable?: Record<string, any>): string | undefined {
   if (!codeable) return undefined;
   if (codeable.text) return codeable.text;
-  const coding = codeable.coding?.[0];
-  return coding?.display ?? coding?.code;
+  const c = codeable.coding?.[0];
+  return c?.display ?? c?.code;
 }
 
-function referenceId(ref?: Record<string, any>): string | undefined {
-  if (!ref?.reference) return undefined;
-  return ref.reference.replaceAll(INVALID_ID_CHARS, '_');
+function reference(reference?: Record<string, any>): string | undefined {
+  if (!reference?.reference) return undefined;
+  return reference.reference.replaceAll(INVALID_ID_CHARS, '_');
 }
 
-export function toFhirPatient(r: Record<string, any>): FhirPatient {
-  const id = fhirId(r);
+// --- Resource mappers ---
+
+export function toFhirPatient(r: FhirResource): FhirPatient {
   return {
-    id,
-    externalId: id,
-    name: humanName(r.name) ?? `Patient/${r.id}`,
-    description: `FHIR Patient resource`,
-    url: undefined,
-    resourceType: r.resourceType,
-    fhirId: r.id,
+    ...base(r, humanName(r.name) ?? `Patient/${r.id}`),
     gender: r.gender,
     birthDate: r.birthDate,
     active: r.active,
     deceasedBoolean: r.deceasedBoolean,
-    maritalStatus: codingDisplay(r.maritalStatus),
-    managingOrganization: referenceId(r.managingOrganization),
+    maritalStatus: coding(r.maritalStatus),
+    managingOrganization: reference(r.managingOrganization),
   };
 }
 
-export function toFhirPractitioner(r: Record<string, any>): FhirPractitioner {
-  const id = fhirId(r);
+export function toFhirPractitioner(r: FhirResource): FhirPractitioner {
   return {
-    id,
-    externalId: id,
-    name: humanName(r.name) ?? `Practitioner/${r.id}`,
-    description: `FHIR Practitioner resource`,
-    url: undefined,
-    resourceType: r.resourceType,
-    fhirId: r.id,
+    ...base(r, humanName(r.name) ?? `Practitioner/${r.id}`),
     gender: r.gender,
     birthDate: r.birthDate,
     active: r.active,
@@ -86,179 +66,127 @@ export function toFhirPractitioner(r: Record<string, any>): FhirPractitioner {
   };
 }
 
-export function toFhirOrganization(r: Record<string, any>): FhirOrganization {
-  const id = fhirId(r);
+export function toFhirOrganization(r: FhirResource): FhirOrganization {
   return {
-    id,
-    externalId: id,
-    name: r.name ?? `Organization/${r.id}`,
-    description: `FHIR Organization resource`,
-    url: undefined,
-    resourceType: r.resourceType,
-    fhirId: r.id,
+    ...base(r, r.name ?? `Organization/${r.id}`),
     active: r.active,
-    organizationType: codingDisplay(r.type?.[0]),
-    partOf: referenceId(r.partOf),
+    organizationType: coding(r.type?.[0]),
+    partOf: reference(r.partOf),
   };
 }
 
-export function toFhirAuditEvent(r: Record<string, any>): FhirAuditEvent {
-  const id = fhirId(r);
+export function toFhirAuditEvent(r: FhirResource): FhirAuditEvent {
   const agent = r.agent?.[0];
   return {
-    id,
-    externalId: id,
-    name: `AuditEvent/${r.id}`,
-    description: codingDisplay(r.type) ?? 'FHIR AuditEvent resource',
-    url: undefined,
-    resourceType: r.resourceType,
-    fhirId: r.id,
+    ...base(r, `AuditEvent/${r.id}`),
+    description: coding(r.type) ?? 'FHIR AuditEvent',
     action: r.action,
     outcome: r.outcome,
-    recorded: toDateOnly(r.recorded),
+    recorded: toDate(r.recorded),
     agentName: agent?.name ?? agent?.who?.display,
-    agentRole: codingDisplay(agent?.role?.[0]),
+    agentRole: coding(agent?.role?.[0]),
     sourceObserver: r.source?.observer?.display ?? r.source?.observer?.reference,
     entityReference: r.entity?.[0]?.what?.reference,
   };
 }
 
-export function toFhirConsent(r: Record<string, any>): FhirConsent {
-  const id = fhirId(r);
+export function toFhirConsent(r: FhirResource): FhirConsent {
   return {
-    id,
-    externalId: id,
-    name: `Consent/${r.id}`,
-    description: `FHIR Consent resource`,
-    url: undefined,
-    resourceType: r.resourceType,
-    fhirId: r.id,
+    ...base(r, `Consent/${r.id}`),
     status: r.status,
-    scope: codingDisplay(r.scope),
-    category: codingDisplay(r.category?.[0]),
-    dateTime: toDateOnly(r.dateTime),
-    patient: referenceId(r.patient),
-    organization: referenceId(r.organization?.[0]),
+    scope: coding(r.scope),
+    category: coding(r.category?.[0]),
+    dateTime: toDate(r.dateTime),
+    patient: reference(r.patient),
+    organization: reference(r.organization?.[0]),
   };
 }
 
-export function toFhirProvenance(r: Record<string, any>): FhirProvenance {
-  const id = fhirId(r);
+export function toFhirProvenance(r: FhirResource): FhirProvenance {
   const agent = r.agent?.[0];
   return {
-    id,
-    externalId: id,
-    name: `Provenance/${r.id}`,
-    description: `FHIR Provenance resource`,
-    url: undefined,
-    resourceType: r.resourceType,
-    fhirId: r.id,
-    recorded: toDateOnly(r.recorded),
-    activity: codingDisplay(r.activity),
-    agentType: codingDisplay(agent?.type),
+    ...base(r, `Provenance/${r.id}`),
+    recorded: toDate(r.recorded),
+    activity: coding(r.activity),
+    agentType: coding(agent?.type),
     agentWho: agent?.who?.reference ?? agent?.who?.display,
     targetReference: r.target?.[0]?.reference,
   };
 }
 
-export function toFhirEncounter(r: Record<string, any>): FhirEncounter {
-  const id = fhirId(r);
+export function toFhirEncounter(r: FhirResource): FhirEncounter {
   return {
-    id,
-    externalId: id,
-    name: `Encounter/${r.id}`,
-    description: codingDisplay(r.type?.[0]) ?? 'FHIR Encounter resource',
-    url: undefined,
-    resourceType: r.resourceType,
-    fhirId: r.id,
+    ...base(r, `Encounter/${r.id}`),
+    description: coding(r.type?.[0]) ?? 'FHIR Encounter',
     status: r.status,
     encounterClass: r.class?.code ?? r.class?.display,
-    priority: codingDisplay(r.priority),
-    periodStart: toDateOnly(r.period?.start),
-    periodEnd: toDateOnly(r.period?.end),
-    reasonCode: codingDisplay(r.reasonCode?.[0]),
-    subject: referenceId(r.subject),
-    serviceProvider: referenceId(r.serviceProvider),
+    priority: coding(r.priority),
+    periodStart: toDate(r.period?.start),
+    periodEnd: toDate(r.period?.end),
+    reasonCode: coding(r.reasonCode?.[0]),
+    subject: reference(r.subject),
+    serviceProvider: reference(r.serviceProvider),
   };
 }
 
-export function toFhirObservation(r: Record<string, any>): FhirObservation {
-  const id = fhirId(r);
+export function toFhirObservation(r: FhirResource): FhirObservation {
   return {
-    id,
-    externalId: id,
-    name: codingDisplay(r.code) ?? `Observation/${r.id}`,
-    description: `FHIR Observation resource`,
-    url: undefined,
-    resourceType: r.resourceType,
-    fhirId: r.id,
+    ...base(r, coding(r.code) ?? `Observation/${r.id}`),
     status: r.status,
-    category: codingDisplay(r.category?.[0]),
-    observationCode: codingDisplay(r.code),
-    effectiveDateTime: toDateOnly(r.effectiveDateTime),
-    valueString: r.valueString ?? r.valueCodeableConcept?.text ?? codingDisplay(r.valueCodeableConcept),
+    category: coding(r.category?.[0]),
+    observationCode: coding(r.code),
+    effectiveDateTime: toDate(r.effectiveDateTime),
+    valueString: r.valueString ?? r.valueCodeableConcept?.text ?? coding(r.valueCodeableConcept),
     valueQuantity: r.valueQuantity ? JSON.stringify(r.valueQuantity) : undefined,
-    interpretation: codingDisplay(r.interpretation?.[0]),
-    subject: referenceId(r.subject),
-    encounter: referenceId(r.encounter),
+    interpretation: coding(r.interpretation?.[0]),
+    subject: reference(r.subject),
+    encounter: reference(r.encounter),
   };
 }
 
-export function toFhirCondition(r: Record<string, any>): FhirCondition {
-  const id = fhirId(r);
+export function toFhirCondition(r: FhirResource): FhirCondition {
   return {
-    id,
-    externalId: id,
-    name: codingDisplay(r.code) ?? `Condition/${r.id}`,
-    description: `FHIR Condition resource`,
-    url: undefined,
-    resourceType: r.resourceType,
-    fhirId: r.id,
-    clinicalStatus: codingDisplay(r.clinicalStatus),
-    verificationStatus: codingDisplay(r.verificationStatus),
-    category: codingDisplay(r.category?.[0]),
-    conditionSeverity: codingDisplay(r.severity),
-    conditionCode: codingDisplay(r.code),
-    onsetDateTime: toDateOnly(r.onsetDateTime),
-    abatementDateTime: toDateOnly(r.abatementDateTime),
-    subject: referenceId(r.subject),
-    encounter: referenceId(r.encounter),
+    ...base(r, coding(r.code) ?? `Condition/${r.id}`),
+    clinicalStatus: coding(r.clinicalStatus),
+    verificationStatus: coding(r.verificationStatus),
+    category: coding(r.category?.[0]),
+    conditionSeverity: coding(r.severity),
+    conditionCode: coding(r.code),
+    onsetDateTime: toDate(r.onsetDateTime),
+    abatementDateTime: toDate(r.abatementDateTime),
+    subject: reference(r.subject),
+    encounter: reference(r.encounter),
   };
 }
 
-export function toFhirMedicationRequest(r: Record<string, any>): FhirMedicationRequest {
-  const id = fhirId(r);
+export function toFhirMedicationRequest(r: FhirResource): FhirMedicationRequest {
   return {
-    id,
-    externalId: id,
-    name: codingDisplay(r.medicationCodeableConcept) ?? `MedicationRequest/${r.id}`,
-    description: `FHIR MedicationRequest resource`,
-    url: undefined,
-    resourceType: r.resourceType,
-    fhirId: r.id,
+    ...base(r, coding(r.medicationCodeableConcept) ?? `MedicationRequest/${r.id}`),
     status: r.status,
     intent: r.intent,
     priority: r.priority,
-    medicationCode: codingDisplay(r.medicationCodeableConcept),
-    authoredOn: toDateOnly(r.authoredOn),
+    medicationCode: coding(r.medicationCodeableConcept),
+    authoredOn: toDate(r.authoredOn),
     dosageInstruction: r.dosageInstruction ? JSON.stringify(r.dosageInstruction) : undefined,
-    subject: referenceId(r.subject),
-    encounter: referenceId(r.encounter),
-    requester: referenceId(r.requester),
+    subject: reference(r.subject),
+    encounter: reference(r.encounter),
+    requester: reference(r.requester),
   };
 }
 
-type MapperFn = (r: Record<string, any>) => any;
+// --- Registry ---
 
-export const RESOURCE_MAPPERS: Record<string, { className: string; mapper: MapperFn }> = {
-  Patient: { className: 'FhirPatient', mapper: toFhirPatient },
-  Practitioner: { className: 'FhirPractitioner', mapper: toFhirPractitioner },
-  Organization: { className: 'FhirOrganization', mapper: toFhirOrganization },
-  AuditEvent: { className: 'FhirAuditEvent', mapper: toFhirAuditEvent },
-  Consent: { className: 'FhirConsent', mapper: toFhirConsent },
-  Provenance: { className: 'FhirProvenance', mapper: toFhirProvenance },
-  Encounter: { className: 'FhirEncounter', mapper: toFhirEncounter },
-  Observation: { className: 'FhirObservation', mapper: toFhirObservation },
-  Condition: { className: 'FhirCondition', mapper: toFhirCondition },
-  MedicationRequest: { className: 'FhirMedicationRequest', mapper: toFhirMedicationRequest },
+type MapperFunction = (r: FhirResource) => any;
+
+export const RESOURCE_MAPPERS: Record<string, { schemaName: string; mapper: MapperFunction }> = {
+  Patient:             { schemaName: 'FhirPatient',             mapper: toFhirPatient },
+  Practitioner:        { schemaName: 'FhirPractitioner',        mapper: toFhirPractitioner },
+  Organization:        { schemaName: 'FhirOrganization',        mapper: toFhirOrganization },
+  AuditEvent:          { schemaName: 'FhirAuditEvent',          mapper: toFhirAuditEvent },
+  Consent:             { schemaName: 'FhirConsent',             mapper: toFhirConsent },
+  Provenance:          { schemaName: 'FhirProvenance',          mapper: toFhirProvenance },
+  Encounter:           { schemaName: 'FhirEncounter',           mapper: toFhirEncounter },
+  Observation:         { schemaName: 'FhirObservation',         mapper: toFhirObservation },
+  Condition:           { schemaName: 'FhirCondition',           mapper: toFhirCondition },
+  MedicationRequest:   { schemaName: 'FhirMedicationRequest',   mapper: toFhirMedicationRequest },
 };

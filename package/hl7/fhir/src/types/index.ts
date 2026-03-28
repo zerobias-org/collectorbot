@@ -26,12 +26,14 @@ export const SUPPORTED_RESOURCE_TYPES = [
 
 export type SupportedResourceType = typeof SUPPORTED_RESOURCE_TYPES[number];
 
+export type FhirResource = Record<string, any>;
+
 export interface FhirBundle {
   resourceType: 'Bundle';
   type: string;
   total?: number;
   link?: Array<{ relation: string; url: string }>;
-  entry?: Array<{ resource: Record<string, any> }>;
+  entry?: Array<{ resource: FhirResource }>;
 }
 
 export interface OAuthToken {
