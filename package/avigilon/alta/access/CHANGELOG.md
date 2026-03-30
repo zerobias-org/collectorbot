@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.10](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-avigilon-alta-access@1.1.9...@zerobias-org/collectorbot-avigilon-alta-access@1.1.10) (2026-03-30)
+
+### Bug Fixes
+
+* fix dep issuees
+
+
 ## <small>1.1.9 (2026-03-04)</small>
 
 * fix(alta-access): update module to latest, fix Email type conflict ([dbb13f0](https://github.com/zerobias-org/collectorbot/commit/dbb13f0))
