@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/collectorbot-bundle",
-  "version": "0.0.43",
+  "version": "0.0.44",
   "description": "All installable collectorbots",
   "author": "team@auditmation.io",
   "license": "ISC",
@@ -18,10 +18,10 @@
     "dataloader-version": "0.5.4"
   },
   "dependencies": {
-    "@zerobias-org/collectorbot-auditmation-generic-tls": "0.1.6",
-    "@zerobias-org/collectorbot-avigilon-alta-access": "1.1.9",
-    "@zerobias-org/collectorbot-zerobias-schemas-agentskills": "0.1.9",
-    "@zerobias-org/collectorbot-zerobias-schemas-mcpservers": "0.1.0",
-    "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": "1.0.1"
+    "@zerobias-org/collectorbot-auditmation-generic-tls": "0.1.7",
+    "@zerobias-org/collectorbot-avigilon-alta-access": "1.1.10",
+    "@zerobias-org/collectorbot-zerobias-schemas-agentskills": "0.1.10",
+    "@zerobias-org/collectorbot-zerobias-schemas-mcpservers": "0.1.1",
+    "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": "1.0.2"
   }
 }
