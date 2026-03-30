@@ -47,5 +47,6 @@
         "^build"
       ]
     }
-  }
+  },
+  "analytics": false
 }

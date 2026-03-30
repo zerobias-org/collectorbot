@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/collectorbot-avigilon-alta-access",
-  "version": "1.1.9",
+  "version": "1.1.10",
   "description": "Avigilon Alta Access Collector",
   "type": "module",
   "main": "dist/src/index.js",
@@ -45,7 +45,7 @@
     "@zerobias-org/module-avigilon-alta-access": "latest",
     "@zerobias-org/product-avigilon-alta-access": "^2.0.1",
     "@zerobias-org/types-core-js": "latest",
-    "@zerobias-org/util-collector": "latest",
+    "@zerobias-org/util-collector": "^1.0.34",
     "inversify": "6.0.2",
     "reflect-metadata": "^0.2.2"
   },

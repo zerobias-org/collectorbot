@@ -1,19 +1,19 @@
 {
   "name": "@zerobias-org/collectorbot-bundle",
-  "version": "0.0.43",
+  "version": "0.0.44",
   "lockfileVersion": 2,
   "requires": true,
   "packages": {
     "": {
       "name": "@zerobias-org/collectorbot-bundle",
-      "version": "0.0.43",
+      "version": "0.0.44",
       "license": "ISC",
       "dependencies": {
-        "@zerobias-org/collectorbot-auditmation-generic-tls": "0.1.6",
-        "@zerobias-org/collectorbot-avigilon-alta-access": "1.1.9",
-        "@zerobias-org/collectorbot-zerobias-schemas-agentskills": "0.1.9",
-        "@zerobias-org/collectorbot-zerobias-schemas-mcpservers": "0.1.0",
-        "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": "1.0.1"
+        "@zerobias-org/collectorbot-auditmation-generic-tls": "0.1.7",
+        "@zerobias-org/collectorbot-avigilon-alta-access": "1.1.10",
+        "@zerobias-org/collectorbot-zerobias-schemas-agentskills": "0.1.10",
+        "@zerobias-org/collectorbot-zerobias-schemas-mcpservers": "0.1.1",
+        "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": "1.0.2"
       }
     },
     "node_modules/@auditlogic/module-auditmation-generic-tls": {
@@ -5579,9 +5579,9 @@
       "license": "ISC"
     },
     "node_modules/@zerobias-org/collectorbot-auditmation-generic-tls": {
-      "version": "0.1.6",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-auditmation-generic-tls/-/collectorbot-auditmation-generic-tls-0.1.6.tgz",
-      "integrity": "sha512-e+Y7kMs45Obb1U5dnSJPrRHUUMIOH+ghNzkgiNEmhjm5rlYJiCf1GwJ8IIIW0YGGs0OeQBpLTc8jXl4viD+SHw==",
+      "version": "0.1.7",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-auditmation-generic-tls/-/collectorbot-auditmation-generic-tls-0.1.7.tgz",
+      "integrity": "sha512-K0VbcB7NbCJcjctZoulJmgHbmxZdRx2c/xjGFKJUta3EqO2O5Q/UykLFq73QfDPxxT8OTmVpMkYbw/3jT5I1oA==",
       "license": "UNLICENSED",
       "dependencies": {
         "@auditlogic/module-auditmation-generic-tls": "latest",
@@ -5592,15 +5592,15 @@
         "@zerobias-com/hub-core": "latest",
         "@zerobias-com/platform-sdk": "latest",
         "@zerobias-org/types-core-js": "latest",
-        "@zerobias-org/util-collector": "latest",
+        "@zerobias-org/util-collector": "^1.0.34",
         "inversify": "6.0.2",
         "reflect-metadata": "^0.2.2"
       }
     },
     "node_modules/@zerobias-org/collectorbot-avigilon-alta-access": {
-      "version": "1.1.9",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-avigilon-alta-access/-/collectorbot-avigilon-alta-access-1.1.9.tgz",
-      "integrity": "sha512-HPO7gFY1foAuznHws21X9pbIgubdmXIrdXkLPKW0Tp04iaRgLUw3vVXBKFyifhBaMQf8HLq1fbdgqQh8r1oCbQ==",
+      "version": "1.1.10",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-avigilon-alta-access/-/collectorbot-avigilon-alta-access-1.1.10.tgz",
+      "integrity": "sha512-3yDUiiHR4TMGoMMSXeeZSquG9UowKaOgE/1/EkOy1/8aOoKXRptoHL70ktOR0E1mjsjYNgZQT3uMcm+oq4HEPg==",
       "license": "UNLICENSED",
       "dependencies": {
         "@auditlogic/schema-avigilon-alta-access": "^1.1.6",
@@ -5611,7 +5611,7 @@
         "@zerobias-org/module-avigilon-alta-access": "latest",
         "@zerobias-org/product-avigilon-alta-access": "^2.0.1",
         "@zerobias-org/types-core-js": "latest",
-        "@zerobias-org/util-collector": "latest",
+        "@zerobias-org/util-collector": "^1.0.34",
         "inversify": "6.0.2",
         "reflect-metadata": "^0.2.2"
       }
@@ -5625,9 +5625,9 @@
       }
     },
     "node_modules/@zerobias-org/collectorbot-zerobias-schemas-agentskills": {
-      "version": "0.1.9",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-schemas-agentskills/-/collectorbot-zerobias-schemas-agentskills-0.1.9.tgz",
-      "integrity": "sha512-1pYdP3GTRgLBlhEegyP1usxVte3U9QGcZFBP7Hg59/YVzYZTh5aRcuAK2dXlG6fKe7LlF6JBi7twGjqL7VDLhA==",
+      "version": "0.1.10",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-schemas-agentskills/-/collectorbot-zerobias-schemas-agentskills-0.1.10.tgz",
+      "integrity": "sha512-Nlm2mXInY4zRcqG9dMuRhAw20k5IgNsWIlHwOdo/WEsllHQWUuBQrPXDOFgh5w2huhv0tFU0j97RxUMNGcBZaQ==",
       "license": "UNLICENSED",
       "dependencies": {
         "@zerobias-com/hub-client": "latest",
@@ -5635,16 +5635,16 @@
         "@zerobias-org/schema-zerobias-schemas-agentskills": "^1.0.0",
         "@zerobias-org/schema-zerobias-schemas-agentskills-ts": "^1.0.0",
         "@zerobias-org/types-core-js": "latest",
-        "@zerobias-org/util-collector": "^1.0.29",
+        "@zerobias-org/util-collector": "^1.0.34",
         "inversify": "6.0.2",
         "reflect-metadata": "^0.2.2",
         "yaml": "^2.8.2"
       }
     },
     "node_modules/@zerobias-org/collectorbot-zerobias-schemas-mcpservers": {
-      "version": "0.1.0",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-schemas-mcpservers/-/collectorbot-zerobias-schemas-mcpservers-0.1.0.tgz",
-      "integrity": "sha512-ICjy/5JxpTDeiERvUNuhl7saWvH4l0mEkA9a96E6qMQ8pHnxpCVdd6xIjlcXPSZAkBQf4IVJICu/xidmwdqsPw==",
+      "version": "0.1.1",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-schemas-mcpservers/-/collectorbot-zerobias-schemas-mcpservers-0.1.1.tgz",
+      "integrity": "sha512-9gXEG80a1zrLWoI0y//85M5m//5QvTlkkqnLb/2bj/+d1p6py/zi64DK/0Hsp8wrvHvewGs4XctpUq+k9L+0wQ==",
       "license": "UNLICENSED",
       "dependencies": {
         "@zerobias-com/hub-client": "latest",
@@ -5652,16 +5652,16 @@
         "@zerobias-org/schema-zerobias-schemas-mcpservers": "^1.0.0",
         "@zerobias-org/schema-zerobias-schemas-mcpservers-ts": "^1.0.1",
         "@zerobias-org/types-core-js": "latest",
-        "@zerobias-org/util-collector": "^1.0.29",
+        "@zerobias-org/util-collector": "^1.0.34",
         "inversify": "6.0.2",
         "reflect-metadata": "^0.2.2",
         "yaml": "^2.8.2"
       }
     },
     "node_modules/@zerobias-org/collectorbot-zerobias-zerobias-dynamic": {
-      "version": "1.0.1",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-zerobias-dynamic/-/collectorbot-zerobias-zerobias-dynamic-1.0.1.tgz",
-      "integrity": "sha512-AtZPFEgA/Tnn7uT9T9XyBLlotjTwDF3dAd50/sl/YSESfTTQNbPas2zBGXCK7U4apYr+KeXy7YW4gZ7ovqkWQw==",
+      "version": "1.0.2",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-zerobias-dynamic/-/collectorbot-zerobias-zerobias-dynamic-1.0.2.tgz",
+      "integrity": "sha512-u2+9tfiTetBhLAkyl3+UndX6Zh91GmU+aCryvjQrvuN5s12AzgbYW/306Io2QHbhHrDv2j/+Y1ehmJCgeX2TaQ==",
       "license": "UNLICENSED",
       "dependencies": {
         "@zerobias-com/hub-client": "latest",
@@ -5671,7 +5671,7 @@
         "@zerobias-org/module-interface-dataproducer": "latest",
         "@zerobias-org/product-zerobias-zerobias": "latest",
         "@zerobias-org/types-core-js": "latest",
-        "@zerobias-org/util-collector": "latest",
+        "@zerobias-org/util-collector": "^1.0.34",
         "inversify": "6.0.2",
         "reflect-metadata": "^0.2.2"
       }
@@ -6347,18 +6347,49 @@
       }
     },
     "node_modules/@zerobias-org/util-collector": {
-      "version": "1.0.30",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/util-collector/-/util-collector-1.0.30.tgz",
-      "integrity": "sha512-hS12Sfa937CouEQSuJGTMVx5ZVyDc3DpDm87likbvmODUnaErCHmQw9kKY3IJBAIYyWXG26ViisQmfZnI7OpdA==",
+      "version": "1.0.34",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/util-collector/-/util-collector-1.0.34.tgz",
+      "integrity": "sha512-2dBGky4TEDKO8uIVbTjKVHuWHZpc84FfOhJXlWfcpw7XzvhdsR9BZgtaYnWBTS5c1E8ADNPWEQIqDaO6NI6lCg==",
       "license": "ISC",
       "dependencies": {
         "@zerobias-com/platform-sdk": "^1.1.5",
-        "@zerobias-org/logger": "^2.0.34",
+        "@zerobias-org/logger": "^3.0.3",
         "@zerobias-org/types-core-js": "^1.2.17",
-        "@zerobias-org/util-connector": "^1.0.30",
+        "@zerobias-org/util-connector": "^1.0.34",
         "axios": "^1.13.5",
         "csv-parse": "^6.0.0",
-        "js-yaml": "^4.0.0"
+        "yaml": "2.2.2"
+      },
+      "engines": {
+        "node": ">=22.0.0",
+        "npm": ">=10.0.0"
+      }
+    },
+    "node_modules/@zerobias-org/util-collector/node_modules/@zerobias-org/logger": {
+      "version": "3.0.3",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/logger/-/logger-3.0.3.tgz",
+      "integrity": "sha512-rW9tm2KDztHSE/tPpa9rX2izcri5BjpSMf9gg2bvTdPnzQ6Y+NFGpWJmotqm/2FLBj8i1pgCee0gFgkvO706Pg==",
+      "license": "ISC",
+      "dependencies": {
+        "@zerobias-org/util-api-client-base": "^1.0.40",
+        "chalk": "^5.6.2",
+        "winston": "^3.2.0",
+        "winston-transport": "^4.9.0"
+      },
+      "engines": {
+        "node": ">=22.0.0",
+        "npm": ">=10.0.0"
+      }
+    },
+    "node_modules/@zerobias-org/util-collector/node_modules/@zerobias-org/util-connector": {
+      "version": "1.0.34",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/util-connector/-/util-connector-1.0.34.tgz",
+      "integrity": "sha512-zFXr0q915amoEnog/qs8uQudYPgJJT5lLpRZi39HG1EkAm6eMuTxeW+qguWNCI6YuQw1vpvIWN9gZMZkf0+P7Q==",
+      "license": "ISC",
+      "dependencies": {
+        "@zerobias-org/logger": "^3.0.3",
+        "@zerobias-org/types-core-js": "^1.2.17",
+        "axios": "^1.13.5"
       },
       "engines": {
         "node": ">=22.0.0",
@@ -6366,14 +6397,32 @@
       }
     },
     "node_modules/@zerobias-org/util-collector/node_modules/axios": {
-      "version": "1.13.6",
-      "resolved": "https://registry.npmjs.org/axios/-/axios-1.13.6.tgz",
-      "integrity": "sha512-ChTCHMouEe2kn713WHbQGcuYrr6fXTBiu460OTwWrWob16g1bXn4vtz07Ope7ewMozJAnEquLk5lWQWtBig9DQ==",
+      "version": "1.14.0",
+      "resolved": "https://registry.npmjs.org/axios/-/axios-1.14.0.tgz",
+      "integrity": "sha512-3Y8yrqLSwjuzpXuZ0oIYZ/XGgLwUIBU3uLvbcpb0pidD9ctpShJd43KSlEEkVQg6DS0G9NKyzOvBfUtDKEyHvQ==",
       "license": "MIT",
       "dependencies": {
         "follow-redirects": "^1.15.11",
         "form-data": "^4.0.5",
-        "proxy-from-env": "^1.1.0"
+        "proxy-from-env": "^2.1.0"
+      }
+    },
+    "node_modules/@zerobias-org/util-collector/node_modules/proxy-from-env": {
+      "version": "2.1.0",
+      "resolved": "https://registry.npmjs.org/proxy-from-env/-/proxy-from-env-2.1.0.tgz",
+      "integrity": "sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA==",
+      "license": "MIT",
+      "engines": {
+        "node": ">=10"
+      }
+    },
+    "node_modules/@zerobias-org/util-collector/node_modules/yaml": {
+      "version": "2.2.2",
+      "resolved": "https://registry.npmjs.org/yaml/-/yaml-2.2.2.tgz",
+      "integrity": "sha512-CBKFWExMn46Foo4cldiChEzn7S7SRV+wqiluAb6xmueD/fGyRHIhX8m14vVGgeFWjN540nKCNVj6P21eQjgTuA==",
+      "license": "ISC",
+      "engines": {
+        "node": ">= 14"
       }
     },
     "node_modules/@zerobias-org/util-connector": {
@@ -7024,9 +7073,9 @@
       "license": "MIT"
     },
     "node_modules/csv-parse": {
-      "version": "6.1.0",
-      "resolved": "https://registry.npmjs.org/csv-parse/-/csv-parse-6.1.0.tgz",
-      "integrity": "sha512-CEE+jwpgLn+MmtCpVcPtiCZpVtB6Z2OKPTr34pycYYoL7sxdOkXDdQ4lRiw6ioC0q6BLqhc6cKweCVvral8yhw==",
+      "version": "6.2.1",
+      "resolved": "https://registry.npmjs.org/csv-parse/-/csv-parse-6.2.1.tgz",
+      "integrity": "sha512-LRLMV+UCyfMokp8Wb411duBf1gaBKJfOfBWU9eHMJ+b+cJYZsNu3AFmjJf3+yPGd59Exz1TsMjaSFyxnYB9+IQ==",
       "license": "MIT"
     },
     "node_modules/dashdash": {
@@ -14181,9 +14230,9 @@
       "integrity": "sha512-Ag/RNdRuossmZquOrtrK8YGoXwXjoPNNr5W0pAIPuJ4vG2C7Xt7W4x/cGg7SnUiSZ1NHpb4CIjVLjqWz0ZTiKg=="
     },
     "@zerobias-org/collectorbot-auditmation-generic-tls": {
-      "version": "0.1.6",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-auditmation-generic-tls/-/collectorbot-auditmation-generic-tls-0.1.6.tgz",
-      "integrity": "sha512-e+Y7kMs45Obb1U5dnSJPrRHUUMIOH+ghNzkgiNEmhjm5rlYJiCf1GwJ8IIIW0YGGs0OeQBpLTc8jXl4viD+SHw==",
+      "version": "0.1.7",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-auditmation-generic-tls/-/collectorbot-auditmation-generic-tls-0.1.7.tgz",
+      "integrity": "sha512-K0VbcB7NbCJcjctZoulJmgHbmxZdRx2c/xjGFKJUta3EqO2O5Q/UykLFq73QfDPxxT8OTmVpMkYbw/3jT5I1oA==",
       "requires": {
         "@auditlogic/module-auditmation-generic-tls": "latest",
         "@auditlogic/product-auditmation-generic-tls": "latest",
@@ -14193,15 +14242,15 @@
         "@zerobias-com/hub-core": "latest",
         "@zerobias-com/platform-sdk": "latest",
         "@zerobias-org/types-core-js": "latest",
-        "@zerobias-org/util-collector": "latest",
+        "@zerobias-org/util-collector": "^1.0.34",
         "inversify": "6.0.2",
         "reflect-metadata": "^0.2.2"
       }
     },
     "@zerobias-org/collectorbot-avigilon-alta-access": {
-      "version": "1.1.9",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-avigilon-alta-access/-/collectorbot-avigilon-alta-access-1.1.9.tgz",
-      "integrity": "sha512-HPO7gFY1foAuznHws21X9pbIgubdmXIrdXkLPKW0Tp04iaRgLUw3vVXBKFyifhBaMQf8HLq1fbdgqQh8r1oCbQ==",
+      "version": "1.1.10",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-avigilon-alta-access/-/collectorbot-avigilon-alta-access-1.1.10.tgz",
+      "integrity": "sha512-3yDUiiHR4TMGoMMSXeeZSquG9UowKaOgE/1/EkOy1/8aOoKXRptoHL70ktOR0E1mjsjYNgZQT3uMcm+oq4HEPg==",
       "requires": {
         "@auditlogic/schema-avigilon-alta-access": "^1.1.6",
         "@auditlogic/schema-avigilon-alta-access-ts": "^1.1.6",
@@ -14211,7 +14260,7 @@
         "@zerobias-org/module-avigilon-alta-access": "latest",
         "@zerobias-org/product-avigilon-alta-access": "^2.0.1",
         "@zerobias-org/types-core-js": "latest",
-        "@zerobias-org/util-collector": "latest",
+        "@zerobias-org/util-collector": "^1.0.34",
         "inversify": "6.0.2",
         "reflect-metadata": "^0.2.2"
       },
@@ -14224,41 +14273,41 @@
       }
     },
     "@zerobias-org/collectorbot-zerobias-schemas-agentskills": {
-      "version": "0.1.9",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-schemas-agentskills/-/collectorbot-zerobias-schemas-agentskills-0.1.9.tgz",
-      "integrity": "sha512-1pYdP3GTRgLBlhEegyP1usxVte3U9QGcZFBP7Hg59/YVzYZTh5aRcuAK2dXlG6fKe7LlF6JBi7twGjqL7VDLhA==",
+      "version": "0.1.10",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-schemas-agentskills/-/collectorbot-zerobias-schemas-agentskills-0.1.10.tgz",
+      "integrity": "sha512-Nlm2mXInY4zRcqG9dMuRhAw20k5IgNsWIlHwOdo/WEsllHQWUuBQrPXDOFgh5w2huhv0tFU0j97RxUMNGcBZaQ==",
       "requires": {
         "@zerobias-com/hub-client": "latest",
         "@zerobias-com/platform-sdk": "latest",
         "@zerobias-org/schema-zerobias-schemas-agentskills": "^1.0.0",
         "@zerobias-org/schema-zerobias-schemas-agentskills-ts": "^1.0.0",
         "@zerobias-org/types-core-js": "latest",
-        "@zerobias-org/util-collector": "^1.0.29",
+        "@zerobias-org/util-collector": "^1.0.34",
         "inversify": "6.0.2",
         "reflect-metadata": "^0.2.2",
         "yaml": "^2.8.2"
       }
     },
     "@zerobias-org/collectorbot-zerobias-schemas-mcpservers": {
-      "version": "0.1.0",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-schemas-mcpservers/-/collectorbot-zerobias-schemas-mcpservers-0.1.0.tgz",
-      "integrity": "sha512-ICjy/5JxpTDeiERvUNuhl7saWvH4l0mEkA9a96E6qMQ8pHnxpCVdd6xIjlcXPSZAkBQf4IVJICu/xidmwdqsPw==",
+      "version": "0.1.1",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-schemas-mcpservers/-/collectorbot-zerobias-schemas-mcpservers-0.1.1.tgz",
+      "integrity": "sha512-9gXEG80a1zrLWoI0y//85M5m//5QvTlkkqnLb/2bj/+d1p6py/zi64DK/0Hsp8wrvHvewGs4XctpUq+k9L+0wQ==",
       "requires": {
         "@zerobias-com/hub-client": "latest",
         "@zerobias-com/platform-sdk": "latest",
         "@zerobias-org/schema-zerobias-schemas-mcpservers": "^1.0.0",
         "@zerobias-org/schema-zerobias-schemas-mcpservers-ts": "^1.0.1",
         "@zerobias-org/types-core-js": "latest",
-        "@zerobias-org/util-collector": "^1.0.29",
+        "@zerobias-org/util-collector": "^1.0.34",
         "inversify": "6.0.2",
         "reflect-metadata": "^0.2.2",
         "yaml": "^2.8.2"
       }
     },
     "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": {
-      "version": "1.0.1",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-zerobias-dynamic/-/collectorbot-zerobias-zerobias-dynamic-1.0.1.tgz",
-      "integrity": "sha512-AtZPFEgA/Tnn7uT9T9XyBLlotjTwDF3dAd50/sl/YSESfTTQNbPas2zBGXCK7U4apYr+KeXy7YW4gZ7ovqkWQw==",
+      "version": "1.0.2",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-zerobias-dynamic/-/collectorbot-zerobias-zerobias-dynamic-1.0.2.tgz",
+      "integrity": "sha512-u2+9tfiTetBhLAkyl3+UndX6Zh91GmU+aCryvjQrvuN5s12AzgbYW/306Io2QHbhHrDv2j/+Y1ehmJCgeX2TaQ==",
       "requires": {
         "@zerobias-com/hub-client": "latest",
         "@zerobias-com/hub-core": "latest",
@@ -14267,7 +14316,7 @@
         "@zerobias-org/module-interface-dataproducer": "latest",
         "@zerobias-org/product-zerobias-zerobias": "latest",
         "@zerobias-org/types-core-js": "latest",
-        "@zerobias-org/util-collector": "latest",
+        "@zerobias-org/util-collector": "^1.0.34",
         "inversify": "6.0.2",
         "reflect-metadata": "^0.2.2"
       }
@@ -14777,28 +14826,59 @@
       }
     },
     "@zerobias-org/util-collector": {
-      "version": "1.0.30",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/util-collector/-/util-collector-1.0.30.tgz",
-      "integrity": "sha512-hS12Sfa937CouEQSuJGTMVx5ZVyDc3DpDm87likbvmODUnaErCHmQw9kKY3IJBAIYyWXG26ViisQmfZnI7OpdA==",
+      "version": "1.0.34",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/util-collector/-/util-collector-1.0.34.tgz",
+      "integrity": "sha512-2dBGky4TEDKO8uIVbTjKVHuWHZpc84FfOhJXlWfcpw7XzvhdsR9BZgtaYnWBTS5c1E8ADNPWEQIqDaO6NI6lCg==",
       "requires": {
         "@zerobias-com/platform-sdk": "^1.1.5",
-        "@zerobias-org/logger": "^2.0.34",
+        "@zerobias-org/logger": "^3.0.3",
         "@zerobias-org/types-core-js": "^1.2.17",
-        "@zerobias-org/util-connector": "^1.0.30",
+        "@zerobias-org/util-connector": "^1.0.34",
         "axios": "^1.13.5",
         "csv-parse": "^6.0.0",
-        "js-yaml": "^4.0.0"
+        "yaml": "2.2.2"
       },
       "dependencies": {
+        "@zerobias-org/logger": {
+          "version": "3.0.3",
+          "resolved": "https://pkg.zerobias.org/@zerobias-org/logger/-/logger-3.0.3.tgz",
+          "integrity": "sha512-rW9tm2KDztHSE/tPpa9rX2izcri5BjpSMf9gg2bvTdPnzQ6Y+NFGpWJmotqm/2FLBj8i1pgCee0gFgkvO706Pg==",
+          "requires": {
+            "@zerobias-org/util-api-client-base": "^1.0.40",
+            "chalk": "^5.6.2",
+            "winston": "^3.2.0",
+            "winston-transport": "^4.9.0"
+          }
+        },
+        "@zerobias-org/util-connector": {
+          "version": "1.0.34",
+          "resolved": "https://pkg.zerobias.org/@zerobias-org/util-connector/-/util-connector-1.0.34.tgz",
+          "integrity": "sha512-zFXr0q915amoEnog/qs8uQudYPgJJT5lLpRZi39HG1EkAm6eMuTxeW+qguWNCI6YuQw1vpvIWN9gZMZkf0+P7Q==",
+          "requires": {
+            "@zerobias-org/logger": "^3.0.3",
+            "@zerobias-org/types-core-js": "^1.2.17",
+            "axios": "^1.13.5"
+          }
+        },
         "axios": {
-          "version": "1.13.6",
-          "resolved": "https://registry.npmjs.org/axios/-/axios-1.13.6.tgz",
-          "integrity": "sha512-ChTCHMouEe2kn713WHbQGcuYrr6fXTBiu460OTwWrWob16g1bXn4vtz07Ope7ewMozJAnEquLk5lWQWtBig9DQ==",
+          "version": "1.14.0",
+          "resolved": "https://registry.npmjs.org/axios/-/axios-1.14.0.tgz",
+          "integrity": "sha512-3Y8yrqLSwjuzpXuZ0oIYZ/XGgLwUIBU3uLvbcpb0pidD9ctpShJd43KSlEEkVQg6DS0G9NKyzOvBfUtDKEyHvQ==",
           "requires": {
             "follow-redirects": "^1.15.11",
             "form-data": "^4.0.5",
-            "proxy-from-env": "^1.1.0"
+            "proxy-from-env": "^2.1.0"
           }
+        },
+        "proxy-from-env": {
+          "version": "2.1.0",
+          "resolved": "https://registry.npmjs.org/proxy-from-env/-/proxy-from-env-2.1.0.tgz",
+          "integrity": "sha512-cJ+oHTW1VAEa8cJslgmUZrc+sjRKgAKl3Zyse6+PV38hZe/V6Z14TbCuXcan9F9ghlz4QrFr2c92TNF82UkYHA=="
+        },
+        "yaml": {
+          "version": "2.2.2",
+          "resolved": "https://registry.npmjs.org/yaml/-/yaml-2.2.2.tgz",
+          "integrity": "sha512-CBKFWExMn46Foo4cldiChEzn7S7SRV+wqiluAb6xmueD/fGyRHIhX8m14vVGgeFWjN540nKCNVj6P21eQjgTuA=="
         }
       }
     },
@@ -15273,9 +15353,9 @@
       "integrity": "sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ=="
     },
     "csv-parse": {
-      "version": "6.1.0",
-      "resolved": "https://registry.npmjs.org/csv-parse/-/csv-parse-6.1.0.tgz",
-      "integrity": "sha512-CEE+jwpgLn+MmtCpVcPtiCZpVtB6Z2OKPTr34pycYYoL7sxdOkXDdQ4lRiw6ioC0q6BLqhc6cKweCVvral8yhw=="
+      "version": "6.2.1",
+      "resolved": "https://registry.npmjs.org/csv-parse/-/csv-parse-6.2.1.tgz",
+      "integrity": "sha512-LRLMV+UCyfMokp8Wb411duBf1gaBKJfOfBWU9eHMJ+b+cJYZsNu3AFmjJf3+yPGd59Exz1TsMjaSFyxnYB9+IQ=="
     },
     "dashdash": {
       "version": "1.14.1",

@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.10](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-zerobias-schemas-agentskills@0.1.9...@zerobias-org/collectorbot-zerobias-schemas-agentskills@0.1.10) (2026-03-30)
+
+### Bug Fixes
+
+* fix dep issuees
+
+
 ## <small>0.1.9 (2026-03-06)</small>
 
 * chore(release): bump version ([330098f](https://github.com/zerobias-org/collectorbot/commit/330098f))

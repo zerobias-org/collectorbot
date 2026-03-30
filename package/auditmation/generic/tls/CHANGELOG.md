@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.7](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-auditmation-generic-tls@0.1.6...@zerobias-org/collectorbot-auditmation-generic-tls@0.1.7) (2026-03-30)
+
+### Bug Fixes
+
+* fix dep issuees
+
+
 ## <small>0.1.6 (2026-03-04)</small>
 
 * feat(tls): migrate to ESM with @zerobias-* dependencies ([a283220](https://github.com/zerobias-org/collectorbot/commit/a283220))
