@@ -1,5 +1,4 @@
-import { ConnectionMetadata } from '@zerobias-com/hub-core';
-import { UnexpectedError, UUID } from '@zerobias-org/types-core-js';
+import { ConnectionMetadata, UnexpectedError, UUID } from '@zerobias-org/types-core-js';
 import { Batch } from '@zerobias-org/util-collector';
 import { injectable } from 'inversify';
 import { BaseClient } from '../generated/BaseClient.js';

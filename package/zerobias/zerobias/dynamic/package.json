@@ -41,7 +41,7 @@
     "@zerobias-org/module-interface-dataproducer": "latest",
     "@zerobias-org/product-zerobias-zerobias": "latest",
     "@zerobias-org/types-core-js": "latest",
-    "@zerobias-org/util-collector": "latest",
+    "@zerobias-org/util-collector": "^1.0.34",
     "inversify": "6.0.2",
     "reflect-metadata": "^0.2.2"
   },

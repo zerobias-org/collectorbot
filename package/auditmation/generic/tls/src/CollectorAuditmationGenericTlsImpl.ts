@@ -1,10 +1,10 @@
 import { newTls } from '@auditlogic/module-auditmation-generic-tls';
 import { ServiceEndpoint, X509Certificate } from '@auditlogic/schema-auditmation-auditmation-base-ts/dist/src/index.js';
-import { ConnectionMetadata } from '@zerobias-com/hub-core';
 import {
   UnexpectedError,
   URL,
-  UUID
+  UUID,
+  ConnectionMetadata
 } from '@zerobias-org/types-core-js';
 import { Batch } from '@zerobias-org/util-collector';
 import { injectable } from 'inversify';
