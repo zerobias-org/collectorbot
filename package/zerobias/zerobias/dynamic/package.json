@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/collectorbot-zerobias-zerobias-dynamic",
-  "version": "0.1.2",
+  "version": "1.0.1",
   "description": "ZeroBias Data Producer Interface Collector",
   "type": "module",
   "main": "dist/src/index.js",
@@ -37,7 +37,7 @@
     "@zerobias-com/hub-client": "latest",
     "@zerobias-com/hub-core": "latest",
     "@zerobias-com/platform-sdk": "latest",
-    "@zerobias-org/data-utils": "latest",
+    "@zerobias-org/data-utils": "^1.0.28",
     "@zerobias-org/module-interface-dataproducer": "latest",
     "@zerobias-org/product-zerobias-zerobias": "latest",
     "@zerobias-org/types-core-js": "latest",
