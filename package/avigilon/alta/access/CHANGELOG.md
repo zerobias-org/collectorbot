@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.1.11-rc.0](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-avigilon-alta-access@1.1.10...@zerobias-org/collectorbot-avigilon-alta-access@1.1.11-rc.0) (2026-04-01)
+
+**Note:** Version bump only for package @zerobias-org/collectorbot-avigilon-alta-access
+
+
+
+
+
 ## [1.1.10](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-avigilon-alta-access@1.1.9...@zerobias-org/collectorbot-avigilon-alta-access@1.1.10) (2026-03-30)
 
 ### Bug Fixes

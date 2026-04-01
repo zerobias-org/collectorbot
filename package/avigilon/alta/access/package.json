@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/collectorbot-avigilon-alta-access",
-  "version": "1.1.10",
+  "version": "1.1.11-rc.0",
   "description": "Avigilon Alta Access Collector",
   "type": "module",
   "main": "dist/src/index.js",

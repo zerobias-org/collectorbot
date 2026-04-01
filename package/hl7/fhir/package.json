@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/collectorbot-hl7-fhir",
-  "version": "0.1.0",
+  "version": "0.2.0-rc.0",
   "description": "HL7 FHIR Collector - collects FHIR R4 resources from FHIR-compliant healthcare API endpoints.",
   "type": "module",
   "main": "dist/src/index.js",
@@ -39,9 +39,9 @@
   "dependencies": {
     "@zerobias-com/hub-client": "latest",
     "@zerobias-com/platform-sdk": "latest",
+    "@zerobias-org/logger": "latest",
     "@zerobias-org/schema-hl7-fhir": "^1.0.0",
     "@zerobias-org/schema-hl7-fhir-ts": "^1.0.0",
-    "@zerobias-org/logger": "latest",
     "@zerobias-org/types-core-js": "latest",
     "@zerobias-org/util-collector": "^1.0.29",
     "inversify": "6.0.2",

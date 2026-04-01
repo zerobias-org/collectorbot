@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 0.2.0-rc.0 (2026-04-01)
+
+### Features
+
+* **hl7-fhir:** add HL7 FHIR R4 collector bot
+
+### Bug Fixes
+
+* **hl7-fhir:** date format, performance, logging, README
+
+### Chores
+
+* trigger hl7
+* update hl7 fhir collector description
+
+
 ## 0.1.0 (2026-03-17)
 
 ### Features
