@@ -21,3 +21,5 @@ jobs:
     secrets: inherit
     with:
       skip-publish-announcement: 'false'
+      use-neon: true
+      test-timeout: 900
