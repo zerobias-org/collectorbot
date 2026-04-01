@@ -1,6 +1,6 @@
 # HL7 FHIR Collector Bot
 
-Collects FHIR R4 resources from any FHIR-compliant API endpoint into AuditgraphDB.
+Collects FHIR R4 resources from any FHIR-compliant API endpoint into AuditgraphDB. Supports standard SMART on FHIR OAuth2 authentication and bulk data collection.
 
 ## Supported Resource Types (v1)
 
