@@ -17,7 +17,8 @@ permissions:
 
 jobs:
   publish:
-    uses: zerobias-org/devops/.github/workflows/publish-reusable-nx.yml@main
+    uses: zerobias-org/devops/.github/workflows/content-release-reusable.yml@main
     secrets: inherit
     with:
       skip-publish-announcement: 'false'
+      test-timeout: 900

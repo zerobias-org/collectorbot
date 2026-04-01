@@ -2,8 +2,11 @@ name: Pull Request Targeted to Dev Branch
 on:
   pull_request_target:
     types:
+      - opened
+      - reopened
       - synchronize
       - labeled
+      - ready_for_review
     branches:
       - dev
 
@@ -16,7 +19,7 @@ permissions:
 jobs:
   pull-request:
     if: github.repository == 'zerobias-org/collectorbot'
-    uses: zerobias-org/devops/.github/workflows/pull-request-target-reusable-nx.yml@main
+    uses: zerobias-org/devops/.github/workflows/content-pr-test-reusable.yml@main
     secrets: inherit
     with:
-      run-integration-tests: 'false'
+      test-timeout: 900
