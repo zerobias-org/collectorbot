@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.3-rc.1](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-zerobias-zerobias-dynamic@1.0.2...@zerobias-org/collectorbot-zerobias-zerobias-dynamic@1.0.3-rc.1) (2026-04-01)
+
+### Chores
+
+* **release:** bump version
+
+
 ## [1.0.3-rc.0](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-zerobias-zerobias-dynamic@1.0.2...@zerobias-org/collectorbot-zerobias-zerobias-dynamic@1.0.3-rc.0) (2026-04-01)
 
 **Note:** Version bump only for package @zerobias-org/collectorbot-zerobias-zerobias-dynamic
