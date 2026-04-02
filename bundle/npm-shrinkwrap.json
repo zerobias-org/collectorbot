@@ -1,19 +1,19 @@
 {
   "name": "@zerobias-org/collectorbot-bundle",
-  "version": "0.0.44",
+  "version": "0.0.45",
   "lockfileVersion": 2,
   "requires": true,
   "packages": {
     "": {
       "name": "@zerobias-org/collectorbot-bundle",
-      "version": "0.0.44",
+      "version": "0.0.45",
       "license": "ISC",
       "dependencies": {
         "@zerobias-org/collectorbot-auditmation-generic-tls": "0.1.7",
         "@zerobias-org/collectorbot-avigilon-alta-access": "1.1.10",
         "@zerobias-org/collectorbot-zerobias-schemas-agentskills": "0.1.10",
         "@zerobias-org/collectorbot-zerobias-schemas-mcpservers": "0.1.1",
-        "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": "1.0.2"
+        "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": "1.0.3"
       }
     },
     "node_modules/@auditlogic/module-auditmation-generic-tls": {
@@ -5659,9 +5659,9 @@
       }
     },
     "node_modules/@zerobias-org/collectorbot-zerobias-zerobias-dynamic": {
-      "version": "1.0.2",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-zerobias-dynamic/-/collectorbot-zerobias-zerobias-dynamic-1.0.2.tgz",
-      "integrity": "sha512-u2+9tfiTetBhLAkyl3+UndX6Zh91GmU+aCryvjQrvuN5s12AzgbYW/306Io2QHbhHrDv2j/+Y1ehmJCgeX2TaQ==",
+      "version": "1.0.3",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-zerobias-dynamic/-/collectorbot-zerobias-zerobias-dynamic-1.0.3.tgz",
+      "integrity": "sha512-Ucdw/XGzrbjURTLREzzPFjENDiDclM5eCNU4thFmcOpcs4f8qZ2hdR9wls9DG0u20L0byUowFnc2eeRJ7pM4Zg==",
       "license": "UNLICENSED",
       "dependencies": {
         "@zerobias-com/hub-client": "latest",
@@ -14305,9 +14305,9 @@
       }
     },
     "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": {
-      "version": "1.0.2",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-zerobias-dynamic/-/collectorbot-zerobias-zerobias-dynamic-1.0.2.tgz",
-      "integrity": "sha512-u2+9tfiTetBhLAkyl3+UndX6Zh91GmU+aCryvjQrvuN5s12AzgbYW/306Io2QHbhHrDv2j/+Y1ehmJCgeX2TaQ==",
+      "version": "1.0.3",
+      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-zerobias-dynamic/-/collectorbot-zerobias-zerobias-dynamic-1.0.3.tgz",
+      "integrity": "sha512-Ucdw/XGzrbjURTLREzzPFjENDiDclM5eCNU4thFmcOpcs4f8qZ2hdR9wls9DG0u20L0byUowFnc2eeRJ7pM4Zg==",
       "requires": {
         "@zerobias-com/hub-client": "latest",
         "@zerobias-com/hub-core": "latest",

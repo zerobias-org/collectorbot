@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/collectorbot-bundle",
-  "version": "0.0.44",
+  "version": "0.0.45",
   "description": "All installable collectorbots",
   "author": "team@auditmation.io",
   "license": "ISC",
@@ -22,6 +22,6 @@
     "@zerobias-org/collectorbot-avigilon-alta-access": "1.1.10",
     "@zerobias-org/collectorbot-zerobias-schemas-agentskills": "0.1.10",
     "@zerobias-org/collectorbot-zerobias-schemas-mcpservers": "0.1.1",
-    "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": "1.0.2"
+    "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": "1.0.3"
   }
 }
