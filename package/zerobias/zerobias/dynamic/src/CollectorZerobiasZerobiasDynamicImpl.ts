@@ -107,9 +107,11 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
           break;
         }
 
+        let mappedItem: any;
         try {
           // Apply mappings to transform the item
-          const { result: mappedItem, errors } = await applyMappings(item, mappings);
+          const { result, errors } = await applyMappings(item, mappings);
+          mappedItem = result;
 
           if (errors.length > 0) {
             this.logger.warn(
