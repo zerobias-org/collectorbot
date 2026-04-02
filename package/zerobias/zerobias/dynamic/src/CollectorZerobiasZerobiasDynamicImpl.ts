@@ -125,7 +125,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
           errorCount++;
           await batch.error(
             `Failed to process item: ${(err as Error).message}`,
-            item
+            mappedItem
           );
         }
       }
