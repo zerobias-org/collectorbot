@@ -3,6 +3,48 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.1.8-rc.4](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-auditmation-generic-tls@0.1.7...@zerobias-org/collectorbot-auditmation-generic-tls@0.1.8-rc.4) (2026-04-01)
+
+### Chores
+
+* **release:** bump version
+* **release:** bump version
+* **release:** bump version
+* **release:** bump version
+
+
+## [0.1.8-rc.3](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-auditmation-generic-tls@0.1.7...@zerobias-org/collectorbot-auditmation-generic-tls@0.1.8-rc.3) (2026-04-01)
+
+### Chores
+
+* **release:** bump version
+* **release:** bump version
+* **release:** bump version
+
+
+## [0.1.8-rc.2](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-auditmation-generic-tls@0.1.7...@zerobias-org/collectorbot-auditmation-generic-tls@0.1.8-rc.2) (2026-04-01)
+
+### Chores
+
+* **release:** bump version
+* **release:** bump version
+
+
+## [0.1.8-rc.1](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-auditmation-generic-tls@0.1.7...@zerobias-org/collectorbot-auditmation-generic-tls@0.1.8-rc.1) (2026-04-01)
+
+### Chores
+
+* **release:** bump version
+
+
+## [0.1.8-rc.0](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-auditmation-generic-tls@0.1.7...@zerobias-org/collectorbot-auditmation-generic-tls@0.1.8-rc.0) (2026-04-01)
+
+**Note:** Version bump only for package @zerobias-org/collectorbot-auditmation-generic-tls
+
+
+
+
+
 ## [0.1.7](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-auditmation-generic-tls@0.1.6...@zerobias-org/collectorbot-auditmation-generic-tls@0.1.7) (2026-03-30)
 
 ### Bug Fixes

@@ -1,10 +1,10 @@
 {
-  "name": "@zerobias-org/collectorbot-zerobias-zerobias-dynamic",
-  "version": "1.0.3-rc.4",
-  "description": "ZeroBias Data Producer Interface Collector",
+  "name": "@zerobias-org/collectorbot-hl7-fhir",
+  "version": "0.2.0-rc.5",
+  "description": "HL7 FHIR Collector - collects FHIR R4 resources from FHIR-compliant healthcare API endpoints",
   "type": "module",
   "main": "dist/src/index.js",
-  "author": "ctamas@zerobias.com",
+  "author": "team@zerobias.com",
   "license": "UNLICENSED",
   "directories": {
     "src": "src"
@@ -19,29 +19,31 @@
     "nx:build": "npm run build",
     "build": "npm run generate && npm run transpile",
     "clean": "rm -rf generated && rm -rf dist",
-    "generate": "npm run generate:models && npm run generate:hub-client",
     "generate:hub-client": "node -e \"import('@zerobias-com/hub-client-codegen')\"",
-    "generate:models": "hub-generator generate -g hub-module -i ./parameters.yml -o generated/ --global-property models,supportingFiles=index.ts && rm ./generated/api/index.ts",
-    "lint": "eslint src/",
+    "generate:models": "node ../../../node_modules/@zerobias-org/util-codegen/bin/hub-generator.js generate -g hub-module -i ./parameters.yml -o generated/ --global-property models,supportingFiles=index.ts && rm ./generated/api/index.ts",
+    "generate": "npm run generate:models && npm run generate:hub-client",
     "lint:fix": "eslint --fix src/",
-    "test": "",
+    "lint": "eslint src/",
+    "test:integration:watch": "npm run test:integration -- --watch --reporter=min",
     "test:integration": "mocha --exit --inline-diffs --reporter=list test/integration/**/*.ts",
+    "test:watch": "npm run test -- --watch --reporter=min",
+    "test": "",
+    "transpile:watch": "tsc --watch",
     "transpile": "tsc"
   },
   "repository": {
     "type": "git",
     "url": "git@github.com:zerobias-org/collectorbot.git",
-    "directory": "package/zerobias/zerobias/dynamic"
+    "directory": "package/hl7/fhir"
   },
   "dependencies": {
     "@zerobias-com/hub-client": "latest",
-    "@zerobias-com/hub-core": "latest",
     "@zerobias-com/platform-sdk": "latest",
-    "@zerobias-org/data-utils": "^1.0.28",
-    "@zerobias-org/module-interface-dataproducer": "latest",
-    "@zerobias-org/product-zerobias-zerobias": "latest",
+    "@zerobias-org/logger": "latest",
+    "@zerobias-org/schema-hl7-fhir": "^1.0.0",
+    "@zerobias-org/schema-hl7-fhir-ts": "^1.0.0",
     "@zerobias-org/types-core-js": "latest",
-    "@zerobias-org/util-collector": "^1.0.34",
+    "@zerobias-org/util-collector": "^1.0.29",
     "inversify": "6.0.2",
     "reflect-metadata": "^0.2.2"
   },
@@ -58,7 +60,7 @@
     "typescript": "^5.9.3"
   },
   "zerobias": {
-    "package": "zerobias.zerobias.dynamic.collectorbot",
+    "package": "hl7.fhir.collectorbot",
     "dataloader-version": "1.0.0",
     "import-artifact": "collectorbot"
   }

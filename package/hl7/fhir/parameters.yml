@@ -1,0 +1,40 @@
+openapi: 3.0.3
+info:
+  title: HL7 FHIR Collector Parameters
+  version: 0.1.0
+paths: {}
+components:
+  schemas:
+    Parameters:
+      type: object
+      required:
+        - fhirServerUrl
+      properties:
+        fhirServerUrl:
+          type: string
+          description: Base URL of the FHIR R4 server (e.g., https://hapi.fhir.org/baseR4)
+        clientId:
+          type: string
+          description: OAuth2 client ID for SMART on FHIR authentication
+        clientSecret:
+          type: string
+          description: OAuth2 client secret for SMART on FHIR authentication
+        tokenUrl:
+          type: string
+          description: OAuth2 token endpoint URL
+        scopes:
+          type: string
+          description: OAuth2 scopes (space-delimited)
+        resourceTypes:
+          type: array
+          items:
+            type: string
+          description: FHIR resource types to collect (default collects all supported types)
+        pageSize:
+          type: integer
+          description: Number of resources per page (default 1000)
+          default: 1000
+        concurrency:
+          type: integer
+          description: Number of resource types to collect in parallel (default 5)
+          default: 5
