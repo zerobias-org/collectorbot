@@ -1,12 +1,12 @@
 {
   "name": "@zerobias-org/collectorbot-bundle",
-  "version": "0.0.46",
+  "version": "0.0.47",
   "lockfileVersion": 2,
   "requires": true,
   "packages": {
     "": {
       "name": "@zerobias-org/collectorbot-bundle",
-      "version": "0.0.46",
+      "version": "0.0.47",
       "license": "ISC",
       "dependencies": {
         "@zerobias-org/collectorbot-auditmation-generic-tls": "0.1.8",
@@ -14,7 +14,7 @@
         "@zerobias-org/collectorbot-hl7-fhir": "0.2.0",
         "@zerobias-org/collectorbot-zerobias-schemas-agentskills": "0.1.11",
         "@zerobias-org/collectorbot-zerobias-schemas-mcpservers": "0.1.2",
-        "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": "1.0.3"
+        "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": "1.0.5"
       }
     },
     "node_modules/@auditlogic/module-auditmation-generic-tls": {
@@ -14375,8 +14375,7 @@
       }
     },
     "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": {
-      "version": "1.0.3",
-      "resolved": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-zerobias-dynamic/-/collectorbot-zerobias-zerobias-dynamic-1.0.3.tgz",
+      "version": "https://pkg.zerobias.org/@zerobias-org/collectorbot-zerobias-zerobias-dynamic/-/collectorbot-zerobias-zerobias-dynamic-1.0.3.tgz",
       "integrity": "sha512-Ucdw/XGzrbjURTLREzzPFjENDiDclM5eCNU4thFmcOpcs4f8qZ2hdR9wls9DG0u20L0byUowFnc2eeRJ7pM4Zg==",
       "requires": {
         "@zerobias-com/hub-client": "latest",
