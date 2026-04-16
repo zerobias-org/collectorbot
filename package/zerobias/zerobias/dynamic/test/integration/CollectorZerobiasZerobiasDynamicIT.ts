@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import * as fs from 'fs';
 import * as path from 'path';
 import { container } from '../../generated/index.js';
-import { DataMappingParams, toMappingRules } from '../../src/types/index.js';
+import { DataMappingParams } from '../../src/types/index.js';
 import { applyMappings } from '../../src/Mappers.js';
 
 describe('CollectorZerobiasZerobiasDynamicIT', function () {
@@ -55,35 +55,34 @@ describe('CollectorZerobiasZerobiasDynamicIT', function () {
       expect(firstRule).to.have.property('destination');
     });
 
-    it('Should convert params mapping rules to DataMapper format', async () => {
+    it('Should have mapping rules matching DataMapper MappingRule shape', async () => {
       const paramsPath = path.join(__dirname, '../../resoruces/params-example.json');
       const paramsContent = fs.readFileSync(paramsPath, 'utf-8');
       const params: DataMappingParams = JSON.parse(paramsContent);
 
       const firstMapping = params.dataMappings[0];
-      const rules = toMappingRules(firstMapping.mappings);
+      const rules = firstMapping.mappings;
 
-      // Validate converted rules
       expect(rules).to.be.an('array');
-      expect(rules.length).to.equal(firstMapping.mappings.length);
+      expect(rules.length).to.be.greaterThan(0);
 
-      // Validate first rule structure after conversion
-      const firstConverted = rules[0];
-      expect(firstConverted).to.have.property('id');
-      expect(firstConverted).to.have.property('source');
-      expect(firstConverted).to.have.property('destination');
-      expect(firstConverted).to.have.property('transform');
+      // Validate first rule structure
+      const firstRule = rules[0];
+      expect(firstRule).to.have.property('id');
+      expect(firstRule).to.have.property('source');
+      expect(firstRule).to.have.property('destination');
+      expect(firstRule).to.have.property('transform');
 
       // Validate source has required fields
-      expect(firstConverted.source).to.have.property('key');
-      expect(firstConverted.source).to.have.property('type');
+      expect(firstRule.source).to.have.property('key');
+      expect(firstRule.source).to.have.property('type');
 
       // Validate destination has required fields
-      expect(firstConverted.destination).to.have.property('key');
-      expect(firstConverted.destination).to.have.property('required');
+      expect(firstRule.destination).to.have.property('key');
+      expect(firstRule.destination).to.have.property('required');
 
       // Validate transform has type
-      expect(firstConverted.transform).to.have.property('type');
+      expect(firstRule.transform).to.have.property('type');
     });
 
     it('Should apply mappings to sample data', async () => {

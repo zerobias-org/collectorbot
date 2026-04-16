@@ -3,7 +3,7 @@
  * These types represent the input structure for dynamic data collection
  */
 
-import { MappingRule, SourceField, DestinationField, TransformConfig } from '@zerobias-org/data-utils';
+import { MappingRule } from '@zerobias-org/data-utils';
 
 /**
  * Schema field definition from source system
@@ -125,60 +125,6 @@ export interface DataMappingDestination {
 }
 
 /**
- * Field mapping source (simplified from params)
- */
-export interface MappingSourceField {
-  key: string;
-  name: string;
-  type: string;
-  level: number;
-  sampleValue?: any;
-}
-
-/**
- * Field mapping destination (simplified from params)
- */
-export interface MappingDestinationField {
-  key: string;
-  name: string;
-  type: string;
-  level: number;
-  required: boolean;
-}
-
-/**
- * Transform configuration from params
- */
-export interface MappingTransform {
-  type: 'direct' | 'expression' | 'convert' | 'combine' | 'split' | 'default' | 'conditional' | 'lookup';
-  options?: {
-    expression?: string;
-    dataType?: string;
-    combineWith?: string;
-    splitOn?: string;
-    defaultValue?: any;
-    applyOnNull?: boolean;
-    applyOnEmpty?: boolean;
-    conditionOperator?: string;
-    conditionValue?: any;
-    trueValue?: any;
-    falseValue?: any;
-    lookupTable?: Record<string, any>;
-    lookupDefault?: any;
-  };
-}
-
-/**
- * Individual field mapping rule from params
- */
-export interface ParamsMappingRule {
-  id: string;
-  source: MappingSourceField;
-  transform: MappingTransform;
-  destination: MappingDestinationField;
-}
-
-/**
  * Metadata for the data mapping
  */
 export interface DataMappingMetadata {
@@ -194,7 +140,7 @@ export interface DataMapping {
   id: string;
   source: DataMappingSource;
   context: DataMappingContext;
-  mappings: ParamsMappingRule[];
+  mappings: MappingRule[];
   metadata: DataMappingMetadata;
   destination: DataMappingDestination;
 }
@@ -206,42 +152,3 @@ export interface DataMappingParams {
   dataMappings: DataMapping[];
 }
 
-/**
- * Convert ParamsMappingRule to MappingRule format used by DataMapper
- */
-export function toMappingRule(rule: ParamsMappingRule): MappingRule {
-  const source: SourceField = {
-    key: rule.source.key,
-    name: rule.source.name,
-    type: rule.source.type,
-    level: rule.source.level,
-    sampleValue: rule.source.sampleValue,
-  };
-
-  const destination: DestinationField = {
-    key: rule.destination.key,
-    name: rule.destination.name,
-    type: rule.destination.type,
-    level: rule.destination.level,
-    required: rule.destination.required,
-  };
-
-  const transform: TransformConfig = {
-    type: rule.transform.type as any,
-    options: rule.transform.options as any,
-  };
-
-  return {
-    id: rule.id,
-    source,
-    destination,
-    transform,
-  };
-}
-
-/**
- * Convert array of ParamsMappingRule to MappingRule array
- */
-export function toMappingRules(rules: ParamsMappingRule[]): MappingRule[] {
-  return rules.map(toMappingRule);
-}
