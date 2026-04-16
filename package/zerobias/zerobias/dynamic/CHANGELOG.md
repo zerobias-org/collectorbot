@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.7](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-zerobias-zerobias-dynamic@1.0.6...@zerobias-org/collectorbot-zerobias-zerobias-dynamic@1.0.7) (2026-04-16)
+
+### Bug Fixes
+
+* **dynamic-collector:** pin logger override to dedupe nested install (#16)
+
+
 ## [1.0.6](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-zerobias-zerobias-dynamic@1.0.5...@zerobias-org/collectorbot-zerobias-zerobias-dynamic@1.0.6) (2026-04-16)
 
 ### Bug Fixes
