@@ -1,12 +1,12 @@
 {
   "name": "@zerobias-org/collectorbot-bundle",
-  "version": "0.0.48",
+  "version": "0.0.49",
   "lockfileVersion": 2,
   "requires": true,
   "packages": {
     "": {
       "name": "@zerobias-org/collectorbot-bundle",
-      "version": "0.0.48",
+      "version": "0.0.49",
       "license": "ISC",
       "dependencies": {
         "@zerobias-org/collectorbot-auditmation-generic-tls": "0.1.8",
@@ -14,7 +14,7 @@
         "@zerobias-org/collectorbot-hl7-fhir": "0.2.0",
         "@zerobias-org/collectorbot-zerobias-schemas-agentskills": "0.1.11",
         "@zerobias-org/collectorbot-zerobias-schemas-mcpservers": "0.1.2",
-        "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": "1.0.6"
+        "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": "1.0.7"
       }
     },
     "node_modules/@auditlogic/module-auditmation-generic-tls": {
