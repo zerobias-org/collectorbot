@@ -1,0 +1,71 @@
+name: "@zerobias-org/collectorbot"
+version: "1.0.0"
+
+env:
+  AWS_ACCESS_KEY_ID:
+    source: vault
+    vault: "aws-auth/tools/ecr/creds/ecr-push.access_key"
+    refresh: true
+
+  AWS_SECRET_ACCESS_KEY:
+    source: vault
+    vault: "aws-auth/tools/ecr/creds/ecr-push.secret_key"
+    refresh: true
+    mask: true
+
+  ECR_REGISTRY:
+    type: string
+    default: "961260934100.dkr.ecr.us-east-1.amazonaws.com"
+    description: ECR registry URL for Docker image publishing
+
+  GHCR_REGISTRY:
+    type: string
+    default: "ghcr.io/zerobias-org"
+    description: GHCR registry URL for Docker image publishing
+
+  AWS_REGION:
+    type: string
+    default: "us-east-1"
+    description: AWS region for ECR operations
+
+  # Neon database — ephemeral branches for dataloader testing
+  NEON_API_KEY:
+    source: vault
+    vault: "operations-kv/neon/content.api-key"
+    mask: true
+
+  NEON_PROJECT_ID:
+    source: vault
+    vault: "operations-kv/neon/content.project-id"
+
+  NEON_PARENT_BRANCH:
+    type: string
+    default: "content-master"
+    description: Neon parent branch to create test branches from
+
+  NEON_DB_ROLE:
+    type: string
+    default: "neondb_owner"
+    description: Neon database role
+
+  NEON_DB_NAME:
+    type: string
+    default: "zerobias"
+    description: Neon database name
+
+# ── Lifecycle ────────────────────────────────────────────────────────
+lifecycle:
+  clean:       ./gradlew clean
+  build:       ./gradlew build
+  test:        ./gradlew test
+  gate:        ./gradlew gate
+  gateCheck:   ./gradlew gateCheck
+  publish:     ./gradlew publish
+  buildImage:  ./gradlew buildImage
+
+require:
+  - tool: dataloader
+    check: "dataloader --version 2>&1"
+    parse: "Dataloader v(\\S+)"
+    version: ">=1.0.87"
+    install: "npm i -g @zerobias-com/platform-dataloader"
