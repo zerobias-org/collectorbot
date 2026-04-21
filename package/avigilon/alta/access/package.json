@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/collectorbot-avigilon-alta-access",
-  "version": "2.0.0-uat.0",
+  "version": "2.0.0",
   "description": "Avigilon Alta Access Collector",
   "license": "UNLICENSED",
   "author": "ctamas@zerobias.com",
