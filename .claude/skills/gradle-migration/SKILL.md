@@ -43,11 +43,16 @@ Create `package/<vendor>/<product>/<collectorbot-name>/.mocharc.json`:
 ```json
 {
   "extension": ["ts"],
-  "node-option": ["import=tsx/esm"]
+  "require": "tsx",
+  "timeout": 6000000
 }
 ```
 
-Used by Gradle's test tasks to run TypeScript tests natively via tsx.
+Used by Gradle's test tasks to run TypeScript tests natively via tsx. The
+generous timeout matters: the smoke e2e test invokes `client.run()` which
+performs real hub calls and may take minutes. A short (default 2s) timeout
+will cut the test off before the collector finishes, masking real flow as
+a timeout error.
 
 ### 3. Rewrite package.json
 

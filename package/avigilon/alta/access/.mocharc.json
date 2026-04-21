@@ -1,4 +1,5 @@
 {
   "extension": ["ts"],
-  "node-option": ["import=tsx/esm"]
+  "require": "tsx",
+  "timeout": 6000000
 }
