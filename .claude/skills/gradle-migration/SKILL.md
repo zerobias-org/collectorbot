@@ -121,9 +121,15 @@ Example (Avigilon Alta Access shape — adapt scope per package):
 ```json
 "files": [
   "dist",
+  "npm-shrinkwrap.json",
   "*.yml"
 ]
 ```
+
+`npm-shrinkwrap.json` is intentionally kept in the published files even
+though the skill instructs you to delete it locally (step 7). When
+CI/release regenerates a shrinkwrap it gets packaged; absent the entry,
+the file is omitted from the tarball.
 
 **Update `zerobias` metadata:**
 ```json
