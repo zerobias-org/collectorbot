@@ -8,6 +8,7 @@
   "main": "dist/src/index.js",
   "files": [
     "dist",
+    "npm-shrinkwrap.json",
     "*.yml"
   ],
   "scripts": {
