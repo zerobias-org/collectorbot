@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0-uat.0",
+  "branch": "feat/gradle-bootstrap-alta",
+  "timestamp": "2026-04-21T21:28:03.373948Z",
+  "sourceHash": "78c5e7673baba88a685e75f38d07eb86838cfe638245732411b3b75b66fa6bb3",
+  "testHash": "f7fb0ddeb502a27eec636ec86bfe1c066a566513d80ba32542a65c4f84b53c42",
+  "tasks": {
+    "validate": "passed",
+    "lint": "passed",
+    "compile": "passed",
+    "test": "passed",
+    "testDirect": "passed",
+    "testDocker": "passed",
+    "testDataloader": "passed",
+    "buildArtifacts": "passed"
+  },
+  "tests": {
+      "unit": { "expected": 0, "ran": 0, "status": "skipped" },
+      "integration": { "expected": 0, "ran": 0, "status": "skipped" },
+      "e2e": { "expected": 1, "ran": 1, "status": "passed" }
+  }
+}
