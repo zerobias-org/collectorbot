@@ -75,15 +75,15 @@ Run `npm view <pkg> version` to find the latest for each package.
 Example (Avigilon Alta Access shape — adapt scope per package):
 ```json
 "dependencies": {
-  "@auditlogic/schema-<vendor>-<product>-<sub>": "1.1.6",
-  "@auditlogic/schema-<vendor>-<product>-<sub>-ts": "1.1.6",
+  "@auditlogic/schema-<vendor>-<product>-<sub>": "latest",
+  "@auditlogic/schema-<vendor>-<product>-<sub>-ts": "latest",
   "@supercharge/promise-pool": "3.3.0",
-  "@zerobias-com/hub-client": "1.0.61",
-  "@zerobias-com/platform-sdk": "1.1.12",
-  "@zerobias-org/module-<vendor>-<product>-<sub>": "<latest>",
-  "@zerobias-org/product-<vendor>-<product>-<sub>": "<latest>",
-  "@zerobias-org/types-core-js": "1.2.19",
-  "@zerobias-org/util-collector": "1.0.37",
+  "@zerobias-com/hub-client": "latest",
+  "@zerobias-com/platform-sdk": "latest",
+  "@zerobias-org/module-<vendor>-<product>-<sub>": "latest",
+  "@zerobias-org/product-<vendor>-<product>-<sub>": "latest",
+  "@zerobias-org/types-core-js": "latest",
+  "@zerobias-org/util-collector": "latest",
   "inversify": "8.1.0",
   "reflect-metadata": "0.2.2"
 }
@@ -92,7 +92,16 @@ Example (Avigilon Alta Access shape — adapt scope per package):
 **peerDependencies use caret from latest:**
 ```json
 "peerDependencies": {
-  "axios": "^1.13.0"
+  "axios": "^1.15.0"
+}
+```
+
+**overrides use caret from latest:**
+```json
+"overrides": {
+  "@zerobias-org/types-core-js": "$@zerobias-org/types-core-js",
+  "@zerobias-org/logger": "^3.0.9",
+  "axios": "^1.15.0"
 }
 ```
 
@@ -102,10 +111,10 @@ Example (Avigilon Alta Access shape — adapt scope per package):
   "@types/chai": "5.2.3",
   "@types/mocha": "10.0.10",
   "@types/node": "22.0.0",
-  "@zerobias-com/hub-client-codegen": "1.0.59",
-  "@zerobias-com/hub-secrets-manager": "1.0.56",
-  "@zerobias-org/eslint-config": "1.0.36",
-  "@zerobias-org/util-codegen": "2.0.44",
+  "@zerobias-com/hub-client-codegen": "latest",
+  "@zerobias-com/hub-secrets-manager": "latest",
+  "@zerobias-org/eslint-config": "latest",
+  "@zerobias-org/util-codegen": "latest",
   "chai": "4.3.8",
   "mocha": "11.7.5",
   "tsx": "4.21.0",
@@ -135,7 +144,7 @@ the file is omitted from the tarball.
 ```json
 "zerobias": {
   "package": "<vendor>.<product>.<sub>.collectorbot",
-  "dataloader-version": "0.5.4",
+  "dataloader-version": "1.0.0",
   "import-artifact": "collectorbot"
 }
 ```
