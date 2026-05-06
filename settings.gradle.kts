@@ -1,33 +1,38 @@
+// settings.gradle.kts — collectorbot
+//
+// Plugin resolution order: mavenLocal (for `publishToMavenLocal` dev builds
+// of build-tools) → GitHub Packages Maven → gradle plugin portal → mavenCentral.
+// Never via `includeBuild` of a sibling repo path: dev iteration goes through
+// `./gradlew publishToMavenLocal` from build-tools so CI and local resolve
+// the artifact the same way.
+
 pluginManagement {
-    // Use local build-tools if available (dev), otherwise pull from GitHub Packages Maven (CI)
-    val localBuildTools = file("../util/packages/build-tools")
-    if (localBuildTools.exists()) {
-        includeBuild(localBuildTools)
-    }
     repositories {
+        mavenLocal()
         maven {
             url = uri("https://maven.pkg.github.com/zerobias-org/util")
             credentials {
-                username = System.getenv("GITHUB_ACTOR") ?: "zerobias-com"
+                username = System.getenv("GITHUB_ACTOR") ?: "zerobias-org"
                 password = System.getenv("READ_TOKEN") ?: System.getenv("NPM_TOKEN") ?: System.getenv("GITHUB_TOKEN") ?: ""
             }
         }
         gradlePluginPortal()
         mavenCentral()
     }
-    // Resolve latest build-tools from Maven (used in CI when local composite build is absent)
     plugins {
         id("zb.workspace") version "1.+"
         id("zb.base") version "1.+"
-        id("zb.typescript-collectorbot") version "1.+"
+        id("zb.typescript") version "1.+"
+        id("zb.typescript-connector") version "1.+"
+        id("zb.typescript-agent") version "1.+"
     }
 }
 
 rootProject.name = "collectorbots"
 
-// Auto-discover all collectorbots under package/
-// A directory is a collectorbot if it contains build.gradle.kts
-// Project names mirror filesystem: package/avigilon/alta/access → :avigilon:alta:access
+// Auto-discover all modules under package/.
+// A directory is a module if it contains build.gradle.kts.
+// Project names mirror filesystem: package/github/github → :github:github.
 val packageDir = file("package")
 if (packageDir.exists()) {
     packageDir.walkTopDown()

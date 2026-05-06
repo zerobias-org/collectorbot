@@ -1,8 +1,8 @@
 {
-  "version": "2.0.0-uat.0",
+  "version": "0.2.0-uat.0",
   "branch": "feat/update-data-utils-for-sql-query-dynamic-data",
-  "sourceHash": "21cd5c5cd7fad59515f187ce45980e005cd7b08193c59e2b2eb92695922f145d",
-  "testHash": "3db649a8338519920148fc7a1660852922bffa5f11da9de517b8a158ec87b7bd",
+  "sourceHash": "94a617c03de585d81f4bf140c3d1a8f6549c5eb54fff9ab98c66803087f06531",
+  "testHash": "3e916b2212f3bc2364d82386359a3a53560cc132ff1e98ef0d550e51552913f8",
   "tasks": {
     "validate": "passed",
     "lint": "passed",
@@ -15,7 +15,7 @@
   },
   "tests": {
       "unit": { "expected": 0, "ran": 0, "status": "skipped" },
-      "integration": { "expected": 0, "ran": 0, "status": "skipped" },
-      "e2e": { "expected": 1, "ran": 1, "status": "passed" }
+      "integration": { "expected": 1, "ran": 1, "status": "passed" },
+      "e2e": { "expected": 0, "ran": 0, "status": "skipped" }
   }
 }

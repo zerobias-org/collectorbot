@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { getClient } from '@zerobias-com/hub-client';
 import 'reflect-metadata';
 import { container } from '../../generated/index.js';

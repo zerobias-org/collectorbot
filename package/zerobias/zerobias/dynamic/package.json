@@ -11,12 +11,11 @@
   },
   "files": [
     "dist",
-    "npm-shrinkwrap.json",
+    "package-lock.json",
     "*.yml",
     "*.md"
   ],
   "scripts": {
-    "nx:build": "npm run build",
     "build": "npm run generate && npm run transpile",
     "clean": "rm -rf generated && rm -rf dist",
     "generate": "npm run generate:models && npm run generate:hub-client",
@@ -37,23 +36,25 @@
     "@zerobias-com/hub-client": "latest",
     "@zerobias-com/hub-core": "latest",
     "@zerobias-com/platform-sdk": "latest",
-    "@zerobias-org/data-utils": "^1.0.28",
+    "@zerobias-org/data-utils": "^2.1.3",
     "@zerobias-org/module-interface-dataproducer": "latest",
     "@zerobias-org/product-zerobias-zerobias": "latest",
     "@zerobias-org/types-core-js": "latest",
-    "@zerobias-org/util-collector": "^1.0.34",
+    "@zerobias-org/util-collector": "^1.0.40",
     "inversify": "6.0.2",
     "reflect-metadata": "^0.2.2"
   },
   "overrides": {
-    "@zerobias-org/logger": "3.0.6"
+    "@zerobias-org/types-core-js": "$@zerobias-org/types-core-js",
+    "@zerobias-org/logger": "3.0.9"
   },
   "devDependencies": {
     "@types/chai": "^5.2.3",
     "@types/mocha": "^10.0.10",
     "@types/node": "^25.3.0",
-    "@zerobias-com/hub-client-codegen": "^1.0.37",
+    "@zerobias-com/hub-client-codegen": "^1.0.71",
     "@zerobias-com/hub-secrets-manager": "latest",
+    "@zerobias-org/eslint-config": "latest",
     "@zerobias-org/util-codegen": "latest",
     "chai": "^6.2.2",
     "mocha": "^11.7.5",

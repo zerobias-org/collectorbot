@@ -46,7 +46,7 @@ build/
 local.properties
 
 # zbb
-.zbb-monorepo/
+.zbb-gradle/
 dependency-tree.json
 
 # Ephemeral build artifacts
@@ -94,4 +94,3 @@ image/**/package-lock.json
 dbz-config.json
 
 scripts/clean**
-.nx/

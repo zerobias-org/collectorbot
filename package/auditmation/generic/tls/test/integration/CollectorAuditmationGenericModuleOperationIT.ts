@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { getClient } from '@zerobias-com/hub-client';
 import { URL } from '@zerobias-org/types-core-js';
 import 'reflect-metadata';

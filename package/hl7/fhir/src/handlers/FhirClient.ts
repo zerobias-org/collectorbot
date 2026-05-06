@@ -68,7 +68,8 @@ export class FhirClient {
     let page = 0;
 
     while (url) {
-      if (++page > MAX_PAGES) {
+      page += 1;
+      if (page > MAX_PAGES) {
         this.logger.warn(`${resourceType}: reached ${MAX_PAGES} page limit, stopping`);
         break;
       }
