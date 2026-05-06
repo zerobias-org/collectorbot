@@ -82,8 +82,7 @@ collectorbot/
 │               ├── generated/     # Auto-generated (DO NOT EDIT)
 │               ├── src/           # Source code
 │               └── test/          # Tests
-├── collector/                  # ⚠️ DEPRECATED - Do not use
-└── lerna.json                 # Monorepo configuration
+└── collector/                  # ⚠️ DEPRECATED - Do not use
 ```
 
 ## Quick Reference
@@ -115,6 +114,24 @@ This will:
 3. Follow `.claude/DEVELOPMENT_WORKFLOW.md` step-by-step
 
 ### Key Commands
+
+Workspace-level (Gradle orchestrates the monorepo; `zbb` drives versioning and publishing):
+
+```bash
+# Build all packages
+./gradlew build
+
+# Test all packages
+./gradlew test
+
+# Bump versions for changed modules
+zbb version --modules="<vendor/suite/product>,..."
+
+# Publish a single module (run from inside the package directory)
+zbb publish
+```
+
+Per-package (run from inside `package/<vendor>/<suite?>/<product>/`):
 
 ```bash
 # Install dependencies

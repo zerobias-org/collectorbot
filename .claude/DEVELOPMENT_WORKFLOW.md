@@ -1020,10 +1020,10 @@ git commit -m "feat(entra): add Microsoft Entra ID collector"
 ```
 
 **Version Management:**
-- Lerna runs on **PR push** and on **merge**
-- Automatically bumps versions based on conventional commits
-- Publishes to npm via GitHub Actions
-- No manual version management needed
+- Versioning and publishing are driven by `zbb` (see `zbb.yaml` lifecycle).
+- The `version` job in `.github/workflows/publish.yml` runs `zbb version` for changed modules before the publish matrix fans out.
+- Per-module version bumps are committed once and pushed before publish, so matrix jobs don't race on `git push`.
+- `zbb publish` builds and publishes each changed module to npm.
 
 ---
 
@@ -1576,7 +1576,7 @@ groupId = `${accountId}-all-users`;
 1. Document WHY in commit message
 2. Warn user about data deletion
 3. Consider if migration/backfill needed
-4. Use conventional commit with BREAKING CHANGE
+4. Bump the major version (handled by `zbb version`) and call out the change in the PR description
 
 ---
 

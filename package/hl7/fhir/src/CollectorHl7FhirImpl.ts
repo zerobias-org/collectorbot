@@ -68,7 +68,7 @@ export class CollectorHl7FhirImpl extends BaseClient {
         return;
       }
 
-      const tag = `[${++completed}/${resourceTypes.length}]`;
+      const tag = `[${completed += 1}/${resourceTypes.length}]`;
       const batch = await this.batchManager.initBatch(mapping.schemaName, `fhir-${resourceType}`);
       const typeStart = Date.now();
       let count = 0;
@@ -76,7 +76,7 @@ export class CollectorHl7FhirImpl extends BaseClient {
 
       try {
         for await (const resources of client.paginateResources(resourceType, pageSize)) {
-          pages++;
+          pages += 1;
           const items: any[] = [];
 
           for (const resource of resources) {

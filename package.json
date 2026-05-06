@@ -1,55 +1,5 @@
 {
   "name": "@zerobias-org/collectorbot",
-  "version": "1.0.0",
   "private": true,
-  "type": "module",
-  "description": "Zerobias collectorbot artifacts",
-  "main": "main.js",
-  "scripts": {
-    "build": "nx run-many -t build",
-    "build:affected": "nx affected -t build",
-    "generate": "nx run-many -t generate",
-    "lint": "nx run-many -t lint",
-    "lint:affected": "nx affected -t lint",
-    "test": "nx run-many -t test",
-    "test:affected": "nx affected -t test",
-    "clean": "nx reset",
-    "clean:full": "nx reset && rm -rf node_modules",
-    "reset": "npm run clean:full && npm install",
-    "lerna:dry-run": "lerna version --no-git-tag-version --no-push --conventional-commits",
-    "lerna:version": "lerna version --no-git-tag-version --no-push --conventional-commits --yes",
-    "prepublish-init": "prepublish-init"
-  },
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/zerobias-org/collectorbot.git"
-  },
-  "author": "team@zerobias.com",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/zerobias-org/collectorbot/issues"
-  },
-  "homepage": "https://github.com/zerobias-org/collectorbot#readme",
-  "overrides": {
-    "tar": "^7.5.7",
-    "@rollup/plugin-commonjs": "^28.0.0",
-    "@zerobias-org/logger": "3.0.6"
-  },
-  "devDependencies": {
-    "@commitlint/cli": "^20.3.1",
-    "@commitlint/config-conventional": "^20.3.1",
-    "@typescript-eslint/eslint-plugin": "^8.53.0",
-    "@typescript-eslint/parser": "^8.53.0",
-    "@zerobias-org/devops-tools": "^1.0.43",
-    "@zerobias-org/eslint-config": "latest",
-    "@zerobias-org/types-core-js": "^1.2.12",
-    "conventional-changelog-conventionalcommits": "^9.1.0",
-    "eslint": "^9.39.2",
-    "lerna": "^9.0.3",
-    "nx": "^22.4.3",
-    "tsx": "^4.21.0"
-  }
+  "type": "module"
 }

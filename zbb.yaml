@@ -57,14 +57,20 @@ env:
 lifecycle:
   clean:       ./gradlew clean
   build:       ./gradlew build
-  test:        ./gradlew test
-  gate:        ./gradlew gate
+  test:
+    command: ./gradlew test
+    tools: [dataloader]
+  gate:
+    command: ./gradlew gate
+    tools: [dataloader]
   gateCheck:   ./gradlew gateCheck
+  version:     ./gradlew versionStandardPackages
   publish:     ./gradlew publish
   buildImage:  ./gradlew buildImage
 
-require:
-  - tool: dataloader
+# ── Tools registry — referenced by lifecycle.<cmd>.tools ─────────────
+tools:
+  dataloader:
     check: "dataloader --version 2>&1"
     parse: "Dataloader v(\\S+)"
     version: ">=1.0.87"

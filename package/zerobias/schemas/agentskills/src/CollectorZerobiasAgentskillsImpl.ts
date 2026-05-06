@@ -100,7 +100,7 @@ export class CollectorZerobiasAgentskillsImpl extends BaseClient {
     const processRepo = async (repoStr: string) => {
       const [owner, repo] = String(repoStr).split('/');
       const repoId = `${owner}/${repo}`;
-      const progress = `[${++completed}/${repos.length}]`;
+      const progress = `[${completed += 1}/${repos.length}]`;
 
       try {
         const { skills, errors } = await handler.collectSkills(owner, repo, this.previewCount);

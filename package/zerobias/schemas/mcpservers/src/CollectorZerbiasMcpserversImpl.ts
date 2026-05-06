@@ -101,7 +101,7 @@ export class CollectorZerbiasMcpserversImpl extends BaseClient {
     let totalTools = 0;
 
     const processSource = async (sourceStr: string) => {
-      const progress = `[${++completed}/${sources.length}]`;
+      const progress = `[${completed += 1}/${sources.length}]`;
 
       try {
         const { servers, errors } = await handler.collectFromRepo(sourceStr, collectTools);

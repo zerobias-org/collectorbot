@@ -92,9 +92,8 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
 
       const results = await collectionsApi.getCollectionElements(
         source.objectId,
-        undefined, // pageToken
         1,         // pageNumber
-        100,       // pageSize (max is 100)
+        100        // pageSize (max is 100)
       );
 
       // Process each item through the mappings
@@ -121,10 +120,10 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
 
           // Add the mapped item to the batch
           await batch.add(mappedItem, item);
-          processedCount++;
+          processedCount += 1;
 
         } catch (err) {
-          errorCount++;
+          errorCount += 1;
           await batch.error(
             `Failed to process item: ${(err as Error).message}`,
             mappedItem
