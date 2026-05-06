@@ -1,9 +1,10 @@
 import { ConnectionMetadata, UnexpectedError, UUID } from '@zerobias-org/types-core-js';
 import { Batch } from '@zerobias-org/util-collector';
+import { extractRows } from '@zerobias-org/data-utils';
 import { injectable } from 'inversify';
 import { BaseClient } from '../generated/BaseClient.js';
 import { applyMappings } from './Mappers.js';
-import { DataMapping, DataMappingParams } from './types/index.js';
+import { DataMapping, DataMappingParams, DataMappingSource } from './types/index.js';
 
 @injectable()
 export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
@@ -64,8 +65,47 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
   }
 
   /**
+   * Yield source items for a mapping. Branches on the source variant:
+   *  - `source.sql` set → invoke the producer's query function and stream
+   *    rows from the (normalised) result set.
+   *  - otherwise        → page through `getCollectionElements`.
+   *
+   * Both paths produce the same item shape (a plain row object) so the
+   * caller treats them identically.
+   */
+  private async *fetchSourceItems(source: DataMappingSource): AsyncIterable<any> {
+    if (source.sql) {
+      this.logger.info(
+        `Invoking query function ${source.objectId} with persisted SQL`
+      );
+      const functionsApi = this.dataproducer.getFunctionsApi();
+      // The generated FunctionsApi types `requestBody` as
+      // `{ [key: string]: object }`; the SQL string doesn't satisfy that
+      // shape but the wire payload is just JSON, so cast to bypass the
+      // codegen narrowing.
+      const raw = await functionsApi.invokeFunction(
+        source.objectId,
+        { sql: source.sql } as any,
+      );
+      const rows = extractRows(raw);
+      this.logger.info(`Query returned ${rows.length} row(s)`);
+      for (const row of rows) yield row;
+      return;
+    }
+
+    this.logger.info(`Fetching collection elements from: ${source.objectId}`);
+    const collectionsApi = this.dataproducer.getCollectionsApi();
+    const results = await collectionsApi.getCollectionElements(
+      source.objectId,
+      1,         // pageNumber
+      100        // pageSize (max is 100)
+    );
+    for await (const item of results) yield item;
+  }
+
+  /**
    * Process a single data mapping configuration
-   * - Fetches data from the source using getCollectionElements
+   * - Fetches data from the source (collection or query)
    * - Applies field mappings using DataMapper
    * - Adds transformed data to batch
    */
@@ -83,24 +123,12 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     // Initialize batch for the destination class
     const batch = await this.initBatchForClass(destination.className, groupId);
 
-    // Get the collections API to fetch data
-    const collectionsApi = this.dataproducer.getCollectionsApi();
-
     try {
-      // Fetch collection elements using the source objectId
-      this.logger.info(`Fetching collection elements from: ${source.objectId}`);
-
-      const results = await collectionsApi.getCollectionElements(
-        source.objectId,
-        1,         // pageNumber
-        100        // pageSize (max is 100)
-      );
-
       // Process each item through the mappings
       let processedCount = 0;
       let errorCount = 0;
 
-      for await (const item of results) {
+      for await (const item of this.fetchSourceItems(source)) {
         // Check preview limit
         if (this.previewCount && processedCount >= this.previewCount) {
           break;
@@ -138,7 +166,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
 
     } catch (error) {
       this.logger.error(
-        `Failed to fetch collection elements: ${(error as Error).message}`
+        `Failed to fetch source items: ${(error as Error).message}`
       );
       throw error;
     } finally {

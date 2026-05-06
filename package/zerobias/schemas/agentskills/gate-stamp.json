@@ -1,6 +1,6 @@
 {
-  "version": "0.1.12",
-  "branch": "feat/update-data-utils-for-sql-query-dynamic-data",
+  "version": "0.1.12-uat.0",
+  "branch": "feat/update-dynamic-collector-to-handle-invokeFunction-and-getCollectionElements",
   "sourceHash": "6492db743038c046ed15cd90517743a5f7c162d4e1319d60cded3ff2c52abf3b",
   "testHash": "1ad713dea21a414f0cb3f8eccfc8ed9d5f0daca4c66e9501a8e12693051287db",
   "tasks": {

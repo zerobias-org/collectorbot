@@ -51,13 +51,26 @@ export interface SourceSchema {
 }
 
 /**
- * Source configuration - where data comes from
+ * Source configuration - where data comes from.
+ *
+ * Two source variants:
+ *  - Collection: `objectId` points at a producer collection; rows come from
+ *    `getCollectionElements`. Identified by absence of `sql`.
+ *  - Query: `objectId` points at a producer query function; the persisted
+ *    `sql` is invoked via the FunctionsApi and rows come back inline. Schema
+ *    is inferred from the result set at design time and stored alongside the
+ *    SQL on the mapping (no producer-stored schema id exists for ad-hoc
+ *    query results).
  */
 export interface DataMappingSource {
   schema: SourceSchema;
   objectId: string;
   objectName: string;
   objectPath: string[];
+  /** Present when the mapping was authored against a query function. The
+   *  collector invokes the producer's query function with this SQL instead
+   *  of paging through `getCollectionElements`. */
+  sql?: string;
 }
 
 /**
