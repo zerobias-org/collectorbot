@@ -1,5 +1,5 @@
 {
-  "version": "0.1.11-uat.0",
+  "version": "0.1.12",
   "branch": "feat/update-data-utils-for-sql-query-dynamic-data",
   "sourceHash": "6492db743038c046ed15cd90517743a5f7c162d4e1319d60cded3ff2c52abf3b",
   "testHash": "1ad713dea21a414f0cb3f8eccfc8ed9d5f0daca4c66e9501a8e12693051287db",
