@@ -1,7 +1,7 @@
 {
   "version": "1.0.11-uat.0",
   "branch": "feat/update-dynamic-collector-to-handle-invokeFunction-and-getCollectionElements",
-  "sourceHash": "c24b404c4da8276b03241a64afb6336bdb9176b633ac51c8a9de95a9f05a6d57",
+  "sourceHash": "b870c47666991e9691116de1559c5c2096249134104d2f31f0de4695f0c93741",
   "testHash": "9dec0f97ef2ab2a05bdccdbe84b96a11847a1a150e4e566a33de0465b1bb7f88",
   "tasks": {
     "validate": "passed",
