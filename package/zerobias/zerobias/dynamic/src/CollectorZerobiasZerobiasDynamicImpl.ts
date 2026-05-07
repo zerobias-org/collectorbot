@@ -75,9 +75,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    */
   private async *fetchSourceItems(source: DataMappingSource): AsyncIterable<any> {
     if (source.sql) {
-      this.logger.info(
-        `Invoking query function ${source.objectId} with persisted SQL: ${source.sql}`
-      );
+      this.logger.info(`Invoking query function ${source.objectId} with persisted SQL`);
       const functionsApi = this.dataproducer.getFunctionsApi();
       // The generated FunctionsApi types `requestBody` as
       // `{ [key: string]: object }`; the SQL string doesn't satisfy that
@@ -88,38 +86,14 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
         { sql: source.sql } as any,
       );
 
-      // Diagnostic logging — extractRows was returning 0 rows for query
-      // mappings that should have data. Surface the raw response shape so
-      // we know whether the producer is sending an array, an envelope, or
-      // something the SDK's deserializer mangled into another form.
-      const rawType = raw === null
-        ? 'null'
-        : raw === undefined
-          ? 'undefined'
-          : Array.isArray(raw)
-            ? 'array'
-            : typeof raw;
-      const topKeys = raw && typeof raw === 'object' && !Array.isArray(raw)
-        ? Object.keys(raw).slice(0, 20)
-        : [];
-      this.logger.info(
-        `invokeFunction raw response: type=${rawType}` +
-        (Array.isArray(raw) ? ` length=${raw.length}` : '') +
-        (topKeys.length ? ` topKeys=[${topKeys.join(',')}]` : '')
-      );
-      try {
-        const preview = JSON.stringify(raw);
-        this.logger.info(
-          `invokeFunction raw preview (first 1000 chars): ${
-            preview ? preview.slice(0, 1000) : '<unstringifiable>'
-          }`
-        );
-      } catch (e) {
-        this.logger.warn(`Failed to stringify raw response: ${(e as Error).message}`);
-      }
-
-      const rows = extractRows(raw);
-      this.logger.info(`extractRows produced ${rows.length} row(s)`);
+      // The generated FunctionsApi runs the response through
+      // `ObjectSerializer.deserialize(data, '{ [key: string]: object; }')`,
+      // whose record-typed branch rebuilds an array `[a,b,c]` as a numeric-
+      // keyed object `{0:a, 1:b, 2:c}`. extractRows can't see those rows, so
+      // unwrap the SDK's quirk back into an array before delegating.
+      const unwrapped = unwrapNumericKeyedObject(raw);
+      const rows = extractRows(unwrapped);
+      this.logger.info(`Query returned ${rows.length} row(s)`);
       for (const row of rows) yield row;
       return;
     }
@@ -238,4 +212,23 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
 
     this.logger.info('All data mappings completed');
   }
+}
+
+/**
+ * Reverse the SDK deserializer's array-as-record fallback. When the
+ * generated FunctionsApi typing forces a record shape on the response, an
+ * incoming array `[a,b,c]` comes back as `{0:a, 1:b, 2:c}`. Detect that
+ * specific shape (every key is a stringified non-negative integer, keys are
+ * dense and start at 0) and rebuild the array; pass everything else through
+ * untouched so envelope responses (`{rows: [...]}` etc.) reach extractRows
+ * unchanged.
+ */
+function unwrapNumericKeyedObject(value: any): any {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return value;
+  const keys = Object.keys(value);
+  if (keys.length === 0) return value;
+  for (let i = 0; i < keys.length; i += 1) {
+    if (keys[i] !== String(i)) return value;
+  }
+  return keys.map((k) => value[k]);
 }
