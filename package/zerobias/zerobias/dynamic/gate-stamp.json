@@ -1,7 +1,7 @@
 {
-  "version": "1.0.13",
-  "branch": "main",
-  "sourceHash": "b870c47666991e9691116de1559c5c2096249134104d2f31f0de4695f0c93741",
+  "version": "1.0.12-uat.0",
+  "branch": "chore/update-util-package-2.1.6",
+  "sourceHash": "ae4ce077a9ed0a1d0944259f06b49b9007120904fccd11285672d7753ee38a56",
   "testHash": "9dec0f97ef2ab2a05bdccdbe84b96a11847a1a150e4e566a33de0465b1bb7f88",
   "tasks": {
     "validate": "passed",
