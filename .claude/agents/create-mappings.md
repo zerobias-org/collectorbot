@@ -219,7 +219,7 @@ Create `src/Mappers.ts` with:
 ```typescript
 import * as moduleTypes from '@auditlogic/module-amazon-aws-s3';
 import * as schemaTypes from '@auditlogic/schema-amazon-aws-s3-ts';
-import { Arn } from '@auditmation/types-amazon-js';
+import { Arn } from '@org/types-amazon-js';
 
 // Helper: Date conversion (YYYY-MM-DD)
 function toDate(date?: Date): any {
