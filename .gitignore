@@ -96,3 +96,5 @@ image/**/package-lock.json
 dbz-config.json
 
 scripts/clean**
+
+package-lock.json

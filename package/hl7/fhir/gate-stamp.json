@@ -1,6 +1,6 @@
 {
-  "version": "0.2.1",
-  "branch": "feat/update-data-utils-for-sql-query-dynamic-data",
+  "version": "0.2.1-uat.0",
+  "branch": "chore/update-util-package-2.1.6",
   "sourceHash": "94a617c03de585d81f4bf140c3d1a8f6549c5eb54fff9ab98c66803087f06531",
   "testHash": "3e916b2212f3bc2364d82386359a3a53560cc132ff1e98ef0d550e51552913f8",
   "tasks": {
