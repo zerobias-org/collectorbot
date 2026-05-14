@@ -1,6 +1,6 @@
 import { ConnectionMetadata, UnexpectedError, UUID } from '@zerobias-org/types-core-js';
 import { Batch } from '@zerobias-org/util-collector';
-import { extractRows } from '@zerobias-org/data-utils';
+import { extractRows, resolveMappingSql, SavedQueryRegistry } from '@zerobias-org/data-utils';
 import { injectable } from 'inversify';
 import { BaseClient } from '../generated/BaseClient.js';
 import { applyMappings } from './Mappers.js';
@@ -66,16 +66,31 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
 
   /**
    * Yield source items for a mapping. Branches on the source variant:
-   *  - `source.sql` set → invoke the producer's query function and stream
-   *    rows from the (normalised) result set.
-   *  - otherwise        → page through `getCollectionElements`.
+   *  - SQL resolved (via `sourceQueryKey` → registry, or legacy `sql`) →
+   *    invoke the producer's query function and stream rows from the
+   *    (normalised) result set.
+   *  - otherwise → page through `getCollectionElements`.
    *
    * Both paths produce the same item shape (a plain row object) so the
    * caller treats them identically.
+   *
+   * `queries` is the pipeline-level saved-query registry threaded down
+   * from `this.parameters.queries`. `resolveMappingSql` handles the
+   * precedence rule (`sourceQueryKey` beats inline `sql`) so the bot
+   * never has to know which storage format a given mapping uses.
    */
-  private async *fetchSourceItems(source: DataMappingSource): AsyncIterable<any> {
-    if (source.sql) {
-      this.logger.info(`Invoking query function ${source.objectId} with persisted SQL`);
+  private async *fetchSourceItems(
+    source: DataMappingSource,
+    queries: SavedQueryRegistry,
+  ): AsyncIterable<any> {
+    const sql = resolveMappingSql(source, queries);
+    if (sql) {
+      this.logger.info(
+        `Invoking query function ${source.objectId} with ` +
+        (source.sourceQueryKey
+          ? `saved query key=${source.sourceQueryKey}: ${sql}`
+          : `persisted SQL: ${sql}`)
+      );
       const functionsApi = this.dataproducer.getFunctionsApi();
       // The generated FunctionsApi types `requestBody` as
       // `{ [key: string]: object }`; the SQL string doesn't satisfy that
@@ -83,7 +98,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
       // codegen narrowing.
       const raw = await functionsApi.invokeFunction(
         source.objectId,
-        { sql: source.sql } as any,
+        { sql } as any,
       );
 
       // The generated FunctionsApi runs the response through
@@ -113,10 +128,16 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    * - Fetches data from the source (collection or query)
    * - Applies field mappings using DataMapper
    * - Adds transformed data to batch
+   *
+   * `queries` is the pipeline-level saved-query registry threaded down
+   * from `run()` so query-backed mappings can resolve `sourceQueryKey`
+   * → SQL string. `undefined` is a valid value (no saved queries on the
+   * pipeline; only legacy inline-SQL or collection-backed mappings).
    */
   private async processDataMapping(
     dataMapping: DataMapping,
-    groupId: string
+    groupId: string,
+    queries: SavedQueryRegistry,
   ): Promise<void> {
     const { source, destination, mappings, metadata } = dataMapping;
 
@@ -133,7 +154,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
       let processedCount = 0;
       let errorCount = 0;
 
-      for await (const item of this.fetchSourceItems(source)) {
+      for await (const item of this.fetchSourceItems(source, queries)) {
         // Check preview limit
         if (this.previewCount && processedCount >= this.previewCount) {
           break;
@@ -185,14 +206,17 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     }
     await this.init();
 
-    const { dataMappings } = this.parameters;
+    const { dataMappings, queries } = this.parameters;
 
     if (!dataMappings || dataMappings.length === 0) {
       this.logger.warn('No data mappings configured');
       return;
     }
 
-    this.logger.info(`Processing ${dataMappings.length} data mapping(s)`);
+    this.logger.info(
+      `Processing ${dataMappings.length} data mapping(s)` +
+      (queries ? ` with ${Object.keys(queries).length} saved query(ies)` : '')
+    );
 
     // Use pipeline ID for groupId as per requirements
     const pipelineId = this.context.pipelineId || 'default';
@@ -201,7 +225,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     // Process each data mapping
     for (const dataMapping of dataMappings) {
       try {
-        await this.processDataMapping(dataMapping, groupId);
+        await this.processDataMapping(dataMapping, groupId, queries);
       } catch (error) {
         this.logger.error(
           `Failed to process data mapping ${dataMapping.id}: ${(error as Error).message}`

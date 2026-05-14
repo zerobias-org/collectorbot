@@ -3,7 +3,7 @@
  * These types represent the input structure for dynamic data collection
  */
 
-import { MappingRule } from '@zerobias-org/data-utils';
+import { MappingRule, PipelineSavedQuery } from '@zerobias-org/data-utils';
 
 /**
  * Schema field definition from source system
@@ -55,21 +55,30 @@ export interface SourceSchema {
  *
  * Two source variants:
  *  - Collection: `objectId` points at a producer collection; rows come from
- *    `getCollectionElements`. Identified by absence of `sql`.
- *  - Query: `objectId` points at a producer query function; the persisted
- *    `sql` is invoked via the FunctionsApi and rows come back inline. Schema
- *    is inferred from the result set at design time and stored alongside the
- *    SQL on the mapping (no producer-stored schema id exists for ad-hoc
- *    query results).
+ *    `getCollectionElements`. Identified by absence of both `sql` and
+ *    `sourceQueryKey`.
+ *  - Query: `objectId` points at a producer query function; the SQL to
+ *    invoke is resolved at run time by `resolveMappingSql` from a saved
+ *    query on `DataMappingParams.queries` (referenced by `sourceQueryKey`)
+ *    or — for legacy mappings written before pipeline-saved-queries
+ *    landed — read directly from `sql`. Schema is inferred from the
+ *    result set at design time and stored on the mapping (no producer-
+ *    stored schema id exists for ad-hoc query results).
  */
 export interface DataMappingSource {
   schema: SourceSchema;
   objectId: string;
   objectName: string;
   objectPath: string[];
-  /** Present when the mapping was authored against a query function. The
-   *  collector invokes the producer's query function with this SQL instead
-   *  of paging through `getCollectionElements`. */
+  /** Reference to an entry in `DataMappingParams.queries`. When set, the
+   *  collector looks up the SQL there at run time, so one edit to a saved
+   *  query propagates to every mapping that references its key. Takes
+   *  precedence over `sql`. */
+  sourceQueryKey?: string;
+  /** Legacy inline SQL — used by mappings written before pipeline-saved-
+   *  queries existed. New mappings carry `sourceQueryKey` instead.
+   *  `resolveMappingSql` falls through to this field when no
+   *  `sourceQueryKey` is present. */
   sql?: string;
 }
 
@@ -159,9 +168,17 @@ export interface DataMapping {
 }
 
 /**
- * Parameters structure containing data mappings
+ * Parameters structure containing data mappings and the pipeline-level
+ * saved-query registry the mappings reference by `sourceQueryKey`.
+ *
+ * `queries` is keyed by the entry's own `key` (the same string each
+ * `PipelineSavedQuery.key` carries) so a `sourceQueryKey` lookup is a
+ * direct hash hit. Missing / empty means the pipeline has no saved
+ * queries — only collection-backed mappings, or legacy mappings still
+ * carrying inline `source.sql`.
  */
 export interface DataMappingParams {
   dataMappings: DataMapping[];
+  queries?: Record<string, PipelineSavedQuery>;
 }
 
