@@ -23,14 +23,22 @@ function toDate(epochMs?: number): string | undefined {
   return new Date(secs).toISOString().split('T')[0];
 }
 
-// Best-effort affected-resource ARN so the finding links to a ZB asset.
+// Best-effort affected-resource ARN so the finding links to the actual ZB asset.
+// Order matters: resolve the affected RESOURCE first (EC2 instance, IAM principal);
+// the GuardDuty *finding* ARN is only a last resort — it does not match any asset.
 function resourceArn(alert?: CaseAlert, account?: string): string {
   const src = alert?.source;
   const gd = src?.awsGuardduty;
-  if (gd?.arn) {
-    return gd.arn;
-  }
   const acct = account || gd?.accountId || 'unknown';
+  const res = gd?.resource;
+  // region: explicit field, else parsed from the finding ARN (arn:aws:guardduty:<region>:...)
+  const region = gd?.region || gd?.arn?.split(':')[3];
+
+  // affected EC2 instance
+  if (res?.resourceType === 'Instance' && res.instanceId && region) {
+    return `arn:aws:ec2:${region}:${acct}:instance/${res.instanceId}`;
+  }
+  // affected IAM principal
   const user = src?.username;
   if (user && user.toLowerCase() === 'root') {
     return `arn:aws:iam::${acct}:root`;
@@ -38,7 +46,8 @@ function resourceArn(alert?: CaseAlert, account?: string): string {
   if (user) {
     return `arn:aws:iam::${acct}:user/${user}`;
   }
-  return `arn:aws:iam::${acct}:root`;
+  // last resort: the GuardDuty finding ARN (does not link to an asset), else account root
+  return gd?.arn || `arn:aws:iam::${acct}:root`;
 }
 
 export function toStellarCyberFinding(raw: Case, alert?: CaseAlert): s.StellarCyberFinding {
@@ -54,6 +63,7 @@ export function toStellarCyberFinding(raw: Case, alert?: CaseAlert): s.StellarCy
     mitreTactic: xdr?.tactic?.name,
     mitreTechnique: xdr?.technique?.name,
     awsAccountId: account,
+    awsRegion: src?.awsGuardduty?.region,
   };
 
   // Inherited Finding properties — set loosely (their exact generated types come
