@@ -1,0 +1,9 @@
+modules:
+  '@zerobias-org/hub-sdk-nist-cmvp':
+    id: 89c6a380-0196-423b-a3a9-bb872ec67169
+    name: module-nist-cmvp
+    module: Cmvp
+products:
+  nist.cmvp:
+    id: fd013316-37b5-47d0-a81b-929a174a44ab
+    name: Cryptographic Module Validation Program
