@@ -1,0 +1,13 @@
+classes:
+    # Name of schema artifact that contains the classes below
+    - "@zerobias-org/schema-microsoft-azure-azureresourcegraph":
+        # List of all classes from the artifact above this collector populates
+        - AzureResourceGraph
+        - AzureResourceGraphResource
+        - AzureResourceGraphResourceType
+    # Suite-level container classes populated from the ResourceContainers query
+    - "@zerobias-org/schema-microsoft-azure":
+        - AzureSubscription
+        - AzureResourceGroup
+batchModes:
+    - full

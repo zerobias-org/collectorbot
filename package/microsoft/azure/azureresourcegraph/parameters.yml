@@ -1,0 +1,37 @@
+openapi: 3.0.3
+info:
+  description: Stub to use for codegen of parameters for a hub client
+  version: ''
+  title: '@auditmation/hub-client-codegen'
+paths:
+  /foo:
+    get:
+      tags:
+        - foo
+      operationId: getFoo
+      responses:
+        '204':
+          description: Foo
+components:
+  schemas:
+    Parameters:
+      type: object
+      properties:
+        subscriptions:
+          type: array
+          description: >-
+            Optional list of Azure subscription IDs to scope collection to. When
+            omitted the Resource Graph queries run at tenant scope (api-version
+            2024-04-01) and return every resource the service principal can read.
+          items:
+            type: string
+            format: uuid
+          example:
+            ["cfbbd179-59d2-4052-aa06-9270a38aa9d6"]
+        skipResourceTypes:
+          type: array
+          description: List of resource types that will be skipped
+          items:
+            type: string
+          example:
+            ["microsoft.compute/virtualmachines/extensions"]
