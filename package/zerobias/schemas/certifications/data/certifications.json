@@ -1,0 +1,2435 @@
+[
+  {
+    "code": "CMMC.CCA",
+    "name": "CMMC Certified Assessor",
+    "scope": "individual",
+    "proficiency": null,
+    "ecosystemCode": "CMMC",
+    "issuerVendorIds": [
+      "9f8e67a6-369b-42c5-a1d6-c3d63e7fa492"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [
+      "CMMC.CCP"
+    ],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": "https://www.isaca.org/cmmc",
+    "sourceSnapshotDate": "2026-08-20",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CMMC.CCI",
+    "name": "CMMC Certified Instructor",
+    "scope": "individual",
+    "proficiency": null,
+    "ecosystemCode": "CMMC",
+    "issuerVendorIds": [
+      "9f8e67a6-369b-42c5-a1d6-c3d63e7fa492"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": "https://www.isaca.org/cmmc",
+    "sourceSnapshotDate": "2026-08-20",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CMMC.CCP",
+    "name": "CMMC Certified Professional",
+    "scope": "individual",
+    "proficiency": null,
+    "ecosystemCode": "CMMC",
+    "issuerVendorIds": [
+      "9f8e67a6-369b-42c5-a1d6-c3d63e7fa492"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [
+      "CompTIA.Cloud+",
+      "CompTIA.CySA+",
+      "CompTIA.PenTest+",
+      "CompTIA.Security+",
+      "CompTIA.SecurityX",
+      "ECC.CCISO",
+      "FITSI.FITSP-A",
+      "GIAC.GCSA",
+      "GIAC.GSEC",
+      "GIAC.GSLC",
+      "GIAC.GSNA",
+      "ISACA.CISA",
+      "ISACA.CISM",
+      "ISC2.CGRC",
+      "ISC2.CISSP",
+      "ISC2.CISSP-ISSEP",
+      "Mile2.CISSO"
+    ],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": "https://www.isaca.org/cmmc",
+    "sourceSnapshotDate": "2026-08-20",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CMMC.LCCA",
+    "name": "Lead CMMC Certified Assessor",
+    "scope": "individual",
+    "proficiency": null,
+    "ecosystemCode": "CMMC",
+    "issuerVendorIds": [
+      "9f8e67a6-369b-42c5-a1d6-c3d63e7fa492"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [
+      "CMMC.CCA"
+    ],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": "https://www.isaca.org/cmmc",
+    "sourceSnapshotDate": "2026-08-20",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CompTIA.A+",
+    "name": "A+",
+    "scope": "individual",
+    "proficiency": "foundational",
+    "ecosystemCode": "IT",
+    "issuerVendorIds": [
+      "17dddd35-dfcd-4a7f-a0e9-2e04fbda2a81"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CompTIA.Cloud+",
+    "name": "Cloud+",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Cloud",
+    "issuerVendorIds": [
+      "17dddd35-dfcd-4a7f-a0e9-2e04fbda2a81"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CompTIA.CySA+",
+    "name": "Cybersecurity Analyst+",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Blue team",
+    "issuerVendorIds": [
+      "17dddd35-dfcd-4a7f-a0e9-2e04fbda2a81"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CompTIA.Linux+",
+    "name": "Linux+",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Linux",
+    "issuerVendorIds": [
+      "17dddd35-dfcd-4a7f-a0e9-2e04fbda2a81"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CompTIA.Network+",
+    "name": "Network+",
+    "scope": "individual",
+    "proficiency": "foundational",
+    "ecosystemCode": "Networking",
+    "issuerVendorIds": [
+      "17dddd35-dfcd-4a7f-a0e9-2e04fbda2a81"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CompTIA.PenTest+",
+    "name": "PenTest+",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Red team",
+    "issuerVendorIds": [
+      "17dddd35-dfcd-4a7f-a0e9-2e04fbda2a81"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CompTIA.Security+",
+    "name": "Security+",
+    "scope": "individual",
+    "proficiency": null,
+    "ecosystemCode": "General",
+    "issuerVendorIds": [
+      "17dddd35-dfcd-4a7f-a0e9-2e04fbda2a81"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CompTIA.SecurityX",
+    "name": "SecurityX (formerly CASP+)",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "General",
+    "issuerVendorIds": [
+      "17dddd35-dfcd-4a7f-a0e9-2e04fbda2a81"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": "CompTIA.CASP+",
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CompTIA.Server+",
+    "name": "Server+",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Server admin",
+    "issuerVendorIds": [
+      "17dddd35-dfcd-4a7f-a0e9-2e04fbda2a81"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CREST.CCT-APP",
+    "name": "CREST Certified Tester — Application",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Offensive",
+    "issuerVendorIds": [
+      "2e3c99d0-a3c1-4000-8f99-6e89cbe4a412"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CREST.CCT-INF",
+    "name": "CREST Certified Tester — Infrastructure",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Offensive",
+    "issuerVendorIds": [
+      "2e3c99d0-a3c1-4000-8f99-6e89cbe4a412"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CREST.CCT-SAS",
+    "name": "CREST Certified Tester — Simulated Attack",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Offensive",
+    "issuerVendorIds": [
+      "2e3c99d0-a3c1-4000-8f99-6e89cbe4a412"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CREST.CPSA",
+    "name": "CREST Practitioner Security Analyst",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Offensive",
+    "issuerVendorIds": [
+      "2e3c99d0-a3c1-4000-8f99-6e89cbe4a412"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CREST.CRIA",
+    "name": "CREST Registered Intrusion Analyst",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "DFIR",
+    "issuerVendorIds": [
+      "2e3c99d0-a3c1-4000-8f99-6e89cbe4a412"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CREST.CRIS",
+    "name": "CREST Registered Intrusion Specialist",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "DFIR",
+    "issuerVendorIds": [
+      "2e3c99d0-a3c1-4000-8f99-6e89cbe4a412"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CREST.CRT",
+    "name": "CREST Registered Penetration Tester",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Offensive",
+    "issuerVendorIds": [
+      "2e3c99d0-a3c1-4000-8f99-6e89cbe4a412"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CSA.CCAK",
+    "name": "Cert of Cloud Auditing Knowledge",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Cloud Audit",
+    "issuerVendorIds": [
+      "fdf8ab2a-3f91-4175-9ebf-8b3adbe606ea",
+      "9f8e67a6-369b-42c5-a1d6-c3d63e7fa492"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CSA.CCSK",
+    "name": "Cert of Cloud Security Knowledge (v5)",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Cloud Security",
+    "issuerVendorIds": [
+      "fdf8ab2a-3f91-4175-9ebf-8b3adbe606ea"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CSA.CCZT",
+    "name": "Cert of Competence in Zero Trust",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Zero Trust",
+    "issuerVendorIds": [
+      "fdf8ab2a-3f91-4175-9ebf-8b3adbe606ea"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CYBERAB.APP",
+    "name": "Approved Publishing Partner",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "CMMC",
+    "issuerVendorIds": [
+      "a7e11051-958c-4804-a198-feec1446f975"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": "CYBERAB.LPP",
+    "sourceUrl": "https://cyberab.org/CMMC-Ecosystem/Ecosystem-Roles",
+    "sourceSnapshotDate": "2026-08-20",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CYBERAB.ATP",
+    "name": "Approved Training Provider",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "CMMC",
+    "issuerVendorIds": [
+      "a7e11051-958c-4804-a198-feec1446f975"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": "CYBERAB.LTP",
+    "sourceUrl": "https://cyberab.org/CMMC-Ecosystem/Ecosystem-Roles",
+    "sourceSnapshotDate": "2026-08-20",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CYBERAB.C3PAO",
+    "name": "CMMC Third-Party Assessment Organization",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "CMMC",
+    "issuerVendorIds": [
+      "a7e11051-958c-4804-a198-feec1446f975"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": "https://cyberab.org/CMMC-Ecosystem/Ecosystem-Roles",
+    "sourceSnapshotDate": "2026-08-20",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CYBERAB.RP",
+    "name": "Registered Practitioner",
+    "scope": "individual",
+    "proficiency": null,
+    "ecosystemCode": "CMMC",
+    "issuerVendorIds": [
+      "a7e11051-958c-4804-a198-feec1446f975"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": "https://cyberab.org/CMMC-Ecosystem/Ecosystem-Roles",
+    "sourceSnapshotDate": "2026-08-20",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CYBERAB.RPA",
+    "name": "Registered Practitioner Advanced",
+    "scope": "individual",
+    "proficiency": null,
+    "ecosystemCode": "CMMC",
+    "issuerVendorIds": [
+      "a7e11051-958c-4804-a198-feec1446f975"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": "https://cyberab.org/CMMC-Ecosystem/Ecosystem-Roles",
+    "sourceSnapshotDate": "2026-08-20",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "CYBERAB.RPO",
+    "name": "Registered Practitioner Organization",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "CMMC",
+    "issuerVendorIds": [
+      "a7e11051-958c-4804-a198-feec1446f975"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": "https://cyberab.org/CMMC-Ecosystem/Ecosystem-Roles",
+    "sourceSnapshotDate": "2026-08-20",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ECC.CASE",
+    "name": "Certified Application Security Engineer",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "AppSec",
+    "issuerVendorIds": [
+      "3ac41448-073c-443e-abb9-2eba0d775242"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ECC.CCISO",
+    "name": "Certified CISO",
+    "scope": "individual",
+    "proficiency": null,
+    "ecosystemCode": "Management",
+    "issuerVendorIds": [
+      "3ac41448-073c-443e-abb9-2eba0d775242"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ECC.CEH",
+    "name": "Certified Ethical Hacker",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Offensive",
+    "issuerVendorIds": [
+      "3ac41448-073c-443e-abb9-2eba0d775242"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ECC.CHFI",
+    "name": "Computer Hacking Forensic Investigator",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "DFIR",
+    "issuerVendorIds": [
+      "3ac41448-073c-443e-abb9-2eba0d775242"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ECC.CND",
+    "name": "Certified Network Defender",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Defense",
+    "issuerVendorIds": [
+      "3ac41448-073c-443e-abb9-2eba0d775242"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ECC.LPT",
+    "name": "Licensed Penetration Tester",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Offensive",
+    "issuerVendorIds": [
+      "3ac41448-073c-443e-abb9-2eba0d775242"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "FITSI.FITSP-A",
+    "name": "FITSP — Auditor",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Federal",
+    "issuerVendorIds": [
+      "1d996088-52c6-433e-88c4-a2cc5a63212b"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "FITSI.FITSP-D",
+    "name": "FITSP — Designer",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Federal",
+    "issuerVendorIds": [
+      "1d996088-52c6-433e-88c4-a2cc5a63212b"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "FITSI.FITSP-M",
+    "name": "FITSP — Manager",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Federal",
+    "issuerVendorIds": [
+      "1d996088-52c6-433e-88c4-a2cc5a63212b"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "FITSI.FITSP-O",
+    "name": "FITSP — Operator",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Federal",
+    "issuerVendorIds": [
+      "1d996088-52c6-433e-88c4-a2cc5a63212b"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "GIAC.GCFA",
+    "name": "Certified Forensic Analyst",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "DFIR",
+    "issuerVendorIds": [
+      "60503b69-3ded-446b-8f01-f007a670b52f"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "GIAC.GCIH",
+    "name": "Certified Incident Handler",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "DFIR",
+    "issuerVendorIds": [
+      "60503b69-3ded-446b-8f01-f007a670b52f"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "GIAC.GCSA",
+    "name": "Cloud Security Automation",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Cloud",
+    "issuerVendorIds": [
+      "60503b69-3ded-446b-8f01-f007a670b52f"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "GIAC.GLIR",
+    "name": "Linux Incident Responder",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "DFIR",
+    "issuerVendorIds": [
+      "60503b69-3ded-446b-8f01-f007a670b52f"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "GIAC.GMLE",
+    "name": "Machine Learning Engineer",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "AI",
+    "issuerVendorIds": [
+      "60503b69-3ded-446b-8f01-f007a670b52f"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "GIAC.GPEN",
+    "name": "Certified Penetration Tester",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Offensive",
+    "issuerVendorIds": [
+      "60503b69-3ded-446b-8f01-f007a670b52f"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "GIAC.GRTP",
+    "name": "Red Team Professional",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Offensive",
+    "issuerVendorIds": [
+      "60503b69-3ded-446b-8f01-f007a670b52f"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "GIAC.GSEC",
+    "name": "Security Essentials",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "General",
+    "issuerVendorIds": [
+      "60503b69-3ded-446b-8f01-f007a670b52f"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "GIAC.GSLC",
+    "name": "Security Leadership",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Management",
+    "issuerVendorIds": [
+      "60503b69-3ded-446b-8f01-f007a670b52f"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "GIAC.GSNA",
+    "name": "Systems & Network Auditor",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Audit",
+    "issuerVendorIds": [
+      "60503b69-3ded-446b-8f01-f007a670b52f"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "GIAC.GSOA",
+    "name": "Strategic OSINT Analyst",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Intel",
+    "issuerVendorIds": [
+      "60503b69-3ded-446b-8f01-f007a670b52f"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "GIAC.GWAPT",
+    "name": "Web App Pen Tester",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Offensive",
+    "issuerVendorIds": [
+      "60503b69-3ded-446b-8f01-f007a670b52f"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "IAPP.AIGP",
+    "name": "AI Governance Professional",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "AI Governance",
+    "issuerVendorIds": [
+      "76f8d591-85b9-4aa4-9426-301ab2848f32"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "IAPP.CIPM",
+    "name": "Certified Information Privacy Manager",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Privacy Mgmt",
+    "issuerVendorIds": [
+      "76f8d591-85b9-4aa4-9426-301ab2848f32"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "IAPP.CIPP-A",
+    "name": "CIPP/Asia",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Privacy Law",
+    "issuerVendorIds": [
+      "76f8d591-85b9-4aa4-9426-301ab2848f32"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "IAPP.CIPP-C",
+    "name": "CIPP/Canada",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Privacy Law",
+    "issuerVendorIds": [
+      "76f8d591-85b9-4aa4-9426-301ab2848f32"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "IAPP.CIPP-China",
+    "name": "CIPP/China",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Privacy Law",
+    "issuerVendorIds": [
+      "76f8d591-85b9-4aa4-9426-301ab2848f32"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "IAPP.CIPP-E",
+    "name": "CIPP/Europe",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Privacy Law",
+    "issuerVendorIds": [
+      "76f8d591-85b9-4aa4-9426-301ab2848f32"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "IAPP.CIPP-US",
+    "name": "CIPP/United States",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Privacy Law",
+    "issuerVendorIds": [
+      "76f8d591-85b9-4aa4-9426-301ab2848f32"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "IAPP.CIPT",
+    "name": "Certified Information Privacy Technologist",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Privacy Eng",
+    "issuerVendorIds": [
+      "76f8d591-85b9-4aa4-9426-301ab2848f32"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "IAPP.FIP",
+    "name": "Fellow of Information Privacy",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Privacy",
+    "issuerVendorIds": [
+      "76f8d591-85b9-4aa4-9426-301ab2848f32"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "IAPP.PLS",
+    "name": "Privacy Law Specialist",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Privacy Law",
+    "issuerVendorIds": [
+      "76f8d591-85b9-4aa4-9426-301ab2848f32"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISACA.AAIA",
+    "name": "Advanced in AI Audit",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "AI Audit",
+    "issuerVendorIds": [
+      "9f8e67a6-369b-42c5-a1d6-c3d63e7fa492"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISACA.AAIR",
+    "name": "Advanced in AI Risk",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "AI Risk",
+    "issuerVendorIds": [
+      "9f8e67a6-369b-42c5-a1d6-c3d63e7fa492"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISACA.AAISM",
+    "name": "Advanced in AI Security Management",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "AI Security",
+    "issuerVendorIds": [
+      "9f8e67a6-369b-42c5-a1d6-c3d63e7fa492"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISACA.CCOA",
+    "name": "Certified Cybersecurity Operations Analyst",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "SOC Ops",
+    "issuerVendorIds": [
+      "9f8e67a6-369b-42c5-a1d6-c3d63e7fa492"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISACA.CDPSE",
+    "name": "Certified Data Privacy Solutions Engineer",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Privacy Engineering",
+    "issuerVendorIds": [
+      "9f8e67a6-369b-42c5-a1d6-c3d63e7fa492"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISACA.CGEIT",
+    "name": "Certified in Governance of Enterprise IT",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Governance",
+    "issuerVendorIds": [
+      "9f8e67a6-369b-42c5-a1d6-c3d63e7fa492"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISACA.CISA",
+    "name": "Certified Information Systems Auditor",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Audit",
+    "issuerVendorIds": [
+      "9f8e67a6-369b-42c5-a1d6-c3d63e7fa492"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISACA.CISM",
+    "name": "Certified Information Security Manager",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Management",
+    "issuerVendorIds": [
+      "9f8e67a6-369b-42c5-a1d6-c3d63e7fa492"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISACA.CRISC",
+    "name": "Certified in Risk and Info Systems Control",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Risk",
+    "issuerVendorIds": [
+      "9f8e67a6-369b-42c5-a1d6-c3d63e7fa492"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISC2.CC",
+    "name": "Certified in Cybersecurity",
+    "scope": "individual",
+    "proficiency": null,
+    "ecosystemCode": "General",
+    "issuerVendorIds": [
+      "b2698878-c2e1-46fa-99d2-6c5f6242c06e"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISC2.CCSP",
+    "name": "Certified Cloud Security Professional",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Cloud",
+    "issuerVendorIds": [
+      "b2698878-c2e1-46fa-99d2-6c5f6242c06e"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISC2.CGRC",
+    "name": "Governance, Risk & Compliance (formerly CAP)",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "GRC",
+    "issuerVendorIds": [
+      "b2698878-c2e1-46fa-99d2-6c5f6242c06e"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": "ISC2.CAP",
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISC2.CISSP",
+    "name": "Certified Information Systems Security Professional",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "General",
+    "issuerVendorIds": [
+      "b2698878-c2e1-46fa-99d2-6c5f6242c06e"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISC2.CISSP-ISSAP",
+    "name": "CISSP — Information Security Architecture",
+    "scope": "individual",
+    "proficiency": null,
+    "ecosystemCode": "Architecture",
+    "issuerVendorIds": [
+      "b2698878-c2e1-46fa-99d2-6c5f6242c06e"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISC2.CISSP-ISSEP",
+    "name": "CISSP — Information Security Engineering",
+    "scope": "individual",
+    "proficiency": null,
+    "ecosystemCode": "Engineering",
+    "issuerVendorIds": [
+      "b2698878-c2e1-46fa-99d2-6c5f6242c06e"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISC2.CISSP-ISSMP",
+    "name": "CISSP — Information Security Management",
+    "scope": "individual",
+    "proficiency": null,
+    "ecosystemCode": "Management",
+    "issuerVendorIds": [
+      "b2698878-c2e1-46fa-99d2-6c5f6242c06e"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISC2.CSSLP",
+    "name": "Certified Secure Software Lifecycle Professional",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Secure SDLC",
+    "issuerVendorIds": [
+      "b2698878-c2e1-46fa-99d2-6c5f6242c06e"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISC2.HCISPP",
+    "name": "Healthcare Info Security & Privacy Practitioner",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Healthcare",
+    "issuerVendorIds": [
+      "b2698878-c2e1-46fa-99d2-6c5f6242c06e"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISC2.SSCP",
+    "name": "Systems Security Certified Practitioner",
+    "scope": "individual",
+    "proficiency": null,
+    "ecosystemCode": "General",
+    "issuerVendorIds": [
+      "b2698878-c2e1-46fa-99d2-6c5f6242c06e"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISO.22301-LA",
+    "name": "ISO 22301 Lead Auditor",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "ISO",
+    "issuerVendorIds": [],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISO.27001-LA",
+    "name": "ISO/IEC 27001 Lead Auditor",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "ISO",
+    "issuerVendorIds": [],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISO.27001-LI",
+    "name": "ISO/IEC 27001 Lead Implementer",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "ISO",
+    "issuerVendorIds": [],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISO.27701-LA",
+    "name": "ISO/IEC 27701 Lead Auditor",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "ISO",
+    "issuerVendorIds": [],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISO.42001-LA",
+    "name": "ISO/IEC 42001 Lead Auditor",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "ISO",
+    "issuerVendorIds": [],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "ISO.9001-LA",
+    "name": "ISO 9001 Lead Auditor",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "ISO",
+    "issuerVendorIds": [],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "Mile2.CDFE",
+    "name": "Certified Digital Forensics Examiner",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "DFIR",
+    "issuerVendorIds": [
+      "8a16db5e-65e7-4ed8-92e2-82252feb0061"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "Mile2.CISSO",
+    "name": "Certified Info Systems Security Officer",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Management",
+    "issuerVendorIds": [
+      "8a16db5e-65e7-4ed8-92e2-82252feb0061"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "Mile2.CPTC",
+    "name": "Certified Pen Testing Consultant",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Offensive",
+    "issuerVendorIds": [
+      "8a16db5e-65e7-4ed8-92e2-82252feb0061"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "Mile2.CPTE",
+    "name": "Certified Pen Testing Engineer",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Offensive",
+    "issuerVendorIds": [
+      "8a16db5e-65e7-4ed8-92e2-82252feb0061"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "OffSec.OSCE3",
+    "name": "Certified Expert (OSEP+OSWE+OSED)",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Offensive",
+    "issuerVendorIds": [
+      "a95e0783-c995-4669-80b5-632b5085ebd8"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "OffSec.OSCP",
+    "name": "Offensive Security Certified Professional",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Offensive",
+    "issuerVendorIds": [
+      "a95e0783-c995-4669-80b5-632b5085ebd8"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "OffSec.OSDA",
+    "name": "Defense Analyst",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Defense",
+    "issuerVendorIds": [
+      "a95e0783-c995-4669-80b5-632b5085ebd8"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "OffSec.OSED",
+    "name": "Exploit Developer",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Offensive",
+    "issuerVendorIds": [
+      "a95e0783-c995-4669-80b5-632b5085ebd8"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "OffSec.OSEE",
+    "name": "Exploitation Expert",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Offensive",
+    "issuerVendorIds": [
+      "a95e0783-c995-4669-80b5-632b5085ebd8"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "OffSec.OSEP",
+    "name": "Experienced Penetration Tester",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Offensive",
+    "issuerVendorIds": [
+      "a95e0783-c995-4669-80b5-632b5085ebd8"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "OffSec.OSMR",
+    "name": "macOS Researcher",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Offensive",
+    "issuerVendorIds": [
+      "a95e0783-c995-4669-80b5-632b5085ebd8"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "OffSec.OSWA",
+    "name": "Web Assessor",
+    "scope": "individual",
+    "proficiency": "intermediate",
+    "ecosystemCode": "Offensive",
+    "issuerVendorIds": [
+      "a95e0783-c995-4669-80b5-632b5085ebd8"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "OffSec.OSWE",
+    "name": "Web Expert",
+    "scope": "individual",
+    "proficiency": "advanced",
+    "ecosystemCode": "Offensive",
+    "issuerVendorIds": [
+      "a95e0783-c995-4669-80b5-632b5085ebd8"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCA.Architect",
+    "name": "SCA Architect",
+    "scope": "individual",
+    "proficiency": null,
+    "ecosystemCode": "SCA",
+    "issuerVendorIds": [
+      "3b9c2cf1-c4e6-496e-9808-c913b059b22b"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": "https://cyberab.org/CMMC-Ecosystem/Ecosystem-Roles",
+    "sourceSnapshotDate": "2026-08-20",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCA.CODE1",
+    "name": "CODE Level 1 — CISA SSDAF",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCA",
+    "issuerVendorIds": [
+      "a7e11051-958c-4804-a198-feec1446f975"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCA.CODE2",
+    "name": "CODE Level 2 — NIST 800-218",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCA",
+    "issuerVendorIds": [
+      "a7e11051-958c-4804-a198-feec1446f975"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCA.CODE3",
+    "name": "CODE Level 3 — Custom",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCA",
+    "issuerVendorIds": [
+      "a7e11051-958c-4804-a198-feec1446f975"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCA.Practitioner",
+    "name": "SCA Practitioner",
+    "scope": "individual",
+    "proficiency": null,
+    "ecosystemCode": "SCA",
+    "issuerVendorIds": [
+      "3b9c2cf1-c4e6-496e-9808-c913b059b22b"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": "https://cyberab.org/CMMC-Ecosystem/Ecosystem-Roles",
+    "sourceSnapshotDate": "2026-08-20",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCA.SDO",
+    "name": "Secure Development Organization",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCA",
+    "issuerVendorIds": [
+      "a7e11051-958c-4804-a198-feec1446f975"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": "https://cyberab.org/CMMC-Ecosystem/Ecosystem-Roles",
+    "sourceSnapshotDate": "2026-08-20",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.3PAO",
+    "name": "SCF Third-Party Assessment Organization",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "a7e11051-958c-4804-a198-feec1446f975"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": "https://cyberab.org/CMMC-Ecosystem/Ecosystem-Roles",
+    "sourceSnapshotDate": "2026-08-20",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.APO",
+    "name": "SCF Authorized Platform Organization",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "a7e11051-958c-4804-a198-feec1446f975"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": "https://cyberab.org/CMMC-Ecosystem/Ecosystem-Roles",
+    "sourceSnapshotDate": "2026-08-20",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.APP",
+    "name": "SCF Authorized Platform Partner",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "a7e11051-958c-4804-a198-feec1446f975"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": "https://cyberab.org/CMMC-Ecosystem/Ecosystem-Roles",
+    "sourceSnapshotDate": "2026-08-20",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.Architect",
+    "name": "SCF Architect",
+    "scope": "individual",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "3b9c2cf1-c4e6-496e-9808-c913b059b22b"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": "https://cyberab.org/CMMC-Ecosystem/Ecosystem-Roles",
+    "sourceSnapshotDate": "2026-08-20",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.Assessor",
+    "name": "SCF Assessor",
+    "scope": "individual",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "3b9c2cf1-c4e6-496e-9808-c913b059b22b"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": "https://cyberab.org/CMMC-Ecosystem/Ecosystem-Roles",
+    "sourceSnapshotDate": "2026-08-20",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.AU-Essential8",
+    "name": "Australia Essential Eight",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "89c8ec36-2382-4e4a-9bd6-e3c815ad9160"
+    ],
+    "frameworkIds": [
+      "520f94d1-f115-4ad3-8d1f-0156b3e22e06"
+    ],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.CISA-SSDAF",
+    "name": "CISA Secure Software Development Attestation Form",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "89c8ec36-2382-4e4a-9bd6-e3c815ad9160"
+    ],
+    "frameworkIds": [
+      "520f94d1-f115-4ad3-8d1f-0156b3e22e06"
+    ],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.CORE-ESP",
+    "name": "SCF CORE External Service Provider (ESP)",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "89c8ec36-2382-4e4a-9bd6-e3c815ad9160"
+    ],
+    "frameworkIds": [
+      "520f94d1-f115-4ad3-8d1f-0156b3e22e06"
+    ],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.CORE-Fundamentals",
+    "name": "SCF CORE Fundamentals",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "89c8ec36-2382-4e4a-9bd6-e3c815ad9160"
+    ],
+    "frameworkIds": [
+      "520f94d1-f115-4ad3-8d1f-0156b3e22e06"
+    ],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.EU-DORA",
+    "name": "EU Digital Operational Resilience Act",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "89c8ec36-2382-4e4a-9bd6-e3c815ad9160"
+    ],
+    "frameworkIds": [
+      "520f94d1-f115-4ad3-8d1f-0156b3e22e06"
+    ],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.EU-NIS2",
+    "name": "ENISA NIS2 (EU 2022/2555)",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "89c8ec36-2382-4e4a-9bd6-e3c815ad9160"
+    ],
+    "frameworkIds": [
+      "520f94d1-f115-4ad3-8d1f-0156b3e22e06"
+    ],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.FAR-52.204.21",
+    "name": "FAR 52.204.21 (CMMC Level 1)",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "89c8ec36-2382-4e4a-9bd6-e3c815ad9160"
+    ],
+    "frameworkIds": [
+      "520f94d1-f115-4ad3-8d1f-0156b3e22e06"
+    ],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.GLBA",
+    "name": "Gramm-Leach-Bliley Act (16 CFR 314)",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "89c8ec36-2382-4e4a-9bd6-e3c815ad9160"
+    ],
+    "frameworkIds": [
+      "520f94d1-f115-4ad3-8d1f-0156b3e22e06"
+    ],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.HIPAA",
+    "name": "HIPAA Security Rule (NIST SP 800-66 R2)",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "89c8ec36-2382-4e4a-9bd6-e3c815ad9160"
+    ],
+    "frameworkIds": [
+      "520f94d1-f115-4ad3-8d1f-0156b3e22e06"
+    ],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.NIST-800-161-R1",
+    "name": "NIST SP 800-161 R1 (C-SCRM)",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "89c8ec36-2382-4e4a-9bd6-e3c815ad9160"
+    ],
+    "frameworkIds": [
+      "520f94d1-f115-4ad3-8d1f-0156b3e22e06"
+    ],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.NIST-800-171-R3",
+    "name": "NIST SP 800-171 R3 (non-CMMC)",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "89c8ec36-2382-4e4a-9bd6-e3c815ad9160"
+    ],
+    "frameworkIds": [
+      "520f94d1-f115-4ad3-8d1f-0156b3e22e06"
+    ],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.NIST-CSF-2.0",
+    "name": "NIST Cybersecurity Framework 2.0",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "89c8ec36-2382-4e4a-9bd6-e3c815ad9160"
+    ],
+    "frameworkIds": [
+      "520f94d1-f115-4ad3-8d1f-0156b3e22e06"
+    ],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.NYDFS-23NYCRR500",
+    "name": "NY DFS 23 NYCRR 500 (2023 Amendment 2)",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "89c8ec36-2382-4e4a-9bd6-e3c815ad9160"
+    ],
+    "frameworkIds": [
+      "520f94d1-f115-4ad3-8d1f-0156b3e22e06"
+    ],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.NZ-HISF-2022",
+    "name": "New Zealand Health Info Security Framework 2022",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "89c8ec36-2382-4e4a-9bd6-e3c815ad9160"
+    ],
+    "frameworkIds": [
+      "520f94d1-f115-4ad3-8d1f-0156b3e22e06"
+    ],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": null,
+    "sourceSnapshotDate": "2026-04-23",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.Practitioner",
+    "name": "SCF Practitioner",
+    "scope": "individual",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "3b9c2cf1-c4e6-496e-9808-c913b059b22b"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": "https://cyberab.org/CMMC-Ecosystem/Ecosystem-Roles",
+    "sourceSnapshotDate": "2026-08-20",
+    "status": "curated",
+    "submittedByUserId": null
+  },
+  {
+    "code": "SCF.RPO",
+    "name": "SCF Registered Provider Organization",
+    "scope": "organizational",
+    "proficiency": null,
+    "ecosystemCode": "SCF",
+    "issuerVendorIds": [
+      "a7e11051-958c-4804-a198-feec1446f975"
+    ],
+    "frameworkIds": [],
+    "standardIds": [],
+    "prerequisiteCertificationIds": [],
+    "qualifiesForRoleIds": [],
+    "supersedesCode": null,
+    "sourceUrl": "https://cyberab.org/CMMC-Ecosystem/Ecosystem-Roles",
+    "sourceSnapshotDate": "2026-08-20",
+    "status": "curated",
+    "submittedByUserId": null
+  }
+]
