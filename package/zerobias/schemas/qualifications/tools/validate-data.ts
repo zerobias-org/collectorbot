@@ -11,7 +11,7 @@ import { readFileSync } from 'node:fs';
 const DATA = new URL('../data/qualifications.json', import.meta.url);
 const UUID_RE = /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i;
 const SCOPES = new Set(['individual', 'organizational']);
-const INSTRUMENT_TYPES = new Set(['certification', 'accreditation', 'registration', 'authorization']);
+const QUALIFICATION_TYPES = new Set(['certification', 'accreditation', 'registration', 'authorization']);
 const STATUSES = new Set(['curated', 'submitted', 'rejected']);
 const UUID_LISTS = ['issuerVendorIds', 'frameworkIds', 'standardIds', 'qualifiesForRoleIds'];
 // Characters a batch item id rejects. `code` becomes the object id.
@@ -43,8 +43,8 @@ for (const [index, record] of records.entries()) {
 
   if (!record.name) errors.push(`${where}: "name" is required`);
   if (!SCOPES.has(record.scope)) errors.push(`${where}: "scope" must be ${[...SCOPES].join(' or ')}`);
-  if (!INSTRUMENT_TYPES.has(record.instrumentType)) {
-    errors.push(`${where}: "instrumentType" must be one of ${[...INSTRUMENT_TYPES].join(', ')}`);
+  if (!QUALIFICATION_TYPES.has(record.qualificationType)) {
+    errors.push(`${where}: "qualificationType" must be one of ${[...QUALIFICATION_TYPES].join(', ')}`);
   }
   if (!STATUSES.has(record.status)) errors.push(`${where}: "status" must be one of ${[...STATUSES].join(', ')}`);
 
@@ -91,7 +91,7 @@ if (errors.length > 0) {
 }
 
 const byScope = records.reduce((a, r) => ((a[r.scope] = (a[r.scope] || 0) + 1), a), {});
-const byType = records.reduce((a, r) => ((a[r.instrumentType] = (a[r.instrumentType] || 0) + 1), a), {});
+const byType = records.reduce((a, r) => ((a[r.qualificationType] = (a[r.qualificationType] || 0) + 1), a), {});
 console.log(`OK: ${records.length} entries (${byScope.individual} individual, ${byScope.organizational} organizational), `
   + `${seen.size} unique codes, no supplied ids`);
-console.log(`     by instrumentType: ${Object.entries(byType).map(([k, v]) => `${v} ${k}`).join(', ')}`);
+console.log(`     by qualificationType: ${Object.entries(byType).map(([k, v]) => `${v} ${k}`).join(', ')}`);

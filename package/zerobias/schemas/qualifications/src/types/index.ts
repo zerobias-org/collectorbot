@@ -19,7 +19,7 @@ export interface CertificationRecord {
    * registration   — the holder is listed on a registry after training or agreement
    * authorization  — the holder is approved to deliver training, a platform, or content
    */
-  instrumentType: 'certification' | 'accreditation' | 'registration' | 'authorization';
+  qualificationType: 'certification' | 'accreditation' | 'registration' | 'authorization';
   proficiency: string | null;
   ecosystemCode: string | null;
   issuerVendorIds: string[];

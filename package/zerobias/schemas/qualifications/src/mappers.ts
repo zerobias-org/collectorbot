@@ -29,7 +29,7 @@ export function toComplianceCertification(record: CertificationRecord): Complian
     name: record.name,
     code: record.code,
     scope: record.scope,
-    instrumentType: record.instrumentType,
+    qualificationType: record.qualificationType,
     issuerVendorIds: record.issuerVendorIds,
     frameworkIds: record.frameworkIds,
     standardIds: record.standardIds,
