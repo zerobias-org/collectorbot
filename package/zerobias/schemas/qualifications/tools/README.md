@@ -70,9 +70,9 @@ Captured 2026-08-20 so the next person does not have to re-derive them:
   Excellence (CODE) framework includes three progressive levels of
   certification"* for organizations.
 
-## `qualificationType` — what each entry IS, as opposed to who holds it
+## `type` — what each entry IS, as opposed to who holds it
 
-`scope` says **who holds it** (individual / organizational). `qualificationType` says **what it is**,
+`scope` says **who holds it** (individual / organizational). `type` says **what it is**,
 and the two vary independently — a C3PAO accreditation and an SCF CORE certification are both
 organizational.
 

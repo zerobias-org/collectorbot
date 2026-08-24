@@ -1,4 +1,4 @@
-export { ComplianceCertification } from '@zerobias-org/schema-zerobias-schemas-qualifications-ts/dist/src/index.js';
+export { QualificationResource } from '@zerobias-org/schema-zerobias-schemas-qualifications-ts/dist/src/index.js';
 
 /**
  * One record of the bundled data file (`data/qualifications.json`).
@@ -7,7 +7,7 @@ export { ComplianceCertification } from '@zerobias-org/schema-zerobias-schemas-q
  * collect time so a contributor cannot supply a duplicate or invented one — a
  * duplicate id silently breaks the upsert property of a collection run.
  */
-export interface CertificationRecord {
+export interface QualificationRecord {
   code: string;
   name: string;
   /** Who holds it. An explicit column, not an inference from links. */
@@ -19,7 +19,7 @@ export interface CertificationRecord {
    * registration   — the holder is listed on a registry after training or agreement
    * authorization  — the holder is approved to deliver training, a platform, or content
    */
-  qualificationType: 'certification' | 'accreditation' | 'registration' | 'authorization';
+  type: 'certification' | 'accreditation' | 'registration' | 'authorization';
   proficiency: string | null;
   ecosystemCode: string | null;
   issuerVendorIds: string[];

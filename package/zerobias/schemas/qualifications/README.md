@@ -2,7 +2,7 @@
 
 Loads the curated catalog of cybersecurity and compliance certifications and
 accreditations — CISSP, CMMC CCP/CCA, C3PAO, FedRAMP 3PAO, OSCP, CIPP and 120
-more — into AuditgraphDB as `ComplianceCertification` objects.
+more — into AuditgraphDB as `QualificationResource` objects.
 
 ## Description
 
@@ -15,7 +15,7 @@ product, and vendor content already reaches the catalog.
 
 | | |
 |---|---|
-| Class | `ComplianceCertification` (`@zerobias-org/schema-zerobias-schemas-qualifications`) |
+| Class | `QualificationResource` (`@zerobias-org/schema-zerobias-schemas-qualifications`) |
 | Records | 126 |
 | Scope | 100 individual, 26 organizational |
 | Issuer resolved | 115 of 126 (11 deliberately empty — see below) |

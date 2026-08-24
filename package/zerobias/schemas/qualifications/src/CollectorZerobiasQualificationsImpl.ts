@@ -1,6 +1,6 @@
 /**
  * Compliance Certifications Collector — loads the curated certification catalog that
- * ships inside this package into AuditgraphDB as ComplianceCertification objects.
+ * ships inside this package into AuditgraphDB as QualificationResource objects.
  *
  * There is no external system and no Hub module: the dataset IS the package.
  * Refreshing the data means publishing a new version of this collector, which
@@ -15,10 +15,10 @@ import { LoggerEngine } from '@zerobias-org/logger';
 import { BaseClient } from '../generated/BaseClient.js';
 import { Parameters } from '../generated/model/index.js';
 
-import { CertificationRecord } from './types/index.js';
-import { toComplianceCertification } from './mappers.js';
+import { QualificationRecord } from './types/index.js';
+import { toQualificationResource } from './mappers.js';
 
-const LOGGER_NAME = 'ComplianceCertificationsCollector';
+const LOGGER_NAME = 'QualificationResourceCollector';
 
 // Resolved from dist/src/ at runtime and from src/ under tsx, so walk up to the
 // package root either way rather than assuming one depth.
@@ -51,7 +51,7 @@ export class CollectorZerobiasQualificationsImpl extends BaseClient {
     return this.context.previewMode ? (this.context.previewCount || 10) : undefined;
   }
 
-  private loadRecords(): CertificationRecord[] {
+  private loadRecords(): QualificationRecord[] {
     let raw: string;
     try {
       raw = readFileSync(DATA_URL_FROM_DIST, 'utf8');
@@ -59,7 +59,7 @@ export class CollectorZerobiasQualificationsImpl extends BaseClient {
       raw = readFileSync(DATA_URL, 'utf8');
     }
 
-    const records = JSON.parse(raw) as CertificationRecord[];
+    const records = JSON.parse(raw) as QualificationRecord[];
     if (!Array.isArray(records) || records.length === 0) {
       throw new Error('data/qualifications.json is empty or not an array — refusing to run, a full-replace batch would wipe the dataset');
     }
@@ -89,8 +89,8 @@ export class CollectorZerobiasQualificationsImpl extends BaseClient {
       records = records.slice(0, this.previewCount);
     }
 
-    const batch = await this.batchManager.initBatch('ComplianceCertification', GROUP_ID);
-    const certifications = records.map((record) => toComplianceCertification(record));
+    const batch = await this.batchManager.initBatch('QualificationResource', GROUP_ID);
+    const certifications = records.map((record) => toQualificationResource(record));
     const { chunks, largeItems } = splitArrayBySize(certifications);
 
     for (const chunk of chunks) {

@@ -1,4 +1,4 @@
-import { CertificationRecord, ComplianceCertification } from './types/index.js';
+import { QualificationRecord, QualificationResource } from './types/index.js';
 
 /**
  * Schema `date` fields are generated as `Date` in TypeScript but the runtime
@@ -15,7 +15,7 @@ function orUndefined(value: string | null): string | undefined {
 }
 
 /**
- * Map one bundled record to a ComplianceCertification.
+ * Map one bundled record to a QualificationResource.
  *
  * The id IS the code. `code` is the natural key of the dataset — unique across
  * every record, stable across releases, and free of the characters a batch item
@@ -23,13 +23,13 @@ function orUndefined(value: string | null): string | undefined {
  * makes a contributed record safe: an id cannot be invented, duplicated, or left
  * stale when a code changes.
  */
-export function toComplianceCertification(record: CertificationRecord): ComplianceCertification {
+export function toQualificationResource(record: QualificationRecord): QualificationResource {
   return {
     id: record.code,
     name: record.name,
     code: record.code,
     scope: record.scope,
-    qualificationType: record.qualificationType,
+    type: record.type,
     issuerVendorIds: record.issuerVendorIds,
     frameworkIds: record.frameworkIds,
     standardIds: record.standardIds,
@@ -42,5 +42,5 @@ export function toComplianceCertification(record: CertificationRecord): Complian
     sourceSnapshotDate: toSchemaDate(record.sourceSnapshotDate),
     status: record.status,
     submittedByUserId: orUndefined(record.submittedByUserId),
-  } as ComplianceCertification;
+  } as QualificationResource;
 }

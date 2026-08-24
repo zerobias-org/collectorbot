@@ -3,7 +3,7 @@
 ## What it does
 
 Loads a curated catalog of 126 cybersecurity and compliance certifications and accreditations into
-your graph as `ComplianceCertification` objects. Each entry carries the certification's
+your graph as `QualificationResource` objects. Each entry carries the certification's
 code and name, its scope, the platform Vendor that issues it, any frameworks it
 is associated with, and a reference to the source it was curated from.
 
