@@ -11,6 +11,7 @@ import { readFileSync } from 'node:fs';
 const DATA = new URL('../data/certifications.json', import.meta.url);
 const UUID_RE = /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i;
 const SCOPES = new Set(['individual', 'organizational']);
+const INSTRUMENT_TYPES = new Set(['certification', 'accreditation', 'registration', 'authorization']);
 const STATUSES = new Set(['curated', 'submitted', 'rejected']);
 const UUID_LISTS = ['issuerVendorIds', 'frameworkIds', 'standardIds', 'qualifiesForRoleIds'];
 // Characters a batch item id rejects. `code` becomes the object id.
@@ -42,6 +43,9 @@ for (const [index, record] of records.entries()) {
 
   if (!record.name) errors.push(`${where}: "name" is required`);
   if (!SCOPES.has(record.scope)) errors.push(`${where}: "scope" must be ${[...SCOPES].join(' or ')}`);
+  if (!INSTRUMENT_TYPES.has(record.instrumentType)) {
+    errors.push(`${where}: "instrumentType" must be one of ${[...INSTRUMENT_TYPES].join(', ')}`);
+  }
   if (!STATUSES.has(record.status)) errors.push(`${where}: "status" must be one of ${[...STATUSES].join(', ')}`);
 
   // The issuer check matters most. An issuer that is guessed rather than
@@ -61,10 +65,10 @@ for (const [index, record] of records.entries()) {
   // Prerequisites are CODES, not UUIDs, and must resolve inside this file —
   // a prerequisite pointing at nothing is an eligibility rule that silently
   // never applies.
-  if (!Array.isArray(record.prerequisiteCertificationIds)) {
-    errors.push(`${where}: "prerequisiteCertificationIds" must be an array`);
+  if (!Array.isArray(record.prerequisiteCodes)) {
+    errors.push(`${where}: "prerequisiteCodes" must be an array`);
   } else {
-    for (const code of record.prerequisiteCertificationIds) {
+    for (const code of record.prerequisiteCodes) {
       if (!codes.has(code)) errors.push(`${where}: prerequisite "${code}" is not a code in this file`);
     }
   }
@@ -87,5 +91,7 @@ if (errors.length > 0) {
 }
 
 const byScope = records.reduce((a, r) => ((a[r.scope] = (a[r.scope] || 0) + 1), a), {});
-console.log(`OK: ${records.length} certifications (${byScope.individual} individual, ${byScope.organizational} organizational), `
+const byType = records.reduce((a, r) => ((a[r.instrumentType] = (a[r.instrumentType] || 0) + 1), a), {});
+console.log(`OK: ${records.length} entries (${byScope.individual} individual, ${byScope.organizational} organizational), `
   + `${seen.size} unique codes, no supplied ids`);
+console.log(`     by instrumentType: ${Object.entries(byType).map(([k, v]) => `${v} ${k}`).join(', ')}`);

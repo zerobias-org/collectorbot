@@ -12,6 +12,14 @@ export interface CertificationRecord {
   name: string;
   /** Who holds it. An explicit column, not an inference from links. */
   scope: 'individual' | 'organizational';
+  /**
+   * WHAT it is, as opposed to who holds it. Varies independently of `scope`.
+   * certification  — the holder was assessed against a standard
+   * accreditation  — the holder is authorised to assess or certify others
+   * registration   — the holder is listed on a registry after training or agreement
+   * authorization  — the holder is approved to deliver training, a platform, or content
+   */
+  instrumentType: 'certification' | 'accreditation' | 'registration' | 'authorization';
   proficiency: string | null;
   ecosystemCode: string | null;
   issuerVendorIds: string[];
@@ -19,7 +27,7 @@ export interface CertificationRecord {
   /** Platform Standard UUIDs this certification is assessed against. */
   standardIds: string[];
   /** CODES (not UUIDs) of certifications accepted toward eligibility. */
-  prerequisiteCertificationIds: string[];
+  prerequisiteCodes: string[];
   qualifiesForRoleIds: string[];
   /** Code of the certification this one replaced; need not still be carried. */
   supersedesCode: string | null;
