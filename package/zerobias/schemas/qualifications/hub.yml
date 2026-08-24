@@ -1,5 +1,5 @@
 modules: {}
 products:
-  zerobias.schemas.certifications:
+  zerobias.schemas.qualifications:
     id: 0064bb5e-cdf3-41d8-907d-33f9233a975d
     name: Compliance Certifications

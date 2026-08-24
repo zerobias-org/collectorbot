@@ -7,7 +7,7 @@ more — into AuditgraphDB as `ComplianceCertification` objects.
 ## Description
 
 There is no external system to connect to and no Hub module. **The dataset is
-the package**: `data/certifications.json` ships inside it, and refreshing the data
+the package**: `data/qualifications.json` ships inside it, and refreshing the data
 means publishing a new version of this collector. That is the same way schema,
 product, and vendor content already reaches the catalog.
 
@@ -15,7 +15,7 @@ product, and vendor content already reaches the catalog.
 
 | | |
 |---|---|
-| Class | `ComplianceCertification` (`@zerobias-org/schema-zerobias-schemas-certifications`) |
+| Class | `ComplianceCertification` (`@zerobias-org/schema-zerobias-schemas-qualifications`) |
 | Records | 126 |
 | Scope | 100 individual, 26 organizational |
 | Issuer resolved | 115 of 126 (11 deliberately empty — see below) |
@@ -38,12 +38,12 @@ A run replaces the previous run's objects wholesale. That is intentional — the
 bundled file is the complete set, so a certification absent from it has been
 retired and should disappear. **The consequence is that nothing may be added to
 this dataset at runtime**: anything not in the data file is deleted on the next
-run. The contribution path is a PR against `data/certifications.json`, not a write
+run. The contribution path is a PR against `data/qualifications.json`, not a write
 into the graph.
 
 ## Contributing a certification
 
-Edit `data/certifications.json`, then run:
+Edit `data/qualifications.json`, then run:
 
 ```bash
 npm run validate:data

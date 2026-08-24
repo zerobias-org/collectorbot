@@ -1,5 +1,5 @@
 /**
- * CI gate for `data/certifications.json` — run with `npm run validate:data`.
+ * CI gate for `data/qualifications.json` — run with `npm run validate:data`.
  *
  * The data file is the contribution surface for this package: a third party
  * forks, edits it, and opens a PR. Each check here exists because it is a
@@ -8,7 +8,7 @@
 
 import { readFileSync } from 'node:fs';
 
-const DATA = new URL('../data/certifications.json', import.meta.url);
+const DATA = new URL('../data/qualifications.json', import.meta.url);
 const UUID_RE = /^[\da-f]{8}-[\da-f]{4}-[\da-f]{4}-[\da-f]{4}-[\da-f]{12}$/i;
 const SCOPES = new Set(['individual', 'organizational']);
 const INSTRUMENT_TYPES = new Set(['certification', 'accreditation', 'registration', 'authorization']);
@@ -21,7 +21,7 @@ const errors: string[] = [];
 const records = JSON.parse(readFileSync(DATA, 'utf8'));
 
 if (!Array.isArray(records) || records.length === 0) {
-  console.error('FAIL: data/certifications.json must be a non-empty array');
+  console.error('FAIL: data/qualifications.json must be a non-empty array');
   process.exit(1);
 }
 
@@ -85,7 +85,7 @@ for (const [index, record] of records.entries()) {
 }
 
 if (errors.length > 0) {
-  console.error(`FAIL: ${errors.length} problem(s) in data/certifications.json\n`);
+  console.error(`FAIL: ${errors.length} problem(s) in data/qualifications.json\n`);
   for (const error of errors) console.error(`  - ${error}`);
   process.exit(1);
 }

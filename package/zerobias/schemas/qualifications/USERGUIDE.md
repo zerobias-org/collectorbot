@@ -17,7 +17,7 @@ None.
 ## Example Configuration
 
 ```yaml
-collectorArtifact: '@zerobias-org/collectorbot-zerobias-schemas-certifications'
+collectorArtifact: '@zerobias-org/collectorbot-zerobias-schemas-qualifications'
 executionMode: caller
 batchMode: full
 format: json

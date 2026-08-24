@@ -1,7 +1,7 @@
-export { ComplianceCertification } from '@zerobias-org/schema-zerobias-schemas-certifications-ts/dist/src/index.js';
+export { ComplianceCertification } from '@zerobias-org/schema-zerobias-schemas-qualifications-ts/dist/src/index.js';
 
 /**
- * One record of the bundled data file (`data/certifications.json`).
+ * One record of the bundled data file (`data/qualifications.json`).
  *
  * NOTE: there is deliberately no `id`. Object ids are derived from `code` at
  * collect time so a contributor cannot supply a duplicate or invented one — a

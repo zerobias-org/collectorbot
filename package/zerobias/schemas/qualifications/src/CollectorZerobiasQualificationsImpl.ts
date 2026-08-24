@@ -22,8 +22,8 @@ const LOGGER_NAME = 'ComplianceCertificationsCollector';
 
 // Resolved from dist/src/ at runtime and from src/ under tsx, so walk up to the
 // package root either way rather than assuming one depth.
-const DATA_URL = new URL('../data/certifications.json', import.meta.url);
-const DATA_URL_FROM_DIST = new URL('../../data/certifications.json', import.meta.url);
+const DATA_URL = new URL('../data/qualifications.json', import.meta.url);
+const DATA_URL_FROM_DIST = new URL('../../data/qualifications.json', import.meta.url);
 
 /**
  * One group for the whole dataset. A run with the same groupId replaces the
@@ -33,7 +33,7 @@ const DATA_URL_FROM_DIST = new URL('../../data/certifications.json', import.meta
 const GROUP_ID = 'zerobias-compliance-certifications';
 
 @injectable()
-export class CollectorZerobiasCertificationsImpl extends BaseClient {
+export class CollectorZerobiasQualificationsImpl extends BaseClient {
   override logger: LoggerEngine = LoggerEngine.root().get(LOGGER_NAME);
 
   private batchManager!: BatchManager;
@@ -61,7 +61,7 @@ export class CollectorZerobiasCertificationsImpl extends BaseClient {
 
     const records = JSON.parse(raw) as CertificationRecord[];
     if (!Array.isArray(records) || records.length === 0) {
-      throw new Error('data/certifications.json is empty or not an array — refusing to run, a full-replace batch would wipe the dataset');
+      throw new Error('data/qualifications.json is empty or not an array — refusing to run, a full-replace batch would wipe the dataset');
     }
 
     const seen = new Set<string>();

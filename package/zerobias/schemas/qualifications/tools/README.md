@@ -1,7 +1,7 @@
 # tools — how the catalog was built, and how to refresh it
 
 **You do not need anything in here to contribute a certification.** The
-contribution surface is [`../data/certifications.json`](../data/certifications.json);
+contribution surface is [`../data/qualifications.json`](../data/qualifications.json);
 edit it and run `npm run validate:data`.
 
 These scripts exist so the provenance of the seed data is reproducible and so
@@ -14,7 +14,7 @@ someone other than the original author can refresh it.
 python3 extract-cyberab.py .cyberab-mirror/cyberab.org > extract.json
 ```
 
-Then diff `extract.json` against `../data/certifications.json` by hand and add
+Then diff `extract.json` against `../data/qualifications.json` by hand and add
 what is new. `.cyberab-mirror/` and `extract.json` are working files — do not
 commit them.
 
