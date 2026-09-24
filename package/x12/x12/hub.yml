@@ -1,0 +1,10 @@
+modules:
+  '@zerobias-org/module-x12-x12':
+    # TODO: module id is assigned when module-x12-x12 publishes (zerobias-org/module#59)
+    id: 00000000-0000-0000-0000-000000000000
+    name: module-x12-x12
+    module: X12  # TODO: confirm against the generated hub-sdk connector name
+products:
+  x12.x12:
+    id: 256d4d10-e5fb-4c68-87c4-e31922f9922c
+    name: X12

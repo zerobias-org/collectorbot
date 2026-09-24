@@ -1,0 +1,11 @@
+classes:
+  - "@zerobias-org/schema-zerobias-schemas-hospitalfinancials":
+    - HospitalPayer
+    - HospitalClaim
+    - HospitalClaimLine
+    - HospitalRemittanceAdvice
+    - HospitalRemittanceClaim
+    - HospitalRemittanceServiceLine
+    - HospitalRemittanceAdjustment
+    - HospitalProviderLevelAdjustment
+    - HospitalClaimRejection

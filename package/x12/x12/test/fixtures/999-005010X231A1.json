@@ -1,0 +1,84 @@
+{
+  "elementKey": "/var/lib/x12/inbox/999-005010X231A1.x12@000000000000:105:0001",
+  "fileId": "/var/lib/x12/inbox/999-005010X231A1.x12@000000000000",
+  "fileName": "999-005010X231A1.x12",
+  "sourceName": "inbox",
+  "isaControlNumber": "000000105",
+  "gsControlNumber": "105",
+  "stControlNumber": "0001",
+  "gs08": "005010X231A1",
+  "transactionType": "999",
+  "senderId": "EXAMPLEPAYER",
+  "receiverId": "EXAMPLEPROV",
+  "interchangeDate": "2026-09-22T12:00:00Z",
+  "status": "new",
+  "envelope": "file",
+  "parserErrorCount": 0,
+  "st": {
+    "st01": "999",
+    "st02": "0001",
+    "st03": "005010X231A1"
+  },
+  "header": {
+    "ak1": {
+      "ak101": "HC",
+      "ak102": 102,
+      "ak103": "005010X222A1"
+    },
+    "loop2000": [
+      {
+        "ak2": {
+          "ak201": "837",
+          "ak202": "0001",
+          "ak203": "005010X222A1"
+        },
+        "ik5": {
+          "ik501": "A"
+        }
+      },
+      {
+        "ak2": {
+          "ak201": "837",
+          "ak202": "0002",
+          "ak203": "005010X222A1"
+        },
+        "loop2100": [
+          {
+            "ik3": {
+              "ik301": "NM1",
+              "ik302": 8,
+              "ik303": "2010AA",
+              "ik304": "8"
+            },
+            "loop2110": [
+              {
+                "ik4": {
+                  "ik401": {
+                    "c03001": 9
+                  },
+                  "ik402": 67,
+                  "ik403": "7",
+                  "ik404": "123456789"
+                }
+              }
+            ]
+          }
+        ],
+        "ik5": {
+          "ik501": "R",
+          "ik502": "5"
+        }
+      }
+    ],
+    "ak9": {
+      "ak901": "P",
+      "ak902": 2,
+      "ak903": 2,
+      "ak904": 1
+    }
+  },
+  "se": {
+    "se01": 10,
+    "se02": "0001"
+  }
+}

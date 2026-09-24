@@ -1,0 +1,69 @@
+{
+  "name": "@zerobias-org/collectorbot-x12-x12",
+  "version": "0.0.0",
+  "description": "X12 Collector - maps 837, 835, 277CA and 999 transactions from the X12 receiver module into Hospital Financials classes",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "author": "team@zerobias.com",
+  "license": "UNLICENSED",
+  "directories": {
+    "src": "src"
+  },
+  "files": [
+    "dist",
+    "npm-shrinkwrap.json",
+    "*.yml",
+    "*.md"
+  ],
+  "scripts": {
+    "build": "npm run generate && npm run transpile",
+    "clean": "rm -rf generated && rm -rf dist",
+    "generate": "npm run generate:models && npm run generate:hub-client",
+    "generate:hub-client": "node -e \"import('@zerobias-com/hub-client-codegen')\"",
+    "generate:models": "hub-generator generate -g hub-module -i ./parameters.yml -o generated/ --global-property models,supportingFiles=index.ts && rm ./generated/api/index.ts",
+    "lint": "eslint src/",
+    "lint:fix": "eslint --fix src/",
+    "test": "mocha --exit --inline-diffs --reporter=list 'test/unit/**/*.test.ts'",
+    "test:integration": "mocha --exit --inline-diffs --reporter=list test/integration/**/*.ts",
+    "transpile": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:zerobias-org/collectorbot.git",
+    "directory": "package/x12/x12"
+  },
+  "dependencies": {
+    "@zerobias-com/hub-client": "latest",
+    "@zerobias-com/platform-sdk": "latest",
+    "@zerobias-org/module-x12-x12": "latest",
+    "@zerobias-org/product-x12-x12": "latest",
+    "@zerobias-org/schema-zerobias-schemas-hospitalfinancials": "latest",
+    "@zerobias-org/schema-zerobias-schemas-hospitalfinancials-ts": "latest",
+    "@zerobias-org/types-core-js": "latest",
+    "@zerobias-org/util-collector": "^1.0.44",
+    "inversify": "6.0.2",
+    "reflect-metadata": "^0.2.2"
+  },
+  "overrides": {
+    "@zerobias-org/types-core-js": "$@zerobias-org/types-core-js",
+    "@zerobias-org/logger": "3.0.9"
+  },
+  "devDependencies": {
+    "@types/chai": "^5.2.3",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^25.3.0",
+    "@zerobias-com/hub-client-codegen": "^1.0.71",
+    "@zerobias-com/hub-secrets-manager": "latest",
+    "@zerobias-org/eslint-config": "latest",
+    "@zerobias-org/util-codegen": "latest",
+    "chai": "^6.2.2",
+    "mocha": "^11.7.5",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "zerobias": {
+    "package": "x12.x12.collectorbot",
+    "dataloader-version": "1.0.0",
+    "import-artifact": "collectorbot"
+  }
+}
