@@ -1,0 +1,73 @@
+{
+  "name": "@zerobias-org/collectorbot-nist-cmvp",
+  "version": "0.0.0",
+  "description": "NIST CMVP (Cryptographic Module Validation Program) collectorbot",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "author": "team@zerobias.com",
+  "license": "UNLICENSED",
+  "directories": {
+    "src": "src"
+  },
+  "files": [
+    "dist",
+    "npm-shrinkwrap.json",
+    "*.yml",
+    "*.md"
+  ],
+  "scripts": {
+    "build": "npm run generate && npm run transpile",
+    "clean": "rm -rf generated && rm -rf dist",
+    "generate:hub-client": "node -e \"import('@zerobias-com/hub-client-codegen')\"",
+    "generate:models": "npx hub-generator generate -g hub-module -i ./parameters.yml -o generated/ --global-property models,supportingFiles=index.ts && rm ./generated/api/index.ts",
+    "generate": "npm run generate:models && npm run generate:hub-client",
+    "lint:fix": "eslint --fix src/",
+    "lint": "eslint src/",
+    "test:integration:watch": "npm run test:integration -- --watch --reporter=min",
+    "test:integration": "mocha --exit --inline-diffs --reporter=list test/integration/**/*.ts",
+    "test:watch": "npm run test -- --watch --reporter=min",
+    "test": "",
+    "transpile:watch": "tsc --watch",
+    "transpile": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:zerobias-org/collectorbot.git",
+    "directory": "package/nist/cmvp"
+  },
+  "dependencies": {
+    "@supercharge/promise-pool": "3.3.0",
+    "@zerobias-com/hub-client": "latest",
+    "@zerobias-com/platform-sdk": "latest",
+    "@zerobias-org/hub-sdk-nist-cmvp": "file:../../../../module/package/nist/cmvp/hub-sdk",
+    "@zerobias-org/product-nist-cmvp": "file:../../../../product/package/nist/cmvp",
+    "@zerobias-org/schema-nist-cmvp": "file:../../../../schema/package/nist/cmvp",
+    "@zerobias-org/types-core-js": "^1.2.25",
+    "@zerobias-org/util-collector": "^1.0.34",
+    "inversify": "6.0.2",
+    "reflect-metadata": "^0.2.2"
+  },
+  "overrides": {
+    "@zerobias-org/types-core-js": "$@zerobias-org/types-core-js",
+    "@zerobias-org/logger": "3.0.9",
+    "axios": "^1.15.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^5.2.3",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^25.3.0",
+    "@zerobias-com/hub-client-codegen": "^1.0.71",
+    "@zerobias-com/hub-secrets-manager": "latest",
+    "@zerobias-org/eslint-config": "latest",
+    "@zerobias-org/util-codegen": "latest",
+    "chai": "^6.2.2",
+    "mocha": "^11.7.5",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "zerobias": {
+    "package": "nist.cmvp.collectorbot",
+    "dataloader-version": "1.0.0",
+    "import-artifact": "collectorbot"
+  }
+}

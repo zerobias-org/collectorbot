@@ -1,0 +1,5 @@
+{
+  "extension": ["ts"],
+  "require": "tsx",
+  "timeout": 6000000
+}
