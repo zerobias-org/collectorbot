@@ -1,9 +1,0 @@
-modules:
-  '@zerobias-org/module-microsoft-azure-azureresourcegraph':
-    id: 255c7fd5-d08c-427b-aca9-643c673be5d6
-    name: module-microsoft-azure-azureresourcegraph
-    module: Azureresourcegraph
-products:
-  microsoft.azure.azureresourcegraph:
-    id: 8a6b34b8-036a-549a-b2df-6b4bcc8ccc81
-    name: Azure Resource Graph
