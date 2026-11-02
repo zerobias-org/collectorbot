@@ -168,17 +168,50 @@ export interface DataMapping {
 }
 
 /**
- * Parameters structure containing data mappings and the pipeline-level
- * saved-query registry the mappings reference by `sourceQueryKey`.
+ * A file attached to the pipeline by the platform's pipeline-files endpoint,
+ * which imports a `File` object for it as soon as it is added. The collector
+ * collects every entry again on each run so those objects stay current.
+ *
+ *  - `upload`: the file was uploaded straight to file-service; a run only
+ *    re-reads it.
+ *  - `hub`: the file was copied into file-service at `destinationPath` from
+ *    `objectId` on the hub target `targetId`; a run copies it again first so
+ *    the latest remote contents become a new version.
+ */
+export type PipelineFile =
+  | { fileId: string; name: string; source: 'upload' }
+  | { fileId: string; name: string; source: 'hub'; targetId: string; objectId: string; destinationPath: string };
+
+/**
+ * The `File` object written for a pipeline file. `name` is the pipeline
+ * entry's name, not file-service's, and `mimeType` is left out when
+ * file-service has none.
+ */
+export interface PipelineFileRecord {
+  id: string;
+  name: string;
+  fileVersionId: string;
+  size: number;
+  mimeType?: string;
+}
+
+/**
+ * Parameters structure containing data mappings, the pipeline-level
+ * saved-query registry the mappings reference by `sourceQueryKey`, and the
+ * files attached to the pipeline.
  *
  * `queries` is keyed by the entry's own `key` (the same string each
  * `PipelineSavedQuery.key` carries) so a `sourceQueryKey` lookup is a
  * direct hash hit. Missing / empty means the pipeline has no saved
  * queries — only collection-backed mappings, or legacy mappings still
  * carrying inline `source.sql`.
+ *
+ * `files` absent means the pipeline has no file collection at all; an empty
+ * list means every file was removed, so the run deletes their objects.
  */
 export interface DataMappingParams {
-  dataMappings: DataMapping[];
+  dataMappings?: DataMapping[];
   queries?: Record<string, PipelineSavedQuery>;
+  files?: PipelineFile[];
 }
 

@@ -1,5 +1,5 @@
 {
   "extension": ["ts"],
-  "require": "ts-node/register",
+  "require": "tsx",
   "timeout": 6000000
 }
