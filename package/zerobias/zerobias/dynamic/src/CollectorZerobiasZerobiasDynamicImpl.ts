@@ -3,8 +3,12 @@ import { Batch } from '@zerobias-org/util-collector';
 import { extractRows, resolveMappingSql, SavedQueryRegistry } from '@zerobias-org/data-utils';
 import { injectable } from 'inversify';
 import { BaseClient } from '../generated/BaseClient.js';
+import { FileSourceClient, FileSourceReader } from './FileSourceReader.js';
 import { applyMappings } from './Mappers.js';
-import { DataMapping, DataMappingParams, DataMappingSource } from './types/index.js';
+import { DataMapping, DataMappingParams, DataMappingSource, FileSourceRecord, MappingFileSource } from './types/index.js';
+
+/** Rows read per file-service records page for a file-backed mapping. */
+const FILE_RECORDS_PAGE_SIZE = 100;
 
 @injectable()
 export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
@@ -13,6 +17,8 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
   private _jobId?: UUID;
 
   private _parameters?: DataMappingParams;
+
+  private _fileSourceReader?: FileSourceReader;
 
   // Preview mode support
   private previewCount?: number = this.context.previewMode
@@ -35,6 +41,22 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
 
   set parameters(parameters: DataMappingParams) {
     this._parameters = parameters;
+  }
+
+  /**
+   * The file-service reader file-backed mappings go through. It is built from
+   * the job's context on first use, so runs without file sources never create
+   * one; tests assign a fake here instead.
+   */
+  get fileSourceReader(): FileSourceReader {
+    if (!this._fileSourceReader) {
+      this._fileSourceReader = FileSourceClient.fromContext(this.context);
+    }
+    return this._fileSourceReader;
+  }
+
+  set fileSourceReader(reader: FileSourceReader) {
+    this._fileSourceReader = reader;
   }
 
   private async init() {
@@ -71,7 +93,10 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    *    (normalised) result set.
    *  - otherwise → page through `getCollectionElements`.
    *
-   * Both paths produce the same item shape (a plain row object) so the
+   *  - `file` set → read an uploaded file through file-service
+   *    (see `fetchFileSourceItems`).
+   *
+   * Every path produces the same item shape (a plain row object) so the
    * caller treats them identically.
    *
    * `queries` is the pipeline-level saved-query registry threaded down
@@ -83,10 +108,20 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     source: DataMappingSource,
     queries: SavedQueryRegistry,
   ): AsyncIterable<any> {
+    if (source.file) {
+      yield* this.fetchFileSourceItems(source.file);
+      return;
+    }
+
+    const { objectId } = source;
+    if (!objectId) {
+      throw new Error(`Mapping source "${source.objectName}" has neither an objectId nor a file`);
+    }
+
     const sql = resolveMappingSql(source, queries);
     if (sql) {
       this.logger.info(
-        `Invoking query function ${source.objectId} with ` +
+        `Invoking query function ${objectId} with ` +
         (source.sourceQueryKey
           ? `saved query key=${source.sourceQueryKey}: ${sql}`
           : `persisted SQL: ${sql}`)
@@ -97,7 +132,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
       // shape but the wire payload is just JSON, so cast to bypass the
       // codegen narrowing.
       const raw = await functionsApi.invokeFunction(
-        source.objectId,
+        objectId,
         { sql } as any,
       );
 
@@ -113,14 +148,64 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
       return;
     }
 
-    this.logger.info(`Fetching collection elements from: ${source.objectId}`);
+    this.logger.info(`Fetching collection elements from: ${objectId}`);
     const collectionsApi = this.dataproducer.getCollectionsApi();
     const results = await collectionsApi.getCollectionElements(
-      source.objectId,
+      objectId,
       1,         // pageNumber
       100        // pageSize (max is 100)
     );
     for await (const item of results) yield item;
+  }
+
+  /**
+   * Yield the items of a file-backed mapping from the file's **latest**
+   * version: the rows of `containerPath` (paged until the reader runs out),
+   * or — with no `containerPath` — the file itself as one `FileSourceRecord`.
+   * A file that can't be read, or has no current version, throws, so the
+   * mapping fails instead of looking like an empty file.
+   */
+  private async *fetchFileSourceItems(file: MappingFileSource): AsyncIterable<any> {
+    const view = await this.fileSourceReader.getFile(file.fileId);
+    const fileVersionId = view.fileVersionId;
+    if (!fileVersionId) {
+      throw new Error(`Source file ${file.fileId} has no current version`);
+    }
+
+    if (!file.containerPath) {
+      this.logger.info(`Reading source file ${file.fileId} (version ${fileVersionId}) as one record`);
+      const record: FileSourceRecord = {
+        id: file.fileId,
+        fileVersionId,
+        name: view.name ?? null,
+        mimeType: view.mimeType ?? null,
+        size: view.size ?? null,
+        created: view.created ?? null,
+        updated: view.updated ?? null,
+      };
+      yield record;
+      return;
+    }
+
+    this.logger.info(
+      `Reading ${file.containerPath} of source file ${file.fileId} (version ${fileVersionId})`
+    );
+    let read = 0;
+    for (let pageNumber = 1; ; pageNumber += 1) {
+      const page = await this.fileSourceReader.listContainerRecords(
+        fileVersionId,
+        file.containerPath,
+        pageNumber,
+        FILE_RECORDS_PAGE_SIZE,
+      );
+      for (const row of page.items) yield row;
+      read += page.items.length;
+      const pastTotal = page.count >= 0 && read >= page.count;
+      if (page.items.length < FILE_RECORDS_PAGE_SIZE || pastTotal) {
+        break;
+      }
+    }
+    this.logger.info(`Source file ${file.fileId} ${file.containerPath} returned ${read} row(s)`);
   }
 
   /**
@@ -133,6 +218,10 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    * from `run()` so query-backed mappings can resolve `sourceQueryKey`
    * → SQL string. `undefined` is a valid value (no saved queries on the
    * pipeline; only legacy inline-SQL or collection-backed mappings).
+   *
+   * A source fetch that fails part-way is logged as an error on the batch
+   * before it ends, so the platform fails the batch instead of treating the
+   * partial item list as complete and deleting every object it left out.
    */
   private async processDataMapping(
     dataMapping: DataMapping,
@@ -191,7 +280,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
       );
 
     } catch (error) {
-      this.logger.error(
+      await batch.error(
         `Failed to fetch source items: ${(error as Error).message}`
       );
       throw error;

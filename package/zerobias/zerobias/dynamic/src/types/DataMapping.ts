@@ -64,10 +64,13 @@ export interface SourceSchema {
  *    landed — read directly from `sql`. Schema is inferred from the
  *    result set at design time and stored on the mapping (no producer-
  *    stored schema id exists for ad-hoc query results).
+ *  - File: `file` points at a file uploaded to file-service (no `objectId`,
+ *    no producer). See `MappingFileSource`.
  */
 export interface DataMappingSource {
-  schema: SourceSchema;
-  objectId: string;
+  schema?: SourceSchema;
+  /** The producer object; absent on a file source. */
+  objectId?: string;
   objectName: string;
   objectPath: string[];
   /** Reference to an entry in `DataMappingParams.queries`. When set, the
@@ -80,6 +83,32 @@ export interface DataMappingSource {
    *  `resolveMappingSql` falls through to this field when no
    *  `sourceQueryKey` is present. */
   sql?: string;
+  /** Set on a file source: the rows come from file-service, never the producer. */
+  file?: MappingFileSource;
+}
+
+/**
+ * A mapping source read from an uploaded file in file-service. Only the file
+ * id is stored, so a run always reads the file's latest version.
+ *
+ *  - With `containerPath`: the rows of that container — a workbook sheet
+ *    (`/File`) or a CSV (`/`) — one source item per row.
+ *  - Without: the file itself, as one item of `FileSourceRecord`.
+ */
+export interface MappingFileSource {
+  fileId: string;
+  containerPath?: string;
+}
+
+/** The one source item of a whole-file source: its file-service metadata. */
+export interface FileSourceRecord {
+  id: string;
+  fileVersionId: string;
+  name: string | null;
+  mimeType: string | null;
+  size: number | null;
+  created: string | null;
+  updated: string | null;
 }
 
 /**
