@@ -12,7 +12,7 @@
     "testDocker": "passed",
     "testDataloader": "passed",
     "buildArtifacts": "passed",
-    "dataloaderExec": "unknown"
+    "dataloaderExec": "passed"
   },
   "tests": {
       "unit": { "expected": 41, "ran": 41, "status": "passed" },
