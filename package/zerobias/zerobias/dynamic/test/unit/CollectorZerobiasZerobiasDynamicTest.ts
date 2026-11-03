@@ -1,11 +1,14 @@
 import 'reflect-metadata';
 
+import { setTimeout as sleep } from 'node:timers/promises';
 import { expect } from 'chai';
 import { BatchLogLevelEnum } from '@zerobias-com/platform-sdk';
-import { URL, UUID } from '@zerobias-org/types-core-js';
-import { CollectorZerobiasZerobiasDynamicImpl } from '../../src/CollectorZerobiasZerobiasDynamicImpl.js';
+import { PagedResults, URL, UUID } from '@zerobias-org/types-core-js';
+import { COLLECTION_MAX_PAGES, CollectorZerobiasZerobiasDynamicImpl, FILES_DEADLINE_MS } from '../../src/CollectorZerobiasZerobiasDynamicImpl.js';
 import {
   FileService,
+  FileServiceCallOptions,
+  FileServiceClient,
   FileServiceCopyJob,
   FileServiceCopyRequest,
   FileServiceError,
@@ -109,9 +112,14 @@ class FakeBatchApi {
   }
 }
 
-/** Platform PipelineApi fake: `get` answers with the pipeline's current `params`, or throws `getError`. */
+/**
+ * Platform PipelineApi fake: each `get` answers with the next of `answers`, the params the pipeline holds at that read
+ * or an Error to throw, and once they run out with `params`, or throws `getError`.
+ */
 class FakePipelineApi {
   gets: string[] = [];
+
+  answers: (Record<string, unknown> | null | Error)[] = [];
 
   params?: Record<string, unknown> | null;
 
@@ -119,22 +127,30 @@ class FakePipelineApi {
 
   async get(pipelineId: UUID) {
     this.gets.push(String(pipelineId));
-    if (this.getError) {
-      throw this.getError;
+    const answer = this.answers.length > 0 ? this.answers.shift() : (this.getError ?? this.params);
+    if (answer instanceof Error) {
+      throw answer;
     }
-    return { id: pipelineId, params: this.params };
+    return { id: pipelineId, params: answer };
   }
 }
 
 /**
- * file-service fake. A file with no view answers 404 unless `viewErrors` holds another failure for it. A copy
- * answers with `copyStatus`, ready by default; `statuses` lists what each version's status reads, poll by poll,
- * repeating the last.
+ * file-service fake. A file with no view answers 404 unless `viewErrors` holds another failure for it, after
+ * `viewDelaysMs` when set. A copy answers with `copyStatus`, ready by default, after `copyDelayMs`; `statuses` lists
+ * what each version's status reads, poll by poll, repeating the last. Like the real client, it refuses a call that has
+ * less than `minTimeLeftMs` left before its deadline, and it records the deadline of every call.
  */
 class FakeFileService implements FileService {
   calls: string[] = [];
 
+  deadlines: (number | undefined)[] = [];
+
+  minTimeLeftMs = 20;
+
   copies: FileServiceCopyRequest[] = [];
+
+  copyDelayMs = 0;
 
   copyError?: Error;
 
@@ -144,19 +160,28 @@ class FakeFileService implements FileService {
 
   viewErrors = new Map<string, Error>();
 
+  viewDelaysMs = new Map<string, number>();
+
   statuses = new Map<string, FileServiceFileStatus[]>();
 
-  async copyFile(request: FileServiceCopyRequest): Promise<FileServiceCopyJob> {
-    this.calls.push(`copy ${request.destinationPath}`);
+  async copyFile(request: FileServiceCopyRequest, options?: FileServiceCallOptions): Promise<FileServiceCopyJob> {
+    this.call(`copy ${request.destinationPath}`, options);
     this.copies.push(request);
+    if (this.copyDelayMs) {
+      await sleep(this.copyDelayMs);
+    }
     if (this.copyError) {
       throw this.copyError;
     }
     return { transactionId: 'a8d1f0c2-7b3e-4c5d-9e6f-1a2b3c4d5e6f', file: {}, status: this.copyStatus };
   }
 
-  async getFile(fileId: string): Promise<FileServiceFile> {
-    this.calls.push(`get ${fileId}`);
+  async getFile(fileId: string, options?: FileServiceCallOptions): Promise<FileServiceFile> {
+    this.call(`get ${fileId}`, options);
+    const delayMs = this.viewDelaysMs.get(fileId);
+    if (delayMs) {
+      await sleep(delayMs);
+    }
     const error = this.viewErrors.get(fileId);
     if (error) {
       throw error;
@@ -168,14 +193,86 @@ class FakeFileService implements FileService {
     return view;
   }
 
-  async getFileStatus(versionOrFileId: string): Promise<FileServiceFileStatus> {
-    this.calls.push(`status ${versionOrFileId}`);
+  async getFileStatus(versionOrFileId: string, options?: FileServiceCallOptions): Promise<FileServiceFileStatus> {
+    this.call(`status ${versionOrFileId}`, options);
     const queue = this.statuses.get(versionOrFileId);
     if (!queue || queue.length === 0) {
       throw new FileServiceError(`file-service GET /files/${versionOrFileId}/status returned 404`, 404);
     }
     return queue.length > 1 ? queue.shift()! : queue[0];
   }
+
+  /** Record a call and its deadline, refusing it as the real client does when too little time is left. */
+  private call(description: string, options?: FileServiceCallOptions): void {
+    this.calls.push(description);
+    this.deadlines.push(options?.deadline);
+    if (options?.deadline !== undefined && options.deadline - Date.now() < this.minTimeLeftMs) {
+      throw new FileServiceError(`file-service ${description} was not sent: too little time is left before its deadline`);
+    }
+  }
+}
+
+/**
+ * file-service over HTTP, for a real FileServiceClient: `views` answers metadata reads, 404 for any other file. Each
+ * copy answers with the next of `copyAnswers`, an error status, and once they run out with 202 and a ready version,
+ * after which `onCopied` runs. It records every request as `<method> <path>`.
+ */
+function fileServiceHttp(views: Map<string, FileServiceFile>, copyAnswers: number[], onCopied?: () => void) {
+  const requests: string[] = [];
+  const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status });
+  const fetchFn = (async (url: string, init: RequestInit) => {
+    const path = new globalThis.URL(url).pathname.replace(/^\/api\/file-service/, '');
+    requests.push(`${init.method} ${path}`);
+    const metadata = /^\/files\/([^/]+)\/metadata$/.exec(path);
+    if (metadata) {
+      const view = views.get(decodeURIComponent(metadata[1]));
+      return view ? json(200, view) : json(404, { message: 'No such file' });
+    }
+    if (path === '/copyFile') {
+      const status = copyAnswers.shift();
+      if (status !== undefined) {
+        return json(status, { message: `copy answered ${status}` });
+      }
+      onCopied?.();
+      return json(202, { transactionId: 'tx-1', file: {}, status: { status: 'ready', fileVersionId: 'v-new' } });
+    }
+    return json(404, { message: `No route ${path}` });
+  }) as unknown as typeof fetch;
+  return { fetchFn, requests };
+}
+
+/** A real FileServiceClient over `fetchFn`, with no waits between attempts. */
+function httpClient(fetchFn: typeof fetch): FileServiceClient {
+  return new FileServiceClient('https://app.example.com/api/file-service', 'test-api-key', ORG_ID, { fetchFn, retryDelaysMs: [0, 0, 0] });
+}
+
+/**
+ * A collection served the way the Hub client pages one: a real `PagedResults` holding the first page, whose remote
+ * fetch (its private `fetchPage`, the HTTP call) serves the rest. There are `fullPages` pages of `pageSize` elements,
+ * then `lastPageSize` more, each element holding its row number under `key` (`id` by default; another key leaves
+ * duplicate-page detection blind). With `repeat`, every remote page is the same, as from a source that ignores the
+ * page number. `fetched` lists the page numbers fetched.
+ */
+function pagedCollection(pageSize: number, fullPages: number, lastPageSize: number, repeat = false, key = 'id') {
+  const page = (pageNumber: number) => {
+    let size = 0;
+    if (pageNumber <= fullPages) {
+      size = pageSize;
+    } else if (pageNumber === fullPages + 1) {
+      size = lastPageSize;
+    }
+    return Array.from({ length: size }, (_, i) => ({ [key]: `row-${(pageNumber - 1) * pageSize + i}` }));
+  };
+  const results = new PagedResults<any>();
+  results.pageSize = pageSize;
+  results.items = page(1);
+  results.baseUrl = new URL('https://app.example.com/api/hub/targets/t-1/getCollectionElements');
+  const fetched: number[] = [];
+  (results as any).fetchPage = async (pageNumber: number) => {
+    fetched.push(pageNumber);
+    return page(repeat ? 2 : pageNumber);
+  };
+  return { results, fetched };
 }
 
 /** Logger fake that keeps each line with its level. */
@@ -326,7 +423,7 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
       expect(h.logger.at('warn').filter((m) => /pipeline file/i.test(m))).to.deep.equal([]);
     });
 
-    it('builds each record with exactly the platform keys, in its order', async () => {
+    it('builds each record key for key as the platform does, in its key order', async () => {
       const h = newHarness();
       h.files.views.set(UPLOAD.fileId, {
         mimeType: 'application/pdf', size: 2048, fileVersionId: 'v-upload', name: 'stored-name.pdf', id: 'other',
@@ -359,7 +456,7 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
     });
 
     describe('current params', () => {
-      it('collects the list the pipeline has now, not the launch-time one', async () => {
+      it('collects the list the pipeline has now, not the launch-time one, and reads it again before the batch', async () => {
         const h = newHarness();
         h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
         h.files.views.set(HUB.fileId, { fileVersionId: 'v-hub', size: 512 });
@@ -367,11 +464,160 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
 
         await h.impl.run({ files: [UPLOAD] });
 
-        expect(h.pipelineApi.gets).to.deep.equal([PIPELINE_ID]);
+        expect(h.pipelineApi.gets).to.deep.equal([PIPELINE_ID, PIPELINE_ID]);
         const calls = h.batchApi.callsFor('File');
         expect(calls[0].arg).to.include({ deletesEnabled: true });
         expect(payloads(calls[1]).map((record) => record.id)).to.deep.equal([HUB.fileId]);
         expect(h.files.calls).to.not.include(`get ${UPLOAD.fileId}`);
+      });
+
+      it('drops the record of a file removed while the run collected, with deletes still on', async () => {
+        const h = newHarness();
+        h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
+        h.files.views.set(HUB.fileId, { fileVersionId: 'v-hub', size: 512 });
+        h.pipelineApi.answers = [{ files: [UPLOAD, HUB] }, { files: [HUB] }];
+
+        await h.impl.run({ files: [UPLOAD, HUB] });
+
+        const calls = h.batchApi.callsFor('File');
+        expect(ops(calls)).to.deep.equal(['create', 'addItems', 'end']);
+        expect(calls[0].arg).to.include({ deletesEnabled: true });
+        expect(payloads(calls[1]).map((record) => record.id)).to.deep.equal([HUB.fileId]);
+        expect(h.logger.at('info').some((m) => m.includes('removed while this run collected') && m.includes('policy.pdf'))).to.equal(true);
+      });
+
+      it('collects a file added while the run collected, with deletes still on', async () => {
+        const h = newHarness();
+        h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
+        h.files.views.set(HUB.fileId, { fileVersionId: 'v-hub', size: 512 });
+        h.pipelineApi.answers = [{ files: [UPLOAD] }, { files: [UPLOAD, HUB] }];
+
+        await h.impl.run({ files: [UPLOAD] });
+
+        const calls = h.batchApi.callsFor('File');
+        expect(ops(calls)).to.deep.equal(['create', 'addItems', 'end']);
+        expect(calls[0].arg).to.include({ deletesEnabled: true });
+        expect(payloads(calls[1]).map((record) => record.id)).to.deep.equal([UPLOAD.fileId, HUB.fileId]);
+        expect(h.files.calls).to.deep.equal([
+          `get ${UPLOAD.fileId}`, `get ${HUB.fileId}`, 'copy /pipelines/evidence.csv', `get ${HUB.fileId}`,
+        ]);
+        expect(h.pipelineApi.gets).to.have.length(2);
+        expect(h.logger.at('info').some((m) => m.includes('collecting them too') && m.includes('evidence.csv'))).to.equal(true);
+        expect(h.logger.at('warn').filter((m) => /pipeline file/i.test(m))).to.deep.equal([]);
+      });
+
+      it('turns deletes off when a file added mid-run cannot be read', async () => {
+        const h = newHarness();
+        h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
+        h.files.viewErrors.set(BROKEN.fileId, new FileServiceError('file-service GET /files/x/metadata returned 500', 500));
+        h.pipelineApi.answers = [{ files: [UPLOAD] }, { files: [UPLOAD, BROKEN] }];
+
+        await h.impl.run({ files: [UPLOAD] });
+
+        const calls = h.batchApi.callsFor('File');
+        expect(ops(calls)).to.deep.equal(['create', 'log', 'addItems', 'end']);
+        expect(calls[0].arg).to.include({ deletesEnabled: false });
+        expect(calls[1].arg.message).to.contain('1 of 2 pipeline file(s) could not be resolved: "broken.txt"');
+        expect(payloads(calls[2]).map((record) => record.id)).to.deep.equal([UPLOAD.fileId]);
+        expect(h.logger.at('error')).to.deep.equal([]);
+      });
+
+      it('omits a file added mid-run that answers 404, with deletes still on', async () => {
+        const h = newHarness();
+        h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
+        h.pipelineApi.answers = [{ files: [UPLOAD] }, { files: [UPLOAD, MISSING] }];
+
+        await h.impl.run({ files: [UPLOAD] });
+
+        const calls = h.batchApi.callsFor('File');
+        expect(ops(calls)).to.deep.equal(['create', 'addItems', 'end']);
+        expect(calls[0].arg).to.include({ deletesEnabled: true });
+        expect(payloads(calls[1]).map((record) => record.id)).to.deep.equal([UPLOAD.fileId]);
+        expect(h.files.calls).to.include(`get ${MISSING.fileId}`);
+      });
+
+      it('sends no File batch when the only file, added mid-run, answers 404', async () => {
+        const h = newHarness();
+        h.pipelineApi.answers = [{ files: [] }, { files: [MISSING] }];
+
+        await h.impl.run({ files: [] });
+
+        expect(h.batchApi.calls).to.deep.equal([]);
+        expect(h.logger.at('warn').some((m) => m.includes('answered 404 for all 1 pipeline file(s)'))).to.equal(true);
+      });
+
+      it('shares the deadline with the collection of files added mid-run', async () => {
+        const h = newHarness();
+        h.impl.filesDeadlineMs = 40;
+        h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
+        h.files.viewDelaysMs.set(UPLOAD.fileId, 80);
+        h.files.views.set(HUB.fileId, { fileVersionId: 'v-hub', size: 512 });
+        h.pipelineApi.answers = [{ files: [UPLOAD] }, { files: [UPLOAD, HUB] }];
+
+        await h.impl.run({ files: [UPLOAD] });
+
+        expect(h.files.calls).to.deep.equal([`get ${UPLOAD.fileId}`]);
+        const calls = h.batchApi.callsFor('File');
+        expect(calls[0].arg).to.include({ deletesEnabled: false });
+        expect(calls[1].arg.message).to.contain('1 of 2 pipeline file(s) could not be resolved: "evidence.csv"');
+        expect(payloads(calls[2]).map((record) => record.id)).to.deep.equal([UPLOAD.fileId]);
+        expect(h.logger.at('warn').some((m) => m.includes('reached its 40 ms deadline') && m.includes('evidence.csv'))).to.equal(true);
+      });
+
+      it('gives both collections one copy-wait budget', async () => {
+        const h = newHarness();
+        h.impl.copyWait = { perFileMs: 40, perRunMs: 40, pollMs: 5 };
+        h.files.views.set(HUB.fileId, { fileVersionId: 'v-old', size: 512 });
+        h.files.views.set(HUB_2.fileId, { fileVersionId: 'v-old-2', size: 256 });
+        h.files.copyStatus = { status: 'fetching', fileVersionId: 'v-new' };
+        h.files.statuses.set('v-new', [{ status: 'fetching', fileVersionId: 'v-new' }]);
+        h.pipelineApi.answers = [{ files: [HUB] }, { files: [HUB, HUB_2] }];
+
+        await h.impl.run({ files: [HUB] });
+
+        expect(payloads(h.batchApi.callsFor('File')[1]).map((record) => record.fileVersionId)).to.deep.equal(['v-old', 'v-old-2']);
+        expect(h.logger.at('warn').some((m) => m.includes('Stopped waiting') && m.includes('evidence.csv'))).to.equal(true);
+        expect(h.logger.at('warn').some((m) => m.includes('Not waiting') && m.includes('inventory.csv') && m.includes('spent'))).to.equal(true);
+      });
+
+      it('turns deletes off, keeping every record, when the list cannot be read again before the batch', async () => {
+        const h = newHarness();
+        h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
+        h.pipelineApi.answers = [{ files: [UPLOAD] }, new Error('platform returned 502')];
+
+        await h.impl.run({ files: [UPLOAD] });
+
+        const calls = h.batchApi.callsFor('File');
+        expect(ops(calls)).to.deep.equal(['create', 'log', 'addItems', 'end']);
+        expect(calls[0].arg).to.include({ deletesEnabled: false });
+        expect(calls[1].arg.message).to.contain('could not be read before the batch was created');
+        expect(payloads(calls[2]).map((record) => record.id)).to.deep.equal([UPLOAD.fileId]);
+        expect(h.logger.at('warn').some((m) => m.includes('platform returned 502'))).to.equal(true);
+        expect(h.logger.at('error')).to.deep.equal([]);
+      });
+
+      it('decides deletes by the second read when only the first read fails', async () => {
+        const h = newHarness();
+        h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
+        h.pipelineApi.answers = [new Error('platform returned 503'), { files: [UPLOAD] }];
+
+        await h.impl.run({ files: [UPLOAD] });
+
+        const calls = h.batchApi.callsFor('File');
+        expect(ops(calls)).to.deep.equal(['create', 'addItems', 'end']);
+        expect(calls[0].arg).to.include({ deletesEnabled: true });
+        expect(h.logger.at('warn').some((m) => m.includes('listed at launch are collected') && m.includes('platform returned 503'))).to.equal(true);
+      });
+
+      it('sends no File batch when the files key is gone by the second read', async () => {
+        const h = newHarness();
+        h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
+        h.pipelineApi.answers = [{ files: [UPLOAD] }, {}];
+
+        await h.impl.run({ files: [UPLOAD] });
+
+        expect(h.pipelineApi.gets).to.have.length(2);
+        expect(h.batchApi.calls).to.deep.equal([]);
       });
 
       it('sends no File batch when the pipeline no longer has a files key', async () => {
@@ -429,7 +675,7 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
       expect(h.files.calls).to.deep.equal([`get ${UPLOAD.fileId}`]);
     });
 
-    it('leaves gone files out with deletes still on, and never copies a gone Hub file', async () => {
+    it('leaves files that answer 404 out with deletes still on, and never copies a gone Hub file', async () => {
       const h = newHarness();
       h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
 
@@ -440,17 +686,32 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
       expect(calls[0].arg).to.include({ deletesEnabled: true });
       expect(payloads(calls[1]).map((record) => record.id)).to.deep.equal([UPLOAD.fileId]);
       expect(h.files.copies).to.deep.equal([]);
-      expect(h.logger.at('warn').filter((m) => m.includes('no longer exists'))).to.have.length(2);
+      expect(h.logger.at('warn').filter((m) => m.includes('answered 404 for pipeline file'))).to.have.length(2);
     });
 
-    it('sends an empty File batch with deletes on when every file is gone', async () => {
+    it('sends no File batch when every listed file answers 404', async () => {
       const h = newHarness();
 
       await runWithFiles(h, [MISSING, GONE_HUB]);
 
+      expect(h.batchApi.calls).to.deep.equal([]);
+      expect(h.files.copies).to.deep.equal([]);
+      expect(h.pipelineApi.gets).to.have.length(2);
+      expect(h.logger.at('warn').some((m) => m.includes('answered 404 for all 2 pipeline file(s)') && m.includes('sending no File batch')))
+        .to.equal(true);
+      expect(h.logger.at('error')).to.deep.equal([]);
+    });
+
+    it('does not count a 404 from a copy as a gone file', async () => {
+      const h = newHarness();
+      h.files.views.set(HUB.fileId, { fileVersionId: 'v-hub', size: 512 });
+      h.files.copyError = new FileServiceError('file-service PUT /copyFile returned 404: no such object on the target', 404);
+
+      await runWithFiles(h, [HUB]);
+
       const calls = h.batchApi.callsFor('File');
-      expect(ops(calls)).to.deep.equal(['create', 'end']);
       expect(calls[0].arg).to.include({ deletesEnabled: true });
+      expect(payloads(calls[1]).map((record) => record.fileVersionId)).to.deep.equal(['v-hub']);
     });
 
     it('leaves a file with no ready version out with deletes still on', async () => {
@@ -525,6 +786,50 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
       expect(h.logger.at('error')).to.deep.equal([]);
     });
 
+    describe('copy answers from file-service', () => {
+      for (const [status, meaning] of [[409, 'Hub refused the copy'], [404, 'the object is gone from the target']] as const) {
+        it(`keeps the version file-service has, without retrying, when a copy answers ${status} (${meaning})`, async () => {
+          const h = newHarness();
+          const views = new Map([[HUB.fileId, { fileVersionId: 'v-hub', size: 512, mimeType: 'text/csv' } as FileServiceFile]]);
+          const http = fileServiceHttp(views, [status]);
+          h.impl.fileService = httpClient(http.fetchFn);
+
+          await runWithFiles(h, [HUB]);
+
+          expect(http.requests).to.deep.equal([`GET /files/${HUB.fileId}/metadata`, 'PUT /copyFile']);
+          const calls = h.batchApi.callsFor('File');
+          expect(ops(calls)).to.deep.equal(['create', 'addItems', 'end']);
+          expect(calls[0].arg).to.include({ deletesEnabled: true });
+          expect(payloads(calls[1])).to.deep.equal([
+            { id: HUB.fileId, name: 'evidence.csv', fileVersionId: 'v-hub', size: 512, mimeType: 'text/csv' },
+          ]);
+          expect(h.logger.at('warn').some((m) => m.includes('Could not copy') && m.includes(`returned ${status}`))).to.equal(true);
+          expect(h.logger.at('error')).to.deep.equal([]);
+        });
+      }
+
+      it('retries a copy answered 502, then records the version it fetched', async () => {
+        const h = newHarness();
+        const views = new Map([[HUB.fileId, { fileVersionId: 'v-hub', size: 512 } as FileServiceFile]]);
+        const http = fileServiceHttp(views, [502, 502], () => views.set(HUB.fileId, { fileVersionId: 'v-new', size: 640 }));
+        h.impl.fileService = httpClient(http.fetchFn);
+
+        await runWithFiles(h, [HUB]);
+
+        expect(http.requests).to.deep.equal([
+          `GET /files/${HUB.fileId}/metadata`,
+          'PUT /copyFile',
+          'PUT /copyFile',
+          'PUT /copyFile',
+          `GET /files/${HUB.fileId}/metadata`,
+        ]);
+        const calls = h.batchApi.callsFor('File');
+        expect(calls[0].arg).to.include({ deletesEnabled: true });
+        expect(payloads(calls[1]).map((record) => record.fileVersionId)).to.deep.equal(['v-new']);
+        expect(h.logger.at('warn').filter((m) => /pipeline file/i.test(m))).to.deep.equal([]);
+      });
+    });
+
     it('waits for a Hub copy to be ready, then records the version it fetched', async () => {
       const h = newHarness();
       h.files.views.set(HUB.fileId, { fileVersionId: 'v-old', size: 512, mimeType: 'text/csv' });
@@ -579,6 +884,92 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
       expect(h.logger.at('warn').some((m) => m.includes('Stopped waiting') && m.includes('evidence.csv'))).to.equal(true);
       expect(h.logger.at('warn').some((m) => m.includes('Not waiting') && m.includes('inventory.csv'))).to.equal(true);
       expect(elapsed).to.be.lessThan(1000);
+    });
+
+    describe('deadline', () => {
+      it('gives the files step ten minutes by default', () => {
+        expect(FILES_DEADLINE_MS).to.equal(600_000);
+        expect(newHarness().impl.filesDeadlineMs).to.equal(FILES_DEADLINE_MS);
+      });
+
+      it('passes one deadline down to every file-service call of the run', async () => {
+        const h = newHarness();
+        h.impl.copyWait = { perFileMs: 200, perRunMs: 400, pollMs: 2 };
+        h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
+        h.files.views.set(HUB.fileId, { fileVersionId: 'v-hub', size: 512 });
+        h.files.copyStatus = { status: 'created', fileVersionId: 'v-new' };
+        h.files.statuses.set('v-new', [{ status: 'ready', fileVersionId: 'v-new' }]);
+
+        const before = Date.now();
+        await runWithFiles(h, [UPLOAD, HUB]);
+        const after = Date.now();
+
+        expect(h.files.calls).to.deep.equal([
+          `get ${UPLOAD.fileId}`, `get ${HUB.fileId}`, 'copy /pipelines/evidence.csv', 'status v-new', `get ${HUB.fileId}`,
+        ]);
+        expect(new Set(h.files.deadlines).size).to.equal(1);
+        expect(h.files.deadlines[0]).to.be.within(before + FILES_DEADLINE_MS, after + FILES_DEADLINE_MS);
+      });
+
+      it('counts the files not reached by the deadline as unresolved and turns deletes off', async () => {
+        const h = newHarness();
+        h.impl.filesDeadlineMs = 40;
+        h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
+        h.files.viewDelaysMs.set(UPLOAD.fileId, 80);
+        h.files.views.set(HUB.fileId, { fileVersionId: 'v-hub', size: 512 });
+        h.files.views.set(HUB_2.fileId, { fileVersionId: 'v-hub-2', size: 256 });
+
+        await runWithFiles(h, [UPLOAD, HUB, HUB_2]);
+
+        expect(h.files.calls).to.deep.equal([`get ${UPLOAD.fileId}`]);
+        const calls = h.batchApi.callsFor('File');
+        expect(ops(calls)).to.deep.equal(['create', 'log', 'addItems', 'end']);
+        expect(calls[0].arg).to.include({ deletesEnabled: false });
+        expect(calls[1].arg.message).to.contain('2 of 3 pipeline file(s) could not be resolved: "evidence.csv"');
+        expect(calls[1].arg.message).to.contain('"inventory.csv"');
+        expect(payloads(calls[2]).map((record) => record.id)).to.deep.equal([UPLOAD.fileId]);
+        expect(h.logger.at('warn').some((m) => m.includes('reached its 40 ms deadline') && m.includes('2 file(s) not collected yet')))
+          .to.equal(true);
+        expect(h.logger.at('error')).to.deep.equal([]);
+      });
+
+      it('stops waiting for a Hub copy at the deadline, leaving the file unresolved', async () => {
+        const h = newHarness();
+        h.impl.copyWait = { perFileMs: 30_000, perRunMs: 120_000, pollMs: 5 };
+        h.impl.filesDeadlineMs = 100;
+        h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
+        h.files.views.set(HUB.fileId, { fileVersionId: 'v-hub', size: 512 });
+        h.files.copyStatus = { status: 'fetching', fileVersionId: 'v-new' };
+        h.files.statuses.set('v-new', [{ status: 'fetching', fileVersionId: 'v-new' }]);
+
+        const started = Date.now();
+        await runWithFiles(h, [UPLOAD, HUB]);
+        const elapsed = Date.now() - started;
+
+        expect(elapsed).to.be.lessThan(1000);
+        expect(h.files.calls.filter((c) => c === 'status v-new')).to.not.be.empty;
+        const calls = h.batchApi.callsFor('File');
+        expect(calls[0].arg).to.include({ deletesEnabled: false });
+        expect(calls[1].arg.message).to.contain('1 of 2 pipeline file(s) could not be resolved: "evidence.csv"');
+        expect(payloads(calls[2]).map((record) => record.id)).to.deep.equal([UPLOAD.fileId]);
+      });
+
+      it('does not poll a Hub copy once the deadline has passed', async () => {
+        const h = newHarness();
+        h.impl.filesDeadlineMs = 40;
+        h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
+        h.files.views.set(HUB.fileId, { fileVersionId: 'v-hub', size: 512 });
+        h.files.copyDelayMs = 60;
+        h.files.copyStatus = { status: 'fetching', fileVersionId: 'v-new' };
+        h.files.statuses.set('v-new', [{ status: 'ready', fileVersionId: 'v-new' }]);
+
+        await runWithFiles(h, [UPLOAD, HUB]);
+
+        expect(h.files.calls.filter((c) => c.startsWith('status'))).to.deep.equal([]);
+        expect(h.logger.at('warn').some((m) => m.includes('Not waiting for the copy') && m.includes('the files deadline has passed')))
+          .to.equal(true);
+        expect(h.batchApi.callsFor('File')[0].arg).to.include({ deletesEnabled: false });
+      });
     });
 
     it('skips files entirely on a preview run', async () => {
@@ -688,6 +1079,81 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
 
       expect(ops(h.batchApi.callsFor('Thing'))).to.deep.equal(['create', 'log']);
       expect(h.logger.at('error')).to.include('Failed to process data mapping mapping-1: collection fetch timed out');
+    });
+
+    describe('collection paging', () => {
+      it('pages a collection past the library default of 1000 pages', async () => {
+        const capped = pagedCollection(100, 1001, 50);
+        const seen: unknown[] = [];
+        let capError: Error | undefined;
+        try {
+          for await (const item of capped.results) {
+            seen.push(item);
+          }
+        } catch (error) {
+          capError = error as Error;
+        }
+        expect(capError?.message, 'the default cap the bot lifts').to.match(/maxPages \(1000\) exceeded/);
+        expect(seen, 'elements read before the default cap').to.have.length(100_100);
+
+        const h = newHarness();
+        const served = pagedCollection(100, 1001, 50);
+        const requested: number[] = [];
+        h.dataproducer.getCollectionsApi = () => ({
+          getCollectionElements: async (_objectId: string, pageNumber: number, pageSize: number) => {
+            requested.push(pageNumber, pageSize);
+            return served.results;
+          },
+        });
+
+        await h.impl.run({ dataMappings: [THING_MAPPING] });
+
+        expect(requested).to.deep.equal([1, 100]);
+        expect(served.fetched).to.have.length(1001);
+        const calls = h.batchApi.callsFor('Thing');
+        const added = calls.filter((c) => c.op === 'addItem');
+        expect(added).to.have.length(100_150);
+        expect(added.at(-1)?.arg.rawData).to.deep.equal({ id: 'row-100149' });
+        expect(ops(calls.filter((c) => c.op !== 'addItem'))).to.deep.equal(['create', 'end']);
+        expect(h.logger.at('error')).to.deep.equal([]);
+      });
+
+      it('still fails the batch closed when a source keeps returning the same page', async () => {
+        const h = newHarness();
+        const served = pagedCollection(100, 5000, 0, true);
+        h.dataproducer.getCollectionsApi = () => ({ getCollectionElements: async () => served.results });
+
+        await h.impl.run({ dataMappings: [THING_MAPPING] });
+
+        expect(served.fetched).to.deep.equal([2, 3]);
+        const calls = h.batchApi.callsFor('Thing');
+        expect(calls.filter((c) => c.op === 'addItem')).to.have.length(200);
+        const rest = calls.filter((c) => c.op !== 'addItem');
+        expect(ops(rest)).to.deep.equal(['create', 'log', 'end']);
+        expect(rest[1].arg.logLevel).to.equal(BatchLogLevelEnum.Error);
+        expect(rest[1].arg.message).to.contain('duplicate page detected');
+      });
+
+      it('fails the batch closed at the page cap when a repeating source has no id-like key', async function () {
+        this.timeout(60_000);
+        const h = newHarness();
+        const served = pagedCollection(100, COLLECTION_MAX_PAGES + 10, 0, true, 'value');
+        h.dataproducer.getCollectionsApi = () => ({ getCollectionElements: async () => served.results });
+        let added = 0;
+        h.batchApi.addBatchItem = async () => {
+          added += 1;
+        };
+
+        await h.impl.run({ dataMappings: [THING_MAPPING] });
+
+        expect(COLLECTION_MAX_PAGES).to.equal(10_000);
+        expect(served.fetched).to.have.length(COLLECTION_MAX_PAGES);
+        expect(added).to.equal(100 * (COLLECTION_MAX_PAGES + 1));
+        const calls = h.batchApi.callsFor('Thing');
+        expect(ops(calls)).to.deep.equal(['create', 'log', 'end']);
+        expect(calls[1].arg.logLevel).to.equal(BatchLogLevelEnum.Error);
+        expect(calls[1].arg.message).to.contain('maxPages (10000) exceeded');
+      });
     });
   });
 });

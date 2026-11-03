@@ -213,9 +213,10 @@ export interface PipelineFileRecord {
  * files, the first scope job of a run; it is absent from every other job's
  * params. That job collects the list the pipeline holds when it runs, not
  * this launch-time copy, which it falls back to only when the current list
- * cannot be read. There, an absent `files` means the pipeline has no file
- * collection at all, and an empty list means every file was removed, so the
- * run deletes their objects.
+ * cannot be read, and reads the list again right before it sends the batch.
+ * There, an absent `files` means the pipeline has no file collection at all,
+ * and an empty list means every file was removed, so the run deletes their
+ * objects.
  */
 export interface DataMappingParams {
   dataMappings?: DataMapping[];

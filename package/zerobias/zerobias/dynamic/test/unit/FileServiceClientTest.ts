@@ -2,7 +2,9 @@ import { expect } from 'chai';
 import { URL, UUID } from '@zerobias-org/types-core-js';
 import {
   FileServiceClient,
+  FileServiceClientOptions,
   FileServiceError,
+  MIN_ATTEMPT_MS,
   RETRY_DELAYS_MS,
   fileServiceUrl,
   isFileNotFound,
@@ -35,11 +37,26 @@ function fakeFetch(...answers: FakeAnswer[]) {
   return { fn, calls };
 }
 
-/** A client on the hub server URL, with no `FILE_SERVICE_API` and no waits between attempts. */
-function newClient(fn: typeof fetch): FileServiceClient {
+/**
+ * A `fetch` fake that never answers: each request hangs until its signal aborts it, as against a file-service that
+ * accepts connections but stops responding.
+ */
+function hangingFetch() {
+  const calls: FetchCall[] = [];
+  const fn = (async (url: string, init: any) => {
+    calls.push({ url, init });
+    return new Promise((_resolve, reject) => {
+      init.signal.addEventListener('abort', () => reject(init.signal.reason));
+    });
+  }) as unknown as typeof fetch;
+  return { fn, calls };
+}
+
+/** A client on the hub server URL, with no `FILE_SERVICE_API` and, unless `options` says otherwise, no waits between attempts. */
+function newClient(fn: typeof fetch, options: FileServiceClientOptions = {}): FileServiceClient {
   return FileServiceClient.fromContext(
     { server: new URL('https://app.example.com/api/hub'), apiKey: 'test-api-key', orgId: new UUID(ORG_ID) },
-    { fetchFn: fn, retryDelaysMs: [0, 0, 0], env: {} },
+    { fetchFn: fn, retryDelaysMs: [0, 0, 0], env: {}, ...options },
   );
 }
 
@@ -208,6 +225,95 @@ describe('FileServiceClient', () => {
       expect((failure as FileServiceError).status).to.equal(undefined);
       expect(failure?.message).to.contain('fetch failed');
       expect(isFileNotFound(failure)).to.equal(false);
+    });
+  });
+
+  describe('copy answers', () => {
+    const request = { sourceTarget: 'target-1', sourcePath: 'content_acme/a.csv', destinationPath: '/pipelines/a.csv' };
+
+    it('rejects a copy Hub refused (409) at once', async () => {
+      const { fn, calls } = fakeFetch({ status: 409, body: { message: 'Hub refused the copy' } });
+
+      const failure = await failureOf(newClient(fn).copyFile(request));
+
+      expect((failure as FileServiceError).status).to.equal(409);
+      expect(failure?.message).to.contain('Hub refused the copy');
+      expect(isFileNotFound(failure)).to.equal(false);
+      expect(calls).to.have.length(1);
+    });
+
+    it('rejects a copy of an object missing from the target (404) at once', async () => {
+      const { fn, calls } = fakeFetch({ status: 404, body: { message: 'No such object' } });
+
+      const failure = await failureOf(newClient(fn).copyFile(request));
+
+      expect((failure as FileServiceError).status).to.equal(404);
+      expect(calls).to.have.length(1);
+    });
+
+    it('retries a copy answered 502 (Hub unavailable)', async () => {
+      const job = { transactionId: 'tx', file: {}, status: { status: 'fetching', fileVersionId: VERSION_ID } };
+      const { fn, calls } = fakeFetch({ status: 502 }, { status: 502 }, { status: 202, body: job });
+
+      const result = await newClient(fn).copyFile(request);
+
+      expect(result).to.deep.equal(job);
+      expect(calls.map((c) => c.init.method)).to.deep.equal(['PUT', 'PUT', 'PUT']);
+    });
+  });
+
+  describe('deadline', () => {
+    it('needs a second left before a deadline to start an attempt, by default', () => {
+      expect(MIN_ATTEMPT_MS).to.equal(1000);
+    });
+
+    it('does not send a request once its deadline leaves too little time', async () => {
+      const { fn, calls } = fakeFetch({ status: 200, body: { fileVersionId: 'v-1', size: 1 } });
+
+      const failure = await failureOf(newClient(fn).getFile(FILE_ID, { deadline: Date.now() + 500 }));
+
+      expect(failure).to.be.instanceOf(FileServiceError);
+      expect((failure as FileServiceError).status).to.equal(undefined);
+      expect(failure?.message).to.contain('was not sent');
+      expect(calls).to.have.length(0);
+    });
+
+    it('does not wait for a retry that the deadline leaves too little time for', async () => {
+      const { fn, calls } = fakeFetch({ status: 503 }, { status: 503 }, { status: 503 }, { status: 503 });
+      const client = newClient(fn, { retryDelaysMs: [60, 100, 100], minAttemptMs: 10 });
+
+      const started = Date.now();
+      const failure = await failureOf(client.getFileStatus(VERSION_ID, { deadline: started + 150 }));
+      const elapsed = Date.now() - started;
+
+      expect((failure as FileServiceError).status).to.equal(503);
+      expect(calls).to.have.length(2);
+      expect(elapsed).to.be.lessThan(150);
+    });
+
+    it('cuts a hanging attempt off at the deadline and does not retry it', async () => {
+      const { fn, calls } = hangingFetch();
+      const client = newClient(fn, { minAttemptMs: 10 });
+
+      const started = Date.now();
+      const failure = await failureOf(client.copyFile(
+        { sourceTarget: 't', sourcePath: 'p', destinationPath: '/d' },
+        { deadline: started + 80 },
+      ));
+      const elapsed = Date.now() - started;
+
+      expect(failure).to.be.instanceOf(FileServiceError);
+      expect((failure as FileServiceError).status).to.equal(undefined);
+      expect(calls).to.have.length(1);
+      expect(elapsed).to.be.within(60, 1000);
+    });
+
+    it('gives a call every attempt when no deadline is set', async () => {
+      const { fn, calls } = fakeFetch({ status: 503 }, { status: 503 }, { status: 503 }, { status: 200, body: { status: 'ready' } });
+
+      await newClient(fn, { minAttemptMs: 10 }).getFileStatus(VERSION_ID);
+
+      expect(calls).to.have.length(4);
     });
   });
 });
