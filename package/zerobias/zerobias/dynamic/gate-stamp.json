@@ -1,8 +1,8 @@
 {
   "version": "1.1.0-uat.0",
   "branch": "feat/pipeline-files-hardening",
-  "sourceHash": "eb551f31a6e736b6718f6ad9b8aeb41ea903b4aaa7c78142417fa6685de311a8",
-  "testHash": "a0ad19fbcc07e582f6fd95e7ac75fdc6c0fdfe4a78b7df677204967d0f47d39d",
+  "sourceHash": "50909fcfa9d6afe8101c767ee9a8caa72fb31dad4e73039076e1c53356cad92a",
+  "testHash": "d896d7427f7862aa07774105ca508b3180fcec57a18cdf03bc7855a3d11bab95",
   "tasks": {
     "validate": "passed",
     "lint": "passed",
@@ -15,7 +15,7 @@
     "dataloaderExec": "passed"
   },
   "tests": {
-      "unit": { "expected": 41, "ran": 41, "status": "passed" },
+      "unit": { "expected": 70, "ran": 70, "status": "passed" },
       "integration": { "expected": 5, "ran": 5, "status": "passed" },
       "e2e": { "expected": 0, "ran": 0, "status": "skipped" }
   }
