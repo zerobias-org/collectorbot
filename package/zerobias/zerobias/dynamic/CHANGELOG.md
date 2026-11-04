@@ -3,6 +3,25 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## 1.1.0 (2026-11-03)
+
+1.0.15 was never published; its changes ship in this release. See USERGUIDE.md for details.
+
+### Features
+
+* **dynamic:** collect the files attached to a pipeline (`params.files`) as one `File` snapshot batch in group `pipeline-files:<pipelineId>`, apart from the data mappings' group. Only the job launched with `files` collects them, from the pipeline's current list, and preview runs skip them. Hub files are copied from their target again first, waiting up to 30 s per file and 120 s per run for the new version. Deletes are off for a run in which any listed file can't be resolved, so a fileservice hiccup never deletes the object of a file still attached.
+* **dynamic:** read the pipeline's file list again right before creating the File batch, so an add or remove made during the run is not undone: files removed meanwhile are left out, and files added meanwhile are collected too, by the same deadline, so the batch, which supersedes the platform's own snapshot of the add, carries their records. A failed read turns deletes off.
+* **dynamic:** give collecting files a 10-minute deadline. Files not collected by then count as unresolved, which turns deletes off, and each fileservice call is cut off at the deadline.
+* **dynamic:** retry fileservice calls that get no answer, time out or are answered 429, 502, 503 or 504, up to four attempts, 0.5 s, 1 s and 2 s apart. A copy answered 409 (Hub refused it) or 404 (the object is gone from the target) is not retried; the bot warns and records the version fileservice already has.
+* **dynamic:** reach fileservice at `FILE_SERVICE_API` when it is set, otherwise at the hub URL with `/hub` replaced by `/file-service`.
+
+### Bug Fixes
+
+* **dynamic:** fail data mappings closed. A source fetch error now logs an error on the batch, which fails the batch and the job, instead of importing a partial list with deletes on and deleting every object it left out. When that error log can't be written, the batch is left open, which fails the job too.
+* **dynamic:** page collections up to 10,000 pages, about 1,000,000 elements, rather than the library's default of 1000 pages, about 100,100 elements, which with fail-closed mappings would fail every run of a larger collection. A source that keeps returning the same page still fails: at once when its elements carry an id-like key such as `id` or `name`, and at the page cap when they don't.
+* **dynamic:** send no File batch when every listed file answers 404, since a wrong fileservice URL or missing access looks the same and the batch would delete every File object. A partial 404 still leaves those files out with deletes unaffected.
+* **dynamic:** skip the DataProducer metadata call for a pipeline with files but no data mappings.
+
 ## [1.0.7](https://github.com/zerobias-org/collectorbot/compare/@zerobias-org/collectorbot-zerobias-zerobias-dynamic@1.0.6...@zerobias-org/collectorbot-zerobias-zerobias-dynamic@1.0.7) (2026-04-16)
 
 ### Bug Fixes

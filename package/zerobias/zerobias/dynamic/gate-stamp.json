@@ -1,8 +1,8 @@
 {
-  "version": "1.0.15",
-  "branch": "main",
-  "sourceHash": "6543625d583765a07461444f6fddf6c30613f192da60ab76d7f6028b49c3b140",
-  "testHash": "9dec0f97ef2ab2a05bdccdbe84b96a11847a1a150e4e566a33de0465b1bb7f88",
+  "version": "1.1.0-uat.0",
+  "branch": "feat/pipeline-files-hardening",
+  "sourceHash": "50909fcfa9d6afe8101c767ee9a8caa72fb31dad4e73039076e1c53356cad92a",
+  "testHash": "d896d7427f7862aa07774105ca508b3180fcec57a18cdf03bc7855a3d11bab95",
   "tasks": {
     "validate": "passed",
     "lint": "passed",
@@ -11,10 +11,11 @@
     "testDirect": "passed",
     "testDocker": "passed",
     "testDataloader": "passed",
-    "buildArtifacts": "passed"
+    "buildArtifacts": "passed",
+    "dataloaderExec": "passed"
   },
   "tests": {
-      "unit": { "expected": 0, "ran": 0, "status": "skipped" },
+      "unit": { "expected": 70, "ran": 70, "status": "passed" },
       "integration": { "expected": 5, "ran": 5, "status": "passed" },
       "e2e": { "expected": 0, "ran": 0, "status": "skipped" }
   }

@@ -204,3 +204,81 @@ Object IDs typically follow a path-based structure:
 - Collections: `/collections/name`
 
 Consult your data producer's documentation for specific object ID formats.
+
+## Data Mapping Failures (1.1.0)
+
+A data mapping fails closed. When its source fetch fails part way, the collector logs an error on the mapping's batch,
+which fails the batch and the job. Before 1.1.0 the partial list was imported with deletes on, which deleted every
+object the list left out. If the error log itself can't be written, the batch is left open, which also fails the job.
+The other mappings still run.
+
+Collections are paged up to 10,000 pages, about 1,000,000 elements at 100 per page; a larger collection fails its
+mapping. Before 1.1.0 paging stopped at 1000 pages (about 100,100 elements). A source that keeps returning the same page
+fails its mapping too: at once when its elements carry an id-like key such as `id` or `name`, and at the page cap when
+they don't.
+
+## Pipeline Files (1.1.0)
+
+The collector also collects the files attached to a dynamic pipeline. The platform keeps them in the pipeline's
+`params.files`, managed through its pipeline files endpoints; they need no collector parameters.
+
+Each run sends the listed files as one `File` batch in group `pipeline-files:<pipelineId>`, apart from the data
+mappings' group. The batch is a full snapshot: it updates the objects of listed files and, with deletes on, deletes the
+objects of files no longer listed. A record holds the file's `id`, its `name` as listed on the pipeline, the
+`fileVersionId` and `size` of its latest ready version, and `mimeType` when fileservice has one. The platform builds
+the same record when a file is added, so both match key for key; versioning does not depend on key order, since the
+platform sorts keys before it hashes a version.
+
+- **Which job:** only the job launched with `files` in its params, the first job of a run, collects them, from the list
+  the pipeline holds when the job runs. Preview runs skip files.
+- **Uploaded files** are read from fileservice as they are.
+- **Hub files** are copied from their Hub target again first, so the latest remote contents become a new version. The
+  collector waits up to 30 s per file and 120 s per run for the copy, then records the version that is ready. A copy
+  fileservice refuses, with 409 when Hub refused it or 404 when the object is gone from the target, is not retried: the
+  collector warns and records the version fileservice already has.
+
+### How Each File Resolves
+
+| fileservice says | Record | Deletes |
+|---|---|---|
+| a ready version with a size | sent | unaffected |
+| 404 | left out | unaffected, unless every listed file answers 404 |
+| no ready version yet | left out | unaffected |
+| a ready version without a size | left out | off |
+| any other error, or not reached by the deadline | left out | off |
+| a malformed entry | skipped | off |
+
+### Changes During a Run
+
+Right before it creates the File batch, the collector reads the pipeline's file list again, so an add or remove made
+while it ran is not undone. A file removed meanwhile is left out of the batch. A file added meanwhile is collected too,
+within the same deadline and copy-wait budget, because the run's batch supersedes the platform's own snapshot of the add
+and must carry its record. It resolves like any other file: unresolved turns deletes off, 404 leaves it out. If the list
+can't be read again, deletes are off.
+
+When deletes are off, the batch carries a warning that says why, and nothing is deleted; the objects of removed files
+are deleted by the next run with deletes on.
+
+### When No File Batch Is Sent
+
+- **Every listed file answers 404.** A wrong fileservice URL or missing access looks the same, and the batch would
+  delete every File object. The platform itself drops entries whose files are really gone.
+- **No file produced a record and deletes are off**, since such a batch would change nothing.
+- **The pipeline no longer has a `files` key.**
+
+An empty list still sends an empty batch, which deletes the objects of removed files.
+
+### Deadline
+
+Collecting files has 10 minutes in all. Files not collected by then count as unresolved, which turns deletes off, and
+the data mappings still run afterwards. Each fileservice call is bounded by the deadline too: an attempt is cut off when
+the deadline comes, and none is started, or retried, with less than a second left.
+
+### Reaching fileservice
+
+The collector calls fileservice with the job's org API key. It uses `FILE_SERVICE_API` when the environment sets it, as
+it does for hub-client jobs and the slot collector; otherwise it takes the hub server URL and replaces a trailing
+`/hub` with `/file-service`.
+
+A call that gets no answer, times out (60 s per attempt) or is answered 429, 502, 503 or 504 is retried, up to four
+attempts, 0.5 s, 1 s and 2 s apart. Any other answer, such as 404 or 409, is final.

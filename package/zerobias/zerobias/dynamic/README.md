@@ -43,6 +43,7 @@ See USERGUIDE.md for detailed parameter configuration examples.
 
 This collector uses pipeline ID for grouping:
 - `${pipelineId}` - Ensures data isolation per pipeline execution
+- `pipeline-files:${pipelineId}` - The File batch of the pipeline's attached files (see USERGUIDE.md)
 
 ## Development
 
