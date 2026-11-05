@@ -4,7 +4,7 @@ import { getClient } from '@zerobias-com/hub-client';
 import { expect } from 'chai';
 import * as fs from 'fs';
 import * as path from 'path';
-import { container } from '../../generated/index.js';
+import { container } from '../../src/index.js';
 import { DataMappingParams } from '../../src/types/index.js';
 import { applyMappings } from '../../src/Mappers.js';
 

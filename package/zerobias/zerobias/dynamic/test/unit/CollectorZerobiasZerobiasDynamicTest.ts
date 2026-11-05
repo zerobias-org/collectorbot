@@ -9,11 +9,13 @@ import {
   FileService,
   FileServiceCallOptions,
   FileServiceClient,
+  FileServiceContainer,
   FileServiceCopyJob,
   FileServiceCopyRequest,
   FileServiceError,
   FileServiceFile,
   FileServiceFileStatus,
+  FileServiceRecordsPage,
 } from '../../src/FileServiceClient.js';
 import { DataMapping, DataMappingParams, PipelineFile } from '../../src/types/index.js';
 
@@ -202,6 +204,16 @@ class FakeFileService implements FileService {
     return queue.length > 1 ? queue.shift()! : queue[0];
   }
 
+  /** Pipeline files never read a file's contents; FileSourceMappingTest covers the mappings that do. */
+  async getContainer(versionId: string): Promise<FileServiceContainer> {
+    throw new Error(`pipeline files must not read container ${versionId}`);
+  }
+
+  /** See `getContainer`. */
+  async listContainerRecords(versionId: string): Promise<FileServiceRecordsPage> {
+    throw new Error(`pipeline files must not read the records of ${versionId}`);
+  }
+
   /** Record a call and its deadline, refusing it as the real client does when too little time is left. */
   private call(description: string, options?: FileServiceCallOptions): void {
     this.calls.push(description);
@@ -303,6 +315,7 @@ function newHarness(context: Record<string, unknown> = {}) {
   const platform = { isConnected: () => true, getBatchApi: () => batchApi, getPipelineApi: () => pipelineApi };
   let metadataCalls = 0;
   const dataproducer: Record<string, any> = {
+    isConnected: async () => true,
     metadata: async () => {
       metadataCalls += 1;
       return { tags: [] };
@@ -1022,22 +1035,20 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
       expect(h.logger.at('error')).to.deep.equal([]);
     });
 
-    it('collects files before init, so they are sent even when init fails', async () => {
+    it('still sends the File batch when init fails, failing only the batch of the mapping that reads from the Hub target', async () => {
       const h = newHarness();
       h.dataproducer.metadata = async () => {
         throw new Error('producer unreachable');
       };
 
-      let failure: Error | undefined;
-      try {
-        await runWithFiles(h, [], { dataMappings: [THING_MAPPING] });
-      } catch (error) {
-        failure = error as Error;
-      }
+      await runWithFiles(h, [], { dataMappings: [THING_MAPPING] });
 
-      expect(failure?.message).to.equal('Unable to initialize collector');
       expect(ops(h.batchApi.callsFor('File'))).to.deep.equal(['create', 'end']);
-      expect(h.batchApi.callsFor('Thing')).to.deep.equal([]);
+      const thing = h.batchApi.callsFor('Thing');
+      expect(ops(thing)).to.deep.equal(['create', 'log', 'end']);
+      expect(thing[1].arg.logLevel).to.equal(BatchLogLevelEnum.Error);
+      expect(thing[1].arg.message).to.equal('Failed to fetch source items: Unable to initialize collector: producer unreachable');
+      expect(h.logger.at('error')).to.include('Failed to process data mapping mapping-1: Unable to initialize collector: producer unreachable');
     });
   });
 

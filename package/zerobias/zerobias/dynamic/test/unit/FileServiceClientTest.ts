@@ -20,8 +20,8 @@ interface FetchCall {
   init: RequestInit & { headers: Record<string, string> };
 }
 
-/** A queued answer: a response with this status and JSON body, or a rejection with `error` as no response would. */
-type FakeAnswer = { status: number; body?: unknown } | { error: Error };
+/** A queued answer: a response with this status, JSON body and headers, or a rejection with `error` as no response would. */
+type FakeAnswer = { status: number; body?: unknown; headers?: Record<string, string> } | { error: Error };
 
 /** A `fetch` fake that records each request and answers with the queued answers in order, then 200s. */
 function fakeFetch(...answers: FakeAnswer[]) {
@@ -32,7 +32,7 @@ function fakeFetch(...answers: FakeAnswer[]) {
     if ('error' in next) {
       throw next.error;
     }
-    return new Response(next.body === undefined ? null : JSON.stringify(next.body), { status: next.status });
+    return new Response(next.body === undefined ? null : JSON.stringify(next.body), { status: next.status, headers: next.headers });
   }) as unknown as typeof fetch;
   return { fn, calls };
 }
@@ -143,6 +143,65 @@ describe('FileServiceClient', () => {
 
       expect(result).to.include({ status: 'fetching', fileVersionId: VERSION_ID });
       expect(calls[0].url).to.equal(`https://app.example.com/api/file-service/files/${VERSION_ID}/status`);
+    });
+  });
+
+  describe('container records', () => {
+    it('reads a container of a version from /files/{id}/content/container, authenticated as the org API key', async () => {
+      const { fn, calls } = fakeFetch({ status: 200, body: { path: '/Physical Space', records: 150, subcontainers: 0 } });
+
+      const container = await newClient(fn).getContainer(VERSION_ID, '/Physical Space');
+
+      expect(container).to.deep.equal({ path: '/Physical Space', records: 150, subcontainers: 0 });
+      expect(calls[0].url).to.equal(
+        `https://app.example.com/api/file-service/files/${VERSION_ID}/content/container?containerPath=%2FPhysical+Space`,
+      );
+      expect(calls[0].init.method).to.equal('GET');
+      expect(calls[0].init.headers).to.include({ Authorization: 'APIKey test-api-key', 'dana-org-id': ORG_ID });
+    });
+
+    it('reads a page of container records, with the total from the count header', async () => {
+      const rows = [{ id: 'space-1', name: 'Room 1' }];
+      const { fn, calls } = fakeFetch({ status: 200, body: rows, headers: { count: '150', link: '' } });
+
+      const page = await newClient(fn).listContainerRecords(VERSION_ID, '/Physical Space', 2, 100);
+
+      expect(page).to.deep.equal({ items: rows, count: 150 });
+      expect(calls[0].url).to.equal(
+        `https://app.example.com/api/file-service/files/${VERSION_ID}/content/containers/records` +
+        '?containerPath=%2FPhysical+Space&pageNumber=2&pageSize=100',
+      );
+      expect(calls[0].init.headers).to.include({ Authorization: 'APIKey test-api-key', 'dana-org-id': ORG_ID });
+    });
+
+    it('reports a missing or malformed count header as -1, as file-service omits it for an empty container', async () => {
+      for (const headers of [undefined, { count: 'many' }, { count: '-3' }]) {
+        const { fn } = fakeFetch({ status: 200, body: [], headers });
+
+        expect(await newClient(fn).listContainerRecords(VERSION_ID, '/', 1, 100), JSON.stringify(headers))
+          .to.deep.equal({ items: [], count: -1 });
+      }
+    });
+
+    it('rejects a records answer that is not a list', async () => {
+      const { fn } = fakeFetch({ status: 200, body: { items: [] } });
+
+      const failure = await failureOf(newClient(fn).listContainerRecords(VERSION_ID, '/', 1, 100));
+
+      expect(failure).to.be.instanceOf(FileServiceError);
+      expect(failure?.message).to.contain('did not return a list of records');
+    });
+
+    it('retries a records page answered 503, and rejects a 404 at once', async () => {
+      const retried = fakeFetch({ status: 503 }, { status: 200, body: [{ id: 'a' }], headers: { count: '1' } });
+
+      expect(await newClient(retried.fn).listContainerRecords(VERSION_ID, '/', 1, 100)).to.deep.equal({ items: [{ id: 'a' }], count: 1 });
+      expect(retried.calls).to.have.length(2);
+
+      const missing = fakeFetch({ status: 404, body: { message: 'Not found: /Sheet9' } });
+      const failure = await failureOf(newClient(missing.fn).getContainer(VERSION_ID, '/Sheet9'));
+      expect(isFileNotFound(failure)).to.equal(true);
+      expect(missing.calls).to.have.length(1);
     });
   });
 

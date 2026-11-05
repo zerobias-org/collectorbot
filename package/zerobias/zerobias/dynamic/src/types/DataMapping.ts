@@ -89,7 +89,8 @@ export interface DataMappingSource {
 
 /**
  * A mapping source read from an uploaded file in file-service. Only the file
- * id is stored, so a run always reads the file's latest version.
+ * id is stored, so each run reads the file's current ready version, every
+ * page from that one version.
  *
  *  - With `containerPath`: the rows of that container — a workbook sheet
  *    (`/File`) or a CSV (`/`) — one source item per row.
