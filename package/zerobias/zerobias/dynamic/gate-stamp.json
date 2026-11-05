@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0-uat.0",
+  "version": "1.1.1",
   "branch": "feat/pipeline-file-sources",
   "sourceHash": "2c7c14636d65e0372039f119cc45aa4ab43e0a085d76d98d97f0079202cab6ed",
   "testHash": "4f08f86df63e69e3120801745efffdb417719d4f11dc03a4e31e478057d4d2c9",
