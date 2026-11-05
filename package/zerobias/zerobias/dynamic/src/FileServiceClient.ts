@@ -25,9 +25,35 @@ const RETRY_STATUSES = new Set([429, 502, 503, 504]);
  * a null `fileVersionId` and a null `size`.
  */
 export interface FileServiceFile {
+  id?: string | null;
+  name?: string | null;
   fileVersionId?: string | null;
   size?: number | null;
   mimeType?: string | null;
+  created?: string | null;
+  updated?: string | null;
+}
+
+/**
+ * The fields of a file-reader `Container` the collector reads: a workbook
+ * sheet, a CSV, or a JSON or YAML path. `records` is how many records it
+ * holds, counted as the records endpoint counts them.
+ */
+export interface FileServiceContainer {
+  path?: string | null;
+  records?: number | null;
+  subcontainers?: number | null;
+}
+
+/**
+ * One page of a container's records. `count` is file-service's `count`
+ * header, the container's total, or -1 when it sent none, as it does for an
+ * empty container. A file-service that ignores `pageNumber` and `pageSize`
+ * there (2.0.18 does) sends the length of the page it returned instead.
+ */
+export interface FileServiceRecordsPage {
+  items: Record<string, unknown>[];
+  count: number;
 }
 
 /**
@@ -90,13 +116,22 @@ export interface FileServiceCallOptions {
 }
 
 /**
- * The file-service calls the collector makes. The collector depends on this
+ * The file-service calls the collector makes, for pipeline files and for
+ * mappings whose source is an uploaded file. The collector depends on this
  * interface rather than on `FileServiceClient` so tests can substitute a fake.
  */
 export interface FileService {
   copyFile(request: FileServiceCopyRequest, options?: FileServiceCallOptions): Promise<FileServiceCopyJob>;
   getFile(fileId: string, options?: FileServiceCallOptions): Promise<FileServiceFile>;
   getFileStatus(versionOrFileId: string, options?: FileServiceCallOptions): Promise<FileServiceFileStatus>;
+  getContainer(versionId: string, containerPath: string, options?: FileServiceCallOptions): Promise<FileServiceContainer>;
+  listContainerRecords(
+    versionId: string,
+    containerPath: string,
+    pageNumber: number,
+    pageSize: number,
+    options?: FileServiceCallOptions,
+  ): Promise<FileServiceRecordsPage>;
 }
 
 /**
@@ -141,10 +176,25 @@ function isTransient(error: unknown): boolean {
   return error instanceof FileServiceError && (error.status === undefined || RETRY_STATUSES.has(error.status));
 }
 
+/** A file-service answer: its parsed JSON body, if it had one, and its headers. */
+interface FileServiceResponse {
+  body: any;
+  headers: Headers;
+}
+
 /**
- * Minimal file-service client on Node's global `fetch`. It authenticates the
- * way the job's other platform calls do: the org API key as
- * `Authorization: APIKey <key>` plus the `dana-org-id` header.
+ * The record total in a records page's `count` header, or -1 when the header
+ * is missing or is not a whole number.
+ */
+function recordCount(header: string | null): number {
+  return header !== null && /^\d+$/.test(header.trim()) ? Number(header) : -1;
+}
+
+/**
+ * Minimal file-service client on Node's global `fetch`, for pipeline files
+ * and file-backed mappings. It authenticates the way the job's other
+ * platform calls do: the org API key as `Authorization: APIKey <key>` plus
+ * the `dana-org-id` header.
  */
 export class FileServiceClient implements FileService {
   private readonly fetchFn: typeof fetch;
@@ -187,7 +237,7 @@ export class FileServiceClient implements FileService {
    * is not on the target; neither is retried.
    */
   async copyFile(request: FileServiceCopyRequest, options: FileServiceCallOptions = {}): Promise<FileServiceCopyJob> {
-    return this.send('PUT', '/copyFile', request, options.deadline);
+    return (await this.send('PUT', '/copyFile', request, options.deadline)).body;
   }
 
   /**
@@ -195,7 +245,7 @@ export class FileServiceClient implements FileService {
    * `/files/{id}` itself only accepts PUT and DELETE.
    */
   async getFile(fileId: string, options: FileServiceCallOptions = {}): Promise<FileServiceFile> {
-    return this.send('GET', `/files/${encodeURIComponent(fileId)}/metadata`, undefined, options.deadline);
+    return (await this.send('GET', `/files/${encodeURIComponent(fileId)}/metadata`, undefined, options.deadline)).body;
   }
 
   /**
@@ -203,23 +253,55 @@ export class FileServiceClient implements FileService {
    * file-service looks the ID up as a version first, then as a file.
    */
   async getFileStatus(versionOrFileId: string, options: FileServiceCallOptions = {}): Promise<FileServiceFileStatus> {
-    return this.send('GET', `/files/${encodeURIComponent(versionOrFileId)}/status`, undefined, options.deadline);
+    return (await this.send('GET', `/files/${encodeURIComponent(versionOrFileId)}/status`, undefined, options.deadline)).body;
   }
 
   /**
-   * Send one JSON request and return the parsed response body. A transient
-   * failure (see `isTransient`) is retried after each of `retryDelaysMs`,
-   * which is safe for every call made here: the GETs only read, and
-   * file-service dedupes a repeated copy by its fetcher. Any other non-2xx
-   * answer rejects at once, so a 404 or a 409 reaches the caller on the first
-   * attempt.
+   * Read the container at `containerPath` of one file version
+   * (`GET /files/{id}/content/container`): a workbook sheet such as `/Sheet1`,
+   * or `/` for a CSV. Its `records` is how many records it holds.
+   */
+  async getContainer(versionId: string, containerPath: string, options: FileServiceCallOptions = {}): Promise<FileServiceContainer> {
+    const query = new URLSearchParams({ containerPath });
+    return (await this.send('GET', `/files/${encodeURIComponent(versionId)}/content/container?${query}`, undefined, options.deadline)).body;
+  }
+
+  /**
+   * Read one page of the records of the container at `containerPath` of one
+   * file version (`GET /files/{id}/content/containers/records`). The body is
+   * the page's rows and the `count` header the total (see
+   * `FileServiceRecordsPage`); a body that is not a list rejects.
+   */
+  async listContainerRecords(
+    versionId: string,
+    containerPath: string,
+    pageNumber: number,
+    pageSize: number,
+    options: FileServiceCallOptions = {},
+  ): Promise<FileServiceRecordsPage> {
+    const query = new URLSearchParams({ containerPath, pageNumber: String(pageNumber), pageSize: String(pageSize) });
+    const path = `/files/${encodeURIComponent(versionId)}/content/containers/records?${query}`;
+    const { body, headers } = await this.send('GET', path, undefined, options.deadline);
+    if (!Array.isArray(body)) {
+      throw new FileServiceError(`file-service GET ${path} did not return a list of records`);
+    }
+    return { items: body, count: recordCount(headers.get('count')) };
+  }
+
+  /**
+   * Send one JSON request and return the parsed response body with the
+   * response headers. A transient failure (see `isTransient`) is retried
+   * after each of `retryDelaysMs`, which is safe for every call made here:
+   * the GETs only read, and file-service dedupes a repeated copy by its
+   * fetcher. Any other non-2xx answer rejects at once, so a 404 or a 409
+   * reaches the caller on the first attempt.
    *
    * A `deadline` bounds the whole call: each attempt is abandoned at it, and
    * neither an attempt nor the wait before a retry is started unless at least
    * `minAttemptMs` would be left before it. A request refused that way rejects
    * with a `FileServiceError` that has no status.
    */
-  private async send(method: string, path: string, body?: object, deadline = Number.POSITIVE_INFINITY): Promise<any> {
+  private async send(method: string, path: string, body?: object, deadline = Number.POSITIVE_INFINITY): Promise<FileServiceResponse> {
     for (let attempt = 0; ; attempt += 1) {
       const timeLeftMs = deadline - Date.now();
       if (timeLeftMs < this.minAttemptMs) {
@@ -241,7 +323,7 @@ export class FileServiceClient implements FileService {
    * Make one attempt at a request, abandoned after `timeoutMs`. The body is
    * always read, so the connection is released even when it is not needed.
    */
-  private async sendOnce(method: string, path: string, body: object | undefined, timeoutMs: number): Promise<any> {
+  private async sendOnce(method: string, path: string, body: object | undefined, timeoutMs: number): Promise<FileServiceResponse> {
     const headers: Record<string, string> = {
       Authorization: `APIKey ${this.apiKey}`,
       'dana-org-id': this.orgId,
@@ -269,6 +351,6 @@ export class FileServiceClient implements FileService {
         response.status,
       );
     }
-    return text ? JSON.parse(text) : undefined;
+    return { body: text ? JSON.parse(text) : undefined, headers: response.headers };
   }
 }

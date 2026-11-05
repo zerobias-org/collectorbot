@@ -1,12 +1,32 @@
 import { setTimeout as sleep } from 'node:timers/promises';
-import { ConnectionMetadata, UnexpectedError, UUID } from '@zerobias-org/types-core-js';
+import {
+  ConnectionMetadata, HubConnectionProfile, IllegalArgumentError, Tag, UnexpectedError, UUID,
+} from '@zerobias-org/types-core-js';
 import { Batch } from '@zerobias-org/util-collector';
 import { extractRows, resolveMappingSql, SavedQueryRegistry } from '@zerobias-org/data-utils';
 import { injectable } from 'inversify';
 import { BaseClient } from '../generated/BaseClient.js';
-import { FileService, FileServiceClient, FileServiceFile, FileServiceFileStatus, isFileNotFound } from './FileServiceClient.js';
+import {
+  FileService, FileServiceClient, FileServiceFile, FileServiceFileStatus, FileServiceRecordsPage, isFileNotFound,
+} from './FileServiceClient.js';
 import { applyMappings } from './Mappers.js';
-import { DataMapping, DataMappingParams, DataMappingSource, PipelineFile, PipelineFileRecord } from './types/index.js';
+import {
+  DataMapping, DataMappingParams, DataMappingSource, FileSourceRecord, MappingFileSource, PipelineFile, PipelineFileRecord,
+} from './types/index.js';
+
+/** The `moduleTargets` key of the job's DataProducer target, as the generated container reads it. */
+const DATAPRODUCER_TARGET = 'module-interface-dataproducer';
+
+/** Rows read per file-service records page for a file-backed mapping. */
+const FILE_RECORDS_PAGE_SIZE = 100;
+
+/**
+ * The most records pages a file-backed mapping reads: 10,000, 1,000,000
+ * records at 100 per page, as many as a collection gets (see
+ * `COLLECTION_MAX_PAGES`). A container that holds more fails before its
+ * first page is read.
+ */
+export const FILE_RECORDS_MAX_PAGES = 10_000;
 
 /** How many File records go to the platform in one `addItems` call. */
 const FILE_CHUNK_SIZE = 500;
@@ -86,6 +106,13 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
   private _fileService?: FileService;
 
   /**
+   * Why initializing the Hub target failed in this run, when it did (see
+   * `initHubTarget`). Every mapping that reads from the target fails its batch
+   * with it.
+   */
+  private hubInitError?: Error;
+
+  /**
    * The bounds on waiting for Hub copies: at most `perFileMs` for one file
    * and `perRunMs` for all of a run's files together, polling every `pollMs`.
    * Tests shorten them.
@@ -122,9 +149,10 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
   }
 
   /**
-   * The file-service client pipeline files are collected through. It is
-   * built from the job's context on first use, so runs without `files` never
-   * create one; tests assign a fake here instead.
+   * The file-service client that pipeline files are collected through and
+   * that file-backed mappings read from. It is built from the job's context
+   * on first use, so runs that need neither never create one; tests assign a
+   * fake here instead.
    */
   get fileService(): FileService {
     if (!this._fileService) {
@@ -137,33 +165,88 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     this._fileService = fileService;
   }
 
+  /**
+   * Connect the DataProducer to the job's Hub target, unless it is already
+   * connected, and read the target's metadata, whose tags go on the batches of
+   * the mappings that read from it. Under hub-client the DataProducer arrives
+   * unconnected (see `src/index.ts`), so this is the first call to reach the
+   * target. A failure is logged and thrown with its cause.
+   */
   private async init() {
     this.logger.info('Initializing ZeroBias Data Producer collector');
     try {
+      if (!(await this.dataproducer.isConnected())) {
+        await this.dataproducer.connect(this.dataProducerProfile());
+      }
       this.connectionMetadata = await this.dataproducer.metadata();
       this.logger.info('Connection metadata retrieved');
     } catch (error) {
-      this.logger.error(`Failed to get metadata: ${(error as Error).message}`);
-      throw new Error('Unable to initialize collector');
+      const message = (error as Error)?.message ?? String(error);
+      this.logger.error(`Failed to get metadata: ${message}`);
+      throw new Error(`Unable to initialize collector: ${message}`);
     }
   }
 
   /**
-   * Create a batch for `className` in `groupId`. `deletesEnabled` is fixed
-   * once the batch is created; leaving it undefined keeps the platform
-   * default (on).
+   * The connection profile of the job's DataProducer target, built as the
+   * generated container builds it. A context that names no such target
+   * throws, which fails only the mappings that read from it.
+   */
+  private dataProducerProfile(): HubConnectionProfile {
+    const target = this.context.moduleTargets?.[DATAPRODUCER_TARGET];
+    if (!target?.targetId) {
+      throw new IllegalArgumentError(`Missing ${DATAPRODUCER_TARGET} module connection configuration with a targetId`);
+    }
+    return HubConnectionProfile.newInstance({
+      apiKey: this.context.apiKey,
+      server: this.context.server,
+      targetId: target.targetId,
+      orgId: this.context.orgId,
+    });
+  }
+
+  /**
+   * Initialize the Hub target (see `init`) when some mapping reads from it
+   * (see `readsFromHubTarget`). A failure is kept in `hubInitError` rather than
+   * thrown: each of those mappings then fails its own batch with it, while
+   * the mappings that read uploaded files still run. Without such a mapping
+   * the target is never reached, so a pipeline that only reads uploaded files
+   * runs while its Hub connection is down.
+   */
+  private async initHubTarget(dataMappings: DataMapping[]): Promise<void> {
+    this.hubInitError = undefined;
+    const hubMappings = dataMappings.filter((dataMapping) => readsFromHubTarget(dataMapping.source)).length;
+    if (hubMappings === 0) {
+      this.logger.info('No data mapping reads from the Hub target, so it is not initialized');
+      return;
+    }
+    try {
+      await this.init();
+    } catch (error) {
+      this.hubInitError = error as Error;
+      this.logger.warn(
+        `The Hub target could not be initialized, so the ${hubMappings} data mapping(s) that read from it fail; ` +
+        `the other ${dataMappings.length - hubMappings} still run`
+      );
+    }
+  }
+
+  /**
+   * Create a batch for `className` in `groupId`, tagged with `tags`.
+   * `deletesEnabled` is fixed once the batch is created; leaving it undefined
+   * keeps the platform default (on).
    */
   private async initBatchForClass(
     className: string,
     groupId: string,
-    deletesEnabled?: boolean,
+    { deletesEnabled, tags }: { deletesEnabled?: boolean; tags?: Tag[] } = {},
   ): Promise<Batch<any>> {
     const batch = new Batch<any>(
       className,
       this.platform,
       this.logger,
       this.jobId,
-      this.connectionMetadata?.tags,
+      tags,
       groupId,
       deletesEnabled,
     );
@@ -193,12 +276,17 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
 
   /**
    * Yield source items for a mapping. Branches on the source variant:
+   *  - `file` set → read an uploaded file through file-service
+   *    (see `fetchFileSourceItems`); the Hub target is never touched.
    *  - SQL resolved (via `sourceQueryKey` → registry, or legacy `sql`) →
    *    invoke the producer's query function and stream rows from the
    *    (normalised) result set.
    *  - otherwise → page through `getCollectionElements`.
    *
-   * Both paths produce the same item shape (a plain row object) so the
+   * The last two read from the Hub target, so when it could not be
+   * initialized (see `initHubTarget`) they throw its error instead.
+   *
+   * Every path produces the same item shape (a plain row object) so the
    * caller treats them identically.
    *
    * `queries` is the pipeline-level saved-query registry threaded down
@@ -218,10 +306,23 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     source: DataMappingSource,
     queries: SavedQueryRegistry,
   ): AsyncIterable<any> {
+    if (source.file) {
+      yield* this.fetchFileSourceItems(source.file);
+      return;
+    }
+
+    const { objectId } = source;
+    if (!objectId) {
+      throw new Error(`Mapping source "${source.objectName}" has neither an objectId nor a file`);
+    }
+    if (this.hubInitError) {
+      throw this.hubInitError;
+    }
+
     const sql = resolveMappingSql(source, queries);
     if (sql) {
       this.logger.info(
-        `Invoking query function ${source.objectId} with ` +
+        `Invoking query function ${objectId} with ` +
         (source.sourceQueryKey
           ? `saved query key=${source.sourceQueryKey}: ${sql}`
           : `persisted SQL: ${sql}`)
@@ -232,7 +333,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
       // shape but the wire payload is just JSON, so cast to bypass the
       // codegen narrowing.
       const raw = await functionsApi.invokeFunction(
-        source.objectId,
+        objectId,
         { sql } as any,
       );
 
@@ -248,16 +349,126 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
       return;
     }
 
-    this.logger.info(`Fetching collection elements from: ${source.objectId}`);
+    this.logger.info(`Fetching collection elements from: ${objectId}`);
     const collectionsApi = this.dataproducer.getCollectionsApi();
     const results = await collectionsApi.getCollectionElements(
-      source.objectId,
+      objectId,
       1,         // pageNumber
       100        // pageSize (max is 100)
     );
     results.maxPages = COLLECTION_MAX_PAGES;
     results.detectDuplicatePages = true;
     for await (const item of results) yield item;
+  }
+
+  /**
+   * Yield the items of a file-backed mapping, all from one version: the
+   * file's current ready version, `fileVersionId` in its metadata. That is
+   * the records of `containerPath` (see `fetchContainerRecords`) or, with no
+   * `containerPath`, the file itself as one `FileSourceRecord`. A file
+   * file-service answers 404 for, or one with no ready version yet, throws
+   * with a message saying so, which fails the mapping's batch.
+   */
+  private async *fetchFileSourceItems(file: MappingFileSource): AsyncIterable<any> {
+    let view: FileServiceFile;
+    try {
+      view = await this.fileService.getFile(file.fileId);
+    } catch (error) {
+      if (isFileNotFound(error)) {
+        throw new Error(`Source file ${file.fileId} was not found: file-service answered 404, so it was deleted or this job cannot see it`);
+      }
+      throw error;
+    }
+    const versionId = view.fileVersionId;
+    if (!versionId) {
+      throw new Error(`Source file ${file.fileId} is not ready yet: it has no ready version, as while its upload or copy is still running`);
+    }
+
+    if (!file.containerPath) {
+      this.logger.info(`Reading source file ${file.fileId} (version ${versionId}) as one record`);
+      const record: FileSourceRecord = {
+        id: file.fileId,
+        fileVersionId: versionId,
+        name: view.name ?? null,
+        mimeType: view.mimeType ?? null,
+        size: view.size ?? null,
+        created: view.created ?? null,
+        updated: view.updated ?? null,
+      };
+      yield record;
+      return;
+    }
+
+    yield* this.fetchContainerRecords(file.fileId, versionId, file.containerPath);
+  }
+
+  /**
+   * Yield every record of the container at `containerPath` in version
+   * `versionId` of source file `fileId`, `FILE_RECORDS_PAGE_SIZE` at a time.
+   *
+   * The container's own record count, read first, is the total. The records
+   * endpoint's `count` header is not trusted to be one: a file-service that
+   * ignores `pageNumber` and `pageSize` there (2.0.18 does) returns its first
+   * 50 rows for every page and counts only those, so a sheet past 50 rows
+   * would otherwise read as complete. Paging stops at the total, so no page
+   * past the end is asked for, and fails before the first page when the total
+   * would take more than `FILE_RECORDS_MAX_PAGES` pages.
+   *
+   * Each page must hold the next `FILE_RECORDS_PAGE_SIZE` records, or the
+   * rest. One that repeats the page before, or holds more rows than due, is
+   * refused before any of its rows is yielded, so no row is sent twice. One
+   * that holds fewer, or whose `count` header disagrees with the total, is
+   * refused once its rows are taken, so a preview that needs no more rows
+   * never asks. Every refusal throws, which fails the mapping's batch closed.
+   */
+  private async *fetchContainerRecords(
+    fileId: string,
+    versionId: string,
+    containerPath: string,
+  ): AsyncIterable<Record<string, unknown>> {
+    const where = `${containerPath} of source file ${fileId} (version ${versionId})`;
+    let total: number | null | undefined;
+    try {
+      ({ records: total } = await this.fileService.getContainer(versionId, containerPath));
+    } catch (error) {
+      if (isFileNotFound(error)) {
+        throw new Error(`${where} was not found: file-service answered 404, so the file was deleted or has no such container`);
+      }
+      throw error;
+    }
+    if (typeof total !== 'number' || !Number.isInteger(total) || total < 0) {
+      throw new Error(`file-service gave no record count for ${where}`);
+    }
+    const pages = Math.max(1, Math.ceil(total / FILE_RECORDS_PAGE_SIZE));
+    if (pages > FILE_RECORDS_MAX_PAGES) {
+      throw new Error(
+        `${where} holds ${total} records, more than the ${FILE_RECORDS_MAX_PAGES} pages of ${FILE_RECORDS_PAGE_SIZE} a mapping reads`
+      );
+    }
+
+    this.logger.info(`Reading the ${total} record(s) of ${where}`);
+    let previous: string | undefined;
+    let read = 0;
+    for (let pageNumber = 1; pageNumber <= pages; pageNumber += 1) {
+      const page = await this.fileService.listContainerRecords(versionId, containerPath, pageNumber, FILE_RECORDS_PAGE_SIZE);
+      const due = Math.min(FILE_RECORDS_PAGE_SIZE, total - read);
+      const rows = JSON.stringify(page.items);
+      if (page.items.length > 0 && rows === previous) {
+        throw new Error(
+          `file-service did not advance through the records of ${where}: page ${pageNumber} holds the same rows as page ${pageNumber - 1}`
+        );
+      }
+      if (page.items.length > due) {
+        throw new Error(unpagedMessage(where, pageNumber, page, due, total));
+      }
+      previous = rows;
+      for (const row of page.items) yield row;
+      read += page.items.length;
+      if (page.items.length < due || (page.count >= 0 && page.count !== total)) {
+        throw new Error(unpagedMessage(where, pageNumber, page, due, total));
+      }
+    }
+    this.logger.info(`Read the ${read} record(s) of ${where}`);
   }
 
   /**
@@ -275,6 +486,10 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    * `failBatch`), so the platform never treats the partial item list as
    * complete and deletes every object it left out. The fetch error is
    * rethrown either way.
+   *
+   * Only a batch whose rows come from the Hub target carries the target's
+   * tags. A file-backed batch carries none, like the File batch, so its tags
+   * don't depend on whether the run also read from the target, or could.
    */
   private async processDataMapping(
     dataMapping: DataMapping,
@@ -288,8 +503,8 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
       `(${source.objectName} -> ${destination.className})`
     );
 
-    // Initialize batch for the destination class
-    const batch = await this.initBatchForClass(destination.className, groupId);
+    const tags = readsFromHubTarget(source) ? this.connectionMetadata?.tags : undefined;
+    const batch = await this.initBatchForClass(destination.className, groupId, { tags });
 
     try {
       // Process each item through the mappings
@@ -442,7 +657,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     this.logger.info(
       `Sending ${records.length} pipeline file(s) as a File batch (deletes ${deletesEnabled ? 'on' : 'off'})`
     );
-    const batch = await this.initBatchForClass('File', `pipeline-files:${pipelineId}`, deletesEnabled);
+    const batch = await this.initBatchForClass('File', `pipeline-files:${pipelineId}`, { deletesEnabled });
     try {
       if (!deletesEnabled) {
         await batch.warn(`Deletes are off for this run: ${reasons.join('; ')}`);
@@ -672,9 +887,15 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    * Collect the pipeline's files when this job's launch params carry `files`
    * (see `processFiles`), then run its data mappings. Files go first, ahead of
    * the no-mappings return, so a pipeline that only has files still collects
-   * them; a failure there is logged and the data mappings still run. `init()`
-   * runs only when there are data mappings, so a files-only pipeline makes no
-   * DataProducer call.
+   * them; a failure there is logged and the data mappings still run.
+   *
+   * The Hub target is initialized only when a mapping reads from it (see
+   * `initHubTarget`), so a pipeline whose mappings only read uploaded files
+   * makes no DataProducer call. When it can't be initialized, only the
+   * mappings that read from it fail. A mapping that fails is reported the
+   * same way whatever the cause: its batch is failed closed (see `failBatch`),
+   * the error is logged, and the run goes on and completes, leaving the
+   * platform to judge the job from its batches' error logs.
    */
   public async run(parameters?: DataMappingParams): Promise<void> {
     if (parameters) {
@@ -698,7 +919,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
       return;
     }
 
-    await this.init();
+    await this.initHubTarget(dataMappings);
 
     this.logger.info(
       `Processing ${dataMappings.length} data mapping(s)` +
@@ -721,6 +942,26 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
 
     this.logger.info('All data mappings completed');
   }
+}
+
+/**
+ * Whether a mapping source reads from the Hub target: one with an `objectId`
+ * (a collection, or a query function) and no `file`.
+ */
+function readsFromHubTarget(source: DataMappingSource): boolean {
+  return !source.file && Boolean(source.objectId);
+}
+
+/**
+ * Explain a records page of `where` that is not the page asked for: it holds
+ * a different number of rows than the `due` that the container's `total`
+ * leaves for it, or counts a different total.
+ */
+function unpagedMessage(where: string, pageNumber: number, page: FileServiceRecordsPage, due: number, total: number): string {
+  const counted = page.count >= 0 ? ` and a count of ${page.count}` : '';
+  return `file-service did not page the records of ${where}: page ${pageNumber} returned ${page.items.length} row(s)${counted}, ` +
+    `but the container holds ${total} record(s), so ${due} were due on that page; ` +
+    'a file-service that ignores pageNumber and pageSize returns its first rows for every page';
 }
 
 /**
