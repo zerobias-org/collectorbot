@@ -50,9 +50,9 @@ export * from '../generated';
 
 1. **Imports**
 ```typescript
-import { ConnectionMetadata } from '@auditmation/hub-core';
-import { UUID } from '@auditmation/types-core-js';
-import { Batch } from '@auditmation/util-collector-utils';
+import { ConnectionMetadata } from '@com/hub-core';
+import { UUID } from '@org/types-core-js';
+import { Batch } from '@com/util-collector-utils';
 import { injectable } from 'inversify';
 import { BaseClient } from '../generated/BaseClient';
 // Import schema types from -ts packages

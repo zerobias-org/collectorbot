@@ -1485,7 +1485,7 @@ const resources = await this.module.list();
 **For specific operations that need retry:**
 
 ```typescript
-import { retry } from '@auditmation/types-core-js';
+import { retry } from '@org/types-core-js';
 
 // Retry with exponential backoff
 const resources = await retry(
