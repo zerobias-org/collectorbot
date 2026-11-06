@@ -1,8 +1,8 @@
 {
-  "version": "1.1.1",
-  "branch": "feat/pipeline-file-sources",
-  "sourceHash": "2c7c14636d65e0372039f119cc45aa4ab43e0a085d76d98d97f0079202cab6ed",
-  "testHash": "4f08f86df63e69e3120801745efffdb417719d4f11dc03a4e31e478057d4d2c9",
+  "version": "1.1.1-uat.0",
+  "branch": "feat/mapping-pipeline-id",
+  "sourceHash": "e73b0e77710974bf385538f7452e9a63f1a0bc8fa3cfeb4527efc4a091386f85",
+  "testHash": "36f554a56bfa13b636bda7fa15eac78cdf03258167776011e78bb26c5bdf1045",
   "tasks": {
     "validate": "passed",
     "lint": "passed",
@@ -15,7 +15,7 @@
     "dataloaderExec": "passed"
   },
   "tests": {
-      "unit": { "expected": 95, "ran": 95, "status": "passed" },
+      "unit": { "expected": 96, "ran": 96, "status": "passed" },
       "integration": { "expected": 5, "ran": 5, "status": "passed" },
       "e2e": { "expected": 0, "ran": 0, "status": "skipped" }
   }
