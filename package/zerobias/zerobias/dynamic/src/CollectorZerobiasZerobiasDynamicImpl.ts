@@ -490,6 +490,11 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    * Only a batch whose rows come from the Hub target carries the target's
    * tags. A file-backed batch carries none, like the File batch, so its tags
    * don't depend on whether the run also read from the target, or could.
+   *
+   * Mapping expressions can read the pipeline's id as `$pipelineId` (the
+   * group the batch goes to), so a template can make ids from a workbook that
+   * several pipelines load unique to each one: the platform's linker resolves
+   * a reference by id across the whole org.
    */
   private async processDataMapping(
     dataMapping: DataMapping,
@@ -519,8 +524,8 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
 
         let mappedItem: any;
         try {
-          // Apply mappings to transform the item
-          const { result, errors } = await applyMappings(item, mappings);
+          // Expressions read the pipeline as $pipelineId, so ids mapped from a shared workbook can be unique to it
+          const { result, errors } = await applyMappings(item, mappings, { pipelineId: groupId });
           mappedItem = result;
 
           if (errors.length > 0) {

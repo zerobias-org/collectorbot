@@ -389,6 +389,38 @@ describe('CollectorZerobiasZerobiasDynamicImpl — mappings from an uploaded fil
     });
   });
 
+  describe('mapping expressions', () => {
+    it('can read the pipeline id as $pipelineId, so ids from a shared workbook are unique to the pipeline', async () => {
+      const h = newHarness();
+      h.files.views.set(SHEET_FILE, { id: SHEET_FILE, fileVersionId: 'v-1', name: 'floorplan.xlsx' });
+      h.files.records.set('v-1:/PhysicalSpace', [
+        { id: 'plan-a/space/hall', placedIn: 'plan-a' },
+        { id: 'plan-a/space/kitchen' },
+      ]);
+      const expression = (key: string, expr: string) => ({
+        id: `r-${key}`,
+        source: { key, name: key, type: 'string', level: 0 },
+        transform: { type: 'expression', options: { expression: expr } },
+        destination: { key, name: key },
+      });
+      const mapping = {
+        ...fileMapping({ fileId: SHEET_FILE, containerPath: '/PhysicalSpace' }),
+        mappings: [
+          expression('id', 'id != null ? $pipelineId & "/" & $string(id)'),
+          expression('placedIn', 'placedIn ? $pipelineId & "/" & placedIn'),
+        ],
+      } as unknown as DataMapping;
+
+      await runToCompletion(h, { dataMappings: [mapping] });
+
+      // As the platform receives them: JSON leaves out the undefined placedIn of the second row
+      expect(JSON.parse(JSON.stringify(sent(h, 'PhysicalSpace')))).to.deep.equal([
+        { id: `${PIPELINE_ID}/plan-a/space/hall`, placedIn: `${PIPELINE_ID}/plan-a` },
+        { id: `${PIPELINE_ID}/plan-a/space/kitchen` },
+      ]);
+    });
+  });
+
   describe('a file-service that does not page', () => {
     it('fails a sheet past 50 rows cleanly, sending no row twice, when every page is the first 50 rows (2.0.18)', async () => {
       const h = newHarness();
