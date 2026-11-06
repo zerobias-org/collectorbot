@@ -1,0 +1,23 @@
+openapi: 3.0.3
+info:
+  description: Stub to use for codegen of parameters for a hub client
+  version: ''
+  title: '@auditmation/hub-client-codegen'
+paths:
+  /foo:
+    get:
+      tags:
+        - foo
+      operationId: getFoo
+      responses:
+        '204':
+          description: Foo
+components:
+  schemas:
+    Parameters:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Optional Stellar Cyber case status filter (e.g. New, In Progress, Closed). If omitted, all cases are collected.
+          example: 'New'
