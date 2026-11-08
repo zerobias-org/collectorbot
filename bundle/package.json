@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/collectorbot-bundle",
-  "version": "0.0.52",
+  "version": "0.0.53",
   "description": "All installable collectorbots",
   "author": "team@auditmation.io",
   "license": "ISC",
@@ -24,6 +24,6 @@
     "@zerobias-org/collectorbot-microsoft-azure-azureresourcegraph": "0.0.0",
     "@zerobias-org/collectorbot-zerobias-schemas-agentskills": "0.1.12",
     "@zerobias-org/collectorbot-zerobias-schemas-mcpservers": "0.1.2",
-    "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": "1.1.1"
+    "@zerobias-org/collectorbot-zerobias-zerobias-dynamic": "1.1.2"
   }
 }
