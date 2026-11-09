@@ -535,7 +535,7 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
         expect(h.logger.at('error')).to.deep.equal([]);
       });
 
-      it('omits a file added mid-run that answers 404, with deletes still on', async () => {
+      it('fails the File batch when a file added mid-run answers 404, still sending the other records', async () => {
         const h = newHarness();
         h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
         h.pipelineApi.answers = [{ files: [UPLOAD] }, { files: [UPLOAD, MISSING] }];
@@ -543,20 +543,22 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
         await h.impl.run({ files: [UPLOAD] });
 
         const calls = h.batchApi.callsFor('File');
-        expect(ops(calls)).to.deep.equal(['create', 'addItems', 'end']);
-        expect(calls[0].arg).to.include({ deletesEnabled: true });
+        expect(ops(calls)).to.deep.equal(['create', 'addItems', 'log', 'end']);
+        expect(calls[0].arg).to.include({ deletesEnabled: false });
         expect(payloads(calls[1]).map((record) => record.id)).to.deep.equal([UPLOAD.fileId]);
+        expect(calls[2].arg.message).to.contain(`"gone.txt" (${MISSING.fileId}): file-service answered 404 for it`);
         expect(h.files.calls).to.include(`get ${MISSING.fileId}`);
       });
 
-      it('sends no File batch when the only file, added mid-run, answers 404', async () => {
+      it('fails an empty File batch when the only file, added mid-run, answers 404', async () => {
         const h = newHarness();
         h.pipelineApi.answers = [{ files: [] }, { files: [MISSING] }];
 
         await h.impl.run({ files: [] });
 
-        expect(h.batchApi.calls).to.deep.equal([]);
-        expect(h.logger.at('warn').some((m) => m.includes('answered 404 for all 1 pipeline file(s)'))).to.equal(true);
+        const calls = h.batchApi.callsFor('File');
+        expect(ops(calls)).to.deep.equal(['create', 'log', 'end']);
+        expect(calls[1].arg.message).to.contain('file-service answered 404 for all 1 pipeline file(s)');
       });
 
       it('shares the deadline with the collection of files added mid-run', async () => {
@@ -688,34 +690,43 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
       expect(h.files.calls).to.deep.equal([`get ${UPLOAD.fileId}`]);
     });
 
-    it('leaves files that answer 404 out with deletes still on, and never copies a gone Hub file', async () => {
+    it('fails the File batch with deletes off when files answer 404, sending the other records and never copying a gone Hub file', async () => {
       const h = newHarness();
       h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
 
       await runWithFiles(h, [UPLOAD, MISSING, GONE_HUB]);
 
       const calls = h.batchApi.callsFor('File');
-      expect(ops(calls)).to.deep.equal(['create', 'addItems', 'end']);
-      expect(calls[0].arg).to.include({ deletesEnabled: true });
+      expect(ops(calls)).to.deep.equal(['create', 'addItems', 'log', 'end']);
+      expect(calls[0].arg).to.include({ deletesEnabled: false });
       expect(payloads(calls[1]).map((record) => record.id)).to.deep.equal([UPLOAD.fileId]);
+      expect(calls[2].arg.logLevel).to.equal(BatchLogLevelEnum.Error);
+      expect(calls[2].arg.data).to.deep.equal({ transient: false });
+      expect(calls[2].arg.message)
+        .to.contain("2 pipeline file(s) can't be refreshed")
+        .and.contain(`"gone.txt" (${MISSING.fileId}): file-service answered 404 for it`)
+        .and.contain(`"deleted.csv" (${GONE_HUB.fileId})`)
+        .and.contain('remove it from the pipeline');
       expect(h.files.copies).to.deep.equal([]);
       expect(h.logger.at('warn').filter((m) => m.includes('answered 404 for pipeline file'))).to.have.length(2);
     });
 
-    it('sends no File batch when every listed file answers 404', async () => {
+    it('fails an empty File batch, saying a wrong URL or missing access looks the same, when every listed file answers 404', async () => {
       const h = newHarness();
 
       await runWithFiles(h, [MISSING, GONE_HUB]);
 
-      expect(h.batchApi.calls).to.deep.equal([]);
+      const calls = h.batchApi.callsFor('File');
+      expect(ops(calls)).to.deep.equal(['create', 'log', 'end']);
+      expect(calls[0].arg).to.include({ deletesEnabled: false });
+      expect(calls[1].arg.message).to.contain(
+        'file-service answered 404 for all 2 pipeline file(s), as it would for a wrong file-service URL or missing access',
+      );
       expect(h.files.copies).to.deep.equal([]);
       expect(h.pipelineApi.gets).to.have.length(2);
-      expect(h.logger.at('warn').some((m) => m.includes('answered 404 for all 2 pipeline file(s)') && m.includes('sending no File batch')))
-        .to.equal(true);
-      expect(h.logger.at('error')).to.deep.equal([]);
     });
 
-    it('does not count a 404 from a copy as a gone file', async () => {
+    it('fails the File batch when a Hub copy answers 404, sending the version file-service has rather than counting the file gone', async () => {
       const h = newHarness();
       h.files.views.set(HUB.fileId, { fileVersionId: 'v-hub', size: 512 });
       h.files.copyError = new FileServiceError('file-service PUT /copyFile returned 404: no such object on the target', 404);
@@ -723,8 +734,14 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
       await runWithFiles(h, [HUB]);
 
       const calls = h.batchApi.callsFor('File');
-      expect(calls[0].arg).to.include({ deletesEnabled: true });
+      expect(ops(calls)).to.deep.equal(['create', 'addItems', 'log', 'end']);
+      expect(calls[0].arg).to.include({ deletesEnabled: false });
       expect(payloads(calls[1]).map((record) => record.fileVersionId)).to.deep.equal(['v-hub']);
+      expect(calls[2].arg.message).to.contain(
+        `"evidence.csv" (${HUB.fileId}): it is no longer at its location on target 3a9f1c27-6e4b-4d8a-b5c3-1f2e3d4c5b6a ` +
+        '(file-service answered 404)',
+      );
+      expect(h.logger.at('warn').some((m) => m.includes('leaving it out as gone'))).to.equal(false);
     });
 
     it('leaves a file with no ready version out with deletes still on', async () => {
@@ -761,15 +778,31 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
       expect(h.logger.at('error')).to.deep.equal([]);
     });
 
-    it('sends no batch when nothing produced a record and something is unresolved', async () => {
+    it('sends no batch when nothing produced a record, nothing failed and something is unresolved', async () => {
+      const h = newHarness();
+      h.files.views.set(NO_VERSION.fileId, NOT_READY_VIEW);
+      h.files.viewErrors.set(BROKEN.fileId, new FileServiceError('file-service GET /files/x/metadata failed: fetch failed'));
+
+      await runWithFiles(h, [NO_VERSION, BROKEN]);
+
+      expect(h.batchApi.callsFor('File')).to.deep.equal([]);
+      expect(h.logger.at('warn').some((m) => m.includes('sending no File batch'))).to.equal(true);
+      expect(h.logger.at('error')).to.deep.equal([]);
+    });
+
+    it('still fails the File batch when a file answers 404 and nothing produced a record', async () => {
       const h = newHarness();
       h.files.viewErrors.set(BROKEN.fileId, new FileServiceError('file-service GET /files/x/metadata failed: fetch failed'));
 
       await runWithFiles(h, [MISSING, BROKEN]);
 
-      expect(h.batchApi.callsFor('File')).to.deep.equal([]);
-      expect(h.logger.at('warn').some((m) => m.includes('sending no File batch'))).to.equal(true);
-      expect(h.logger.at('error')).to.deep.equal([]);
+      const calls = h.batchApi.callsFor('File');
+      expect(ops(calls)).to.deep.equal(['create', 'log', 'log', 'end']);
+      expect(calls[0].arg).to.include({ deletesEnabled: false });
+      expect(calls[1].arg.logLevel).to.equal(BatchLogLevelEnum.Warn);
+      expect(calls[1].arg.message).to.contain('1 of 2 pipeline file(s) could not be resolved: "broken.txt"');
+      expect(calls[2].arg.logLevel).to.equal(BatchLogLevelEnum.Error);
+      expect(calls[2].arg.message).to.contain(`1 pipeline file(s) can't be refreshed: "gone.txt" (${MISSING.fileId})`);
     });
 
     it('takes the record name from the pipeline entry, not file-service', async () => {
@@ -801,7 +834,7 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
 
     describe('copy answers from file-service', () => {
       for (const [status, meaning] of [[409, 'Hub refused the copy'], [404, 'the object is gone from the target']] as const) {
-        it(`keeps the version file-service has, without retrying, when a copy answers ${status} (${meaning})`, async () => {
+        it(`fails the File batch without retrying, still sending the version file-service has, when a copy answers ${status} (${meaning})`, async () => {
           const h = newHarness();
           const views = new Map([[HUB.fileId, { fileVersionId: 'v-hub', size: 512, mimeType: 'text/csv' } as FileServiceFile]]);
           const http = fileServiceHttp(views, [status]);
@@ -811,13 +844,15 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
 
           expect(http.requests).to.deep.equal([`GET /files/${HUB.fileId}/metadata`, 'PUT /copyFile']);
           const calls = h.batchApi.callsFor('File');
-          expect(ops(calls)).to.deep.equal(['create', 'addItems', 'end']);
-          expect(calls[0].arg).to.include({ deletesEnabled: true });
+          expect(ops(calls)).to.deep.equal(['create', 'addItems', 'log', 'end']);
+          expect(calls[0].arg).to.include({ deletesEnabled: false });
           expect(payloads(calls[1])).to.deep.equal([
             { id: HUB.fileId, name: 'evidence.csv', fileVersionId: 'v-hub', size: 512, mimeType: 'text/csv' },
           ]);
-          expect(h.logger.at('warn').some((m) => m.includes('Could not copy') && m.includes(`returned ${status}`))).to.equal(true);
-          expect(h.logger.at('error')).to.deep.equal([]);
+          expect(calls[2].arg.logLevel).to.equal(BatchLogLevelEnum.Error);
+          expect(calls[2].arg.data).to.deep.equal({ transient: false });
+          expect(calls[2].arg.message).to.contain(`(file-service answered ${status})`);
+          expect(h.logger.at('warn').some((m) => m.includes("can't be copied again") && m.includes(`answered ${status}`))).to.equal(true);
         });
       }
 

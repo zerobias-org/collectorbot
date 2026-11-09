@@ -7,7 +7,7 @@ import { extractRows, resolveMappingSql, SavedQueryRegistry } from '@zerobias-or
 import { injectable } from 'inversify';
 import { BaseClient } from '../generated/BaseClient.js';
 import {
-  FileService, FileServiceClient, FileServiceFile, FileServiceFileStatus, FileServiceRecordsPage, isFileNotFound,
+  FileService, FileServiceClient, FileServiceError, FileServiceFile, FileServiceFileStatus, FileServiceRecordsPage, isFileNotFound,
 } from './FileServiceClient.js';
 import { applyMappings } from './Mappers.js';
 import {
@@ -60,40 +60,74 @@ const COPY_SETTLED_STATES: ReadonlySet<string | null | undefined> = new Set(['re
 type HubPipelineFile = Extract<PipelineFile, { source: 'hub' }>;
 
 /**
- * What collecting one pipeline file came to: a `record` to send; `gone` when
- * file-service answered 404 for it, or `pending` when it has no ready version,
- * both left out with deletes as they are; or `unresolved` when its state is
- * unknown, which turns deletes off.
+ * What collecting one pipeline file came to:
+ * - `record`: the record to send.
+ * - `gone`: file-service answered 404 for it.
+ * - `failed`: its Hub source answered 404 or refused the copy, with the record
+ *   of the version file-service still has, when there is one.
+ * - `pending`: it has no ready version, so it is left out with deletes as they are.
+ * - `unresolved`: its state is unknown, which turns deletes off.
+ *
+ * A gone or failed file fails the run's File batch and the mappings that read
+ * it (see `processFiles`).
  */
 type FileOutcome =
   | { kind: 'record'; record: PipelineFileRecord }
   | { kind: 'gone' }
+  | { kind: 'failed'; reason: string; record?: PipelineFileRecord }
   | { kind: 'pending' }
   | { kind: 'unresolved' };
 
+/** A pipeline file this run can't refresh: its entry name and why, as the File batch's error and its mappings' name them. */
+interface FileFailure {
+  name: string;
+  reason: string;
+}
+
 /**
  * What collecting a run's pipeline files came to: the records to send, the
- * entries that turn deletes off (named for log lines), and the keys (see
- * `entryKey`) of every entry collected and of those file-service answered 404
- * for.
+ * entries that turn deletes off (named for log lines), the files that can't be
+ * refreshed, by file ID, and the keys (see `entryKey`) of every entry collected
+ * and of those file-service answered 404 for.
  */
 interface CollectedFiles {
   records: PipelineFileRecord[];
   unresolved: string[];
+  failed: Map<string, FileFailure>;
   keys: Set<string>;
   gone: Set<string>;
 }
 
 /**
  * The File batch a run sends once its list is read again (see `settleFiles`):
- * the records of files still listed, the keys of the entries listed, and why
- * deletes are off, if they are.
+ * the records and failures of files still listed, the keys of the entries
+ * listed, the file IDs listed when that read succeeded, and why deletes are
+ * off, if they are.
  */
 interface SettledFiles {
   records: PipelineFileRecord[];
+  failed: Map<string, FileFailure>;
   listedKeys: Set<string>;
+  listedFileIds?: Set<string>;
   deletesOffReasons: string[];
 }
+
+/**
+ * What a run's files step tells its data mappings (see `run`): the files that
+ * can't be refreshed, by file ID, and the file IDs the pipeline lists, known
+ * only when its list was read right before the File batch was created.
+ */
+interface FilesOutcome {
+  failed: Map<string, FileFailure>;
+  listedFileIds?: Set<string>;
+}
+
+/**
+ * What copying a Hub pipeline file again came to (see `copyHubFile`): copied,
+ * kept at the version file-service has after a failure that may pass, or
+ * failed for good with the reason.
+ */
+type CopyOutcome = { kind: 'copied' } | { kind: 'kept' } | { kind: 'failed'; reason: string };
 
 @injectable()
 export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
@@ -261,10 +295,12 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    * ending a batch whose error log was lost would have the platform import
    * its partial item list as complete, deletes included. When the log fails,
    * the batch is left open, which fails the job, and `cause` is rethrown.
+   * `data` goes on the log with the message: `{ transient: false }` tells the
+   * platform's classifier that a retry would get the same answer.
    */
-  private async failBatch(batch: Batch<any>, message: string, cause: Error): Promise<void> {
+  private async failBatch(batch: Batch<any>, message: string, cause: Error, data?: object): Promise<void> {
     try {
-      await batch.error(message);
+      await batch.error(message, data);
     } catch (logError) {
       this.logger.error(
         `Could not log the failure on the ${batch.getClassName()} batch, so it is left open: ${(logError as Error).message}`
@@ -607,29 +643,37 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    * never deletes the object of a file that is still attached. The copy-wait
    * budget (`copyWait.perRunMs`) covers both collections.
    *
-   * No batch is sent when every entry of the final, non-empty list answered
-   * 404: a wrong file-service URL or a permission problem looks the same, and
-   * the batch would delete every File object. The platform itself drops
-   * entries whose files are really gone. No batch is sent either when there is
-   * no record and deletes are off, since it would change nothing. An empty
-   * list sends an empty batch, which deletes the objects of removed files.
-   * Records go to the platform `FILE_CHUNK_SIZE` at a time.
+   * A file that can't be refreshed fails the batch. That is a file file-service
+   * answers 404 for, or a Hub file whose source answers 404 or refuses the copy
+   * (see `collectFile`).
+   * - The batch still carries every record it has, with deletes off, plus one
+   *   error naming each such file, marked terminal.
+   * - The platform then fails this batch, imports the run's other batches and
+   *   shows the pipeline in error, while every File object keeps its last version.
+   * - This holds when every file answered 404 too. A wrong file-service URL or
+   *   missing access looks the same, and the error says so.
+   * - The mappings that read those files fail as well (see `run`).
    *
-   * Problems are logged at warn, never error: an error log on the batch makes
-   * the platform fail it. The exception is a failed `addItems`, where failing
-   * the batch is the point (see `failBatch`).
+   * No batch is sent when there is no record, no failure and deletes are off,
+   * since it would change nothing. An empty list sends an empty batch, which
+   * deletes the objects of removed files. Records go to the platform
+   * `FILE_CHUNK_SIZE` at a time.
+   *
+   * Other problems are logged at warn, since an error log on the batch makes
+   * the platform fail it. A failed `addItems` fails the batch too (see `failBatch`).
    */
-  private async processFiles(launchFiles: unknown[], pipelineId: string): Promise<void> {
+  private async processFiles(launchFiles: unknown[], pipelineId: string): Promise<FilesOutcome> {
+    const nothing: FilesOutcome = { failed: new Map() };
     if (this.context.previewMode) {
       this.logger.info(`Preview run: skipping ${launchFiles.length} pipeline file(s)`);
-      return;
+      return nothing;
     }
 
     const deadline = Date.now() + this.filesDeadlineMs;
     const files = await this.currentPipelineFiles(launchFiles);
     if (!files) {
       this.logger.info('The pipeline no longer lists files; sending no File batch');
-      return;
+      return nothing;
     }
 
     this.copyWaitSpentMs = 0;
@@ -637,26 +681,20 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     const settled = await this.settleFiles(collected, deadline);
     if (!settled) {
       this.logger.info('The pipeline no longer lists files; sending no File batch');
-      return;
+      return nothing;
     }
 
-    const { records, listedKeys } = settled;
-    if (listedKeys.size > 0 && [...listedKeys].every((key) => collected.gone.has(key))) {
-      this.logger.warn(
-        `file-service answered 404 for all ${listedKeys.size} pipeline file(s), as it would for a wrong file-service URL ` +
-        'or missing access; sending no File batch, so their objects are kept'
-      );
-      return;
-    }
-
+    const { records, listedKeys, failed } = settled;
+    const outcome: FilesOutcome = { failed, listedFileIds: settled.listedFileIds };
+    const allGone = listedKeys.size > 0 && [...listedKeys].every((key) => collected.gone.has(key));
     const reasons = collected.unresolved.length > 0
       ? [`${collected.unresolved.length} of ${collected.keys.size} pipeline file(s) could not be resolved: ${nameSome(collected.unresolved)}`]
       : [];
     reasons.push(...settled.deletesOffReasons);
-    const deletesEnabled = reasons.length === 0;
-    if (records.length === 0 && !deletesEnabled) {
+    const deletesEnabled = reasons.length === 0 && failed.size === 0;
+    if (records.length === 0 && !deletesEnabled && failed.size === 0) {
       this.logger.warn(`No pipeline file produced a record and deletes are off, so sending no File batch: ${reasons.join('; ')}`);
-      return;
+      return outcome;
     }
 
     this.logger.info(
@@ -664,7 +702,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     );
     const batch = await this.initBatchForClass('File', `pipeline-files:${pipelineId}`, { deletesEnabled });
     try {
-      if (!deletesEnabled) {
+      if (reasons.length > 0) {
         await batch.warn(`Deletes are off for this run: ${reasons.join('; ')}`);
       }
       for (let start = 0; start < records.length; start += FILE_CHUNK_SIZE) {
@@ -672,22 +710,29 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
       }
     } catch (error) {
       await this.failBatch(batch, `Failed to add pipeline files to the batch: ${(error as Error).message}`, error as Error);
-      return;
+      return outcome;
+    }
+    if (failed.size > 0) {
+      const message = filesFailureMessage(failed, allGone);
+      await this.failBatch(batch, message, new Error(message), { transient: false });
+      return outcome;
     }
     await batch.end();
+    return outcome;
   }
 
   /**
    * Resolve `files` one at a time (see `collectFile`) into `collected`,
    * passing `deadline` down to every file-service call. The deadline is
    * checked before each entry: a malformed entry, an unresolved one and every
-   * entry not reached in time go in `unresolved`, and an entry file-service
-   * answered 404 for goes in `gone`.
+   * entry not reached in time go in `unresolved`. An entry file-service
+   * answered 404 for goes in `gone`, and in `failed` with one whose Hub source
+   * answered 404 or refused the copy, which also keeps the record it still has.
    */
   private async collectFiles(
     files: unknown[],
     deadline: number,
-    collected: CollectedFiles = { records: [], unresolved: [], keys: new Set(), gone: new Set() },
+    collected: CollectedFiles = { records: [], unresolved: [], failed: new Map(), keys: new Set(), gone: new Set() },
   ): Promise<CollectedFiles> {
     for (const entry of files) {
       collected.keys.add(entryKey(entry));
@@ -712,6 +757,15 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
         collected.records.push(outcome.record);
       } else if (outcome.kind === 'gone') {
         collected.gone.add(entryKey(entry));
+        collected.failed.set(entry.fileId, {
+          name: entry.name,
+          reason: 'file-service answered 404 for it, so it was deleted or this job cannot see it',
+        });
+      } else if (outcome.kind === 'failed') {
+        if (outcome.record) {
+          collected.records.push(outcome.record);
+        }
+        collected.failed.set(entry.fileId, { name: entry.name, reason: outcome.reason });
       } else if (outcome.kind === 'unresolved') {
         collected.unresolved.push(describeFile(entry));
       }
@@ -728,8 +782,11 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    * platform's own snapshot of the add, which it supersedes, so it must carry
    * their records. One of them that is malformed, unresolved or past the
    * deadline turns deletes off, as in the first collection; one that answers
-   * 404 is gone. A failed read keeps every record and turns deletes off.
-   * Returns undefined when the pipeline no longer has a `files` key.
+   * 404, or whose Hub source fails, fails like any other. The failures of files
+   * no longer listed are dropped with their records. A failed read keeps every
+   * record and failure, turns deletes off and lists no file IDs, so no mapping
+   * is taken for one whose file was removed (see `run`). Returns undefined when
+   * the pipeline no longer has a `files` key.
    */
   private async settleFiles(collected: CollectedFiles, deadline: number): Promise<SettledFiles | undefined> {
     let listed: unknown[] | undefined;
@@ -739,6 +796,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
       this.logger.warn(`Could not read the pipeline's files again before sending them, so deletes are off: ${(error as Error).message}`);
       return {
         records: collected.records,
+        failed: collected.failed,
         listedKeys: collected.keys,
         deletesOffReasons: ["the pipeline's current file list could not be read before the batch was created"],
       };
@@ -766,7 +824,9 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     }
     return {
       records: collected.records.filter((record) => listedIds.has(record.id)),
+      failed: new Map([...collected.failed].filter(([fileId]) => listedIds.has(fileId))),
       listedKeys: new Set(listed.map(entryKey)),
+      listedFileIds: listedIds,
       deletesOffReasons: [],
     };
   }
@@ -777,16 +837,26 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    * a 404 means the file is gone, and any other failure leaves it unresolved.
    * A gone Hub file is never copied, since copying it again would make
    * file-service create an orphan. A Hub file that exists is copied from its
-   * target again (see `copyHubFile`) and its view read again; when the copy
-   * call fails, the view already read is used. A failure of the second read
-   * counts the same way as one of the first. Every call is bounded by
-   * `deadline`.
+   * target again (see `copyHubFile`), and its view is read again.
+   * - When its source answers 404 or refuses the copy, the file `failed`, with
+   *   the record of the view already read, so its object keeps that version.
+   * - When the copy call fails any other way, the view already read is used.
+   *
+   * A failure of the second read counts the same way as one of the first.
+   * Every call is bounded by `deadline`.
    */
   private async collectFile(entry: PipelineFile, deadline: number): Promise<FileOutcome> {
     try {
       let view = await this.fileService.getFile(entry.fileId, { deadline });
-      if (entry.source === 'hub' && await this.copyHubFile(entry, deadline)) {
-        view = await this.fileService.getFile(entry.fileId, { deadline });
+      if (entry.source === 'hub') {
+        const copy = await this.copyHubFile(entry, deadline);
+        if (copy.kind === 'failed') {
+          const kept = this.fileOutcome(entry, view);
+          return { kind: 'failed', reason: copy.reason, record: kept.kind === 'record' ? kept.record : undefined };
+        }
+        if (copy.kind === 'copied') {
+          view = await this.fileService.getFile(entry.fileId, { deadline });
+        }
       }
       return this.fileOutcome(entry, view);
     } catch (error) {
@@ -802,13 +872,15 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
   /**
    * Copy a Hub pipeline file from its target again, so its latest remote
    * contents become a new version, and wait for file-service to fetch them
-   * (see `awaitCopy`). Never throws: it returns false when the copy call
-   * itself failed, after a warning, so the caller keeps the view it read.
-   * That includes file-service answering 409 because Hub refused the copy, or
-   * 404 because the object is no longer on the target, neither of which is
-   * retried.
+   * (see `awaitCopy`). It never throws, and when the copy call itself fails:
+   * - A 404, because the object is no longer on the target, or a 409, because
+   *   Hub refused the copy, is `failed` with the reason (see `sourceFailure`).
+   *   A retry would get the same answer, so neither is retried.
+   * - Any other failure is `kept` after a warning, so the caller keeps the
+   *   view it read, as a fetch the client already retried may pass by the
+   *   next run.
    */
-  private async copyHubFile(entry: HubPipelineFile, deadline: number): Promise<boolean> {
+  private async copyHubFile(entry: HubPipelineFile, deadline: number): Promise<CopyOutcome> {
     let status: FileServiceFileStatus | undefined;
     try {
       ({ status } = await this.fileService.copyFile({
@@ -817,16 +889,21 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
         destinationPath: entry.destinationPath,
       }, { deadline }));
     } catch (error) {
+      const reason = sourceFailure(entry, error);
+      if (reason) {
+        this.logger.warn(`Pipeline file ${describeFile(entry)} can't be copied again: ${reason}`);
+        return { kind: 'failed', reason };
+      }
       this.logger.warn(
         `Could not copy pipeline file ${describeFile(entry)} again from target ${entry.targetId}; ` +
         `using the version file-service already has: ${(error as Error).message}`
       );
-      return false;
+      return { kind: 'kept' };
     }
     if (await this.awaitCopy(entry, deadline, status) === 'error') {
       this.logger.warn(`file-service could not copy pipeline file ${describeFile(entry)} again; using the version it already has`);
     }
-    return true;
+    return { kind: 'copied' };
   }
 
   /**
@@ -889,10 +966,81 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
   }
 
   /**
+   * Fail the batch of a mapping whose source file this run can't refresh (see
+   * `processFiles`), without reading the copy file-service still has. The
+   * mapping's objects keep their last version rather than taking rows that may
+   * be stale.
+   *
+   * The batch has deletes off and a terminal error, since a retry gets the
+   * same answer. The error is rethrown, so the run logs the mapping as failed.
+   */
+  private async failMappingOfFailedFile(
+    dataMapping: DataMapping,
+    groupId: string,
+    fileId: string,
+    failure: FileFailure,
+  ): Promise<void> {
+    const message = `Source file "${failure.name}" (${fileId}) can't be refreshed: ${failure.reason}. ` +
+      "This mapping's objects keep their last version.";
+    const batch = await this.initBatchForClass(dataMapping.destination.className, groupId, { deletesEnabled: false });
+    const error = new Error(message);
+    await this.failBatch(batch, message, error, { transient: false });
+    throw error;
+  }
+
+  /**
+   * Delete the objects of mappings whose source file the pipeline no longer
+   * lists: removing a file from the pipeline removes what it was collected
+   * into. Their files are not read.
+   * - **No other mapping of this run sent the class:** it gets one empty batch,
+   *   whose deletes give its objects deleted, empty versions.
+   * - **Another mapping sent the class:** it is left to that batch. Its deletes
+   *   already take out the objects it no longer carries, and an empty batch of
+   *   the same class and group would delete that mapping's objects too.
+   *
+   * Preview runs send nothing.
+   */
+  private async clearRemovedMappings(removed: DataMapping[], sentClasses: Set<string>, groupId: string): Promise<void> {
+    if (removed.length === 0) {
+      return;
+    }
+    if (this.context.previewMode) {
+      this.logger.info(`Preview run: not clearing the ${removed.length} data mapping(s) whose file the pipeline no longer lists`);
+      return;
+    }
+    const byClass = new Map<string, string[]>();
+    for (const dataMapping of removed) {
+      const { className } = dataMapping.destination;
+      byClass.set(className, [...(byClass.get(className) ?? []), dataMapping.metadata.name || dataMapping.id]);
+    }
+    for (const [className, names] of byClass) {
+      const which = `${names.length} data mapping(s) into ${className} read a file the pipeline no longer lists: ${nameSome(names)}`;
+      if (sentClasses.has(className)) {
+        this.logger.info(`${which}. The class's other batch deletes their objects`);
+        continue;
+      }
+      this.logger.info(`${which}. Sending an empty ${className} batch, so their objects are deleted`);
+      try {
+        const batch = await this.initBatchForClass(className, groupId);
+        await batch.end();
+      } catch (error) {
+        this.logger.error(`Failed to clear the ${className} objects of a removed file: ${(error as Error).message}`);
+      }
+    }
+  }
+
+  /**
    * Collect the pipeline's files when this job's launch params carry `files`
    * (see `processFiles`), then run its data mappings. Files go first, ahead of
    * the no-mappings return, so a pipeline that only has files still collects
    * them; a failure there is logged and the data mappings still run.
+   *
+   * What the files step found decides two kinds of file-backed mapping:
+   * - **Its file can't be refreshed:** the mapping fails without reading it,
+   *   so its objects keep their last version (see `failMappingOfFailedFile`).
+   * - **The pipeline no longer lists its file:** the mapping reads nothing,
+   *   and its objects are deleted (see `clearRemovedMappings`). That is only
+   *   decided when the list was read right before the File batch.
    *
    * The Hub target is initialized only when a mapping reads from it (see
    * `initHubTarget`), so a pipeline whose mappings only read uploaded files
@@ -911,9 +1059,10 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     // Use pipeline ID for groupId as per requirements
     const pipelineId = this.context.pipelineId || 'default';
 
+    let filesOutcome: FilesOutcome = { failed: new Map() };
     if (Array.isArray(files)) {
       try {
-        await this.processFiles(files, `${pipelineId}`);
+        filesOutcome = await this.processFiles(files, `${pipelineId}`);
       } catch (error) {
         this.logger.error(`Failed to collect pipeline files: ${(error as Error).message}`);
       }
@@ -932,11 +1081,24 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     );
 
     const groupId = `${pipelineId}`;
+    const sentClasses = new Set<string>();
+    const removed: DataMapping[] = [];
 
     // Process each data mapping
     for (const dataMapping of dataMappings) {
+      const fileId = dataMapping.source.file?.fileId;
+      const failure = fileId ? filesOutcome.failed.get(fileId) : undefined;
+      if (fileId && !failure && filesOutcome.listedFileIds && !filesOutcome.listedFileIds.has(fileId)) {
+        removed.push(dataMapping);
+        continue;
+      }
+      sentClasses.add(dataMapping.destination.className);
       try {
-        await this.processDataMapping(dataMapping, groupId, queries);
+        if (fileId && failure) {
+          await this.failMappingOfFailedFile(dataMapping, groupId, fileId, failure);
+        } else {
+          await this.processDataMapping(dataMapping, groupId, queries);
+        }
       } catch (error) {
         this.logger.error(
           `Failed to process data mapping ${dataMapping.id}: ${(error as Error).message}`
@@ -945,6 +1107,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
       }
     }
 
+    await this.clearRemovedMappings(removed, sentClasses, groupId);
     this.logger.info('All data mappings completed');
   }
 }
@@ -955,6 +1118,39 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
  */
 function readsFromHubTarget(source: DataMappingSource): boolean {
   return !source.file && Boolean(source.objectId);
+}
+
+/**
+ * Why a Hub pipeline file's copy failed for good, or undefined when the
+ * failure may pass. file-service answers 404 when the object is no longer on
+ * the target, and 409 when Hub refuses the copy, as it does for a deleted
+ * connection, expired credentials or revoked access.
+ */
+function sourceFailure(entry: HubPipelineFile, error: unknown): string | undefined {
+  const status = error instanceof FileServiceError ? error.status : undefined;
+  if (status === 404) {
+    return `it is no longer at its location on target ${entry.targetId} (file-service answered 404)`;
+  }
+  if (status === 409) {
+    return `Hub refused to copy it from target ${entry.targetId} (file-service answered 409), ` +
+      'as it does when the connection is deleted, its credentials expire or its access is revoked';
+  }
+  return undefined;
+}
+
+/**
+ * The error that fails a run's File batch (see `processFiles`): each file that
+ * can't be refreshed, why, and what to do about it. When every listed file
+ * answered 404 it says so first, as a wrong file-service URL or missing access
+ * looks the same.
+ */
+function filesFailureMessage(failed: Map<string, FileFailure>, allGone: boolean): string {
+  const files = [...failed].map(([fileId, failure]) => `"${failure.name}" (${fileId}): ${failure.reason}`);
+  const head = allGone
+    ? `file-service answered 404 for all ${failed.size} pipeline file(s), as it would for a wrong file-service URL or missing access`
+    : `${failed.size} pipeline file(s) can't be refreshed`;
+  return `${head}: ${nameSome(files)}. The File objects keep their last version. ` +
+    'Restore each file at its source, pick it again, or remove it from the pipeline.';
 }
 
 /**
