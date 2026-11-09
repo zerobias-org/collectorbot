@@ -234,36 +234,65 @@ platform sorts keys before it hashes a version.
 - **Uploaded files** are read from fileservice as they are.
 - **Hub files** are copied from their Hub target again first, so the latest remote contents become a new version. The
   collector waits up to 30 s per file and 120 s per run for the copy, then records the version that is ready. A copy
-  fileservice refuses, with 409 when Hub refused it or 404 when the object is gone from the target, is not retried: the
-  collector warns and records the version fileservice already has.
+  fileservice refuses is not retried, and the file can't be refreshed (see *When a File Is Missing*): 409 when Hub
+  refused it, 404 when the object is gone from the target.
 
 ### How Each File Resolves
 
 | fileservice says | Record | Deletes |
 |---|---|---|
 | a ready version with a size | sent | unaffected |
-| 404 | left out | unaffected, unless every listed file answers 404 |
+| 404 | left out | off, and the batch fails |
+| 404 or 409 to a Hub file's copy | the version fileservice already has | off, and the batch fails |
 | no ready version yet | left out | unaffected |
 | a ready version without a size | left out | off |
 | any other error, or not reached by the deadline | left out | off |
 | a malformed entry | skipped | off |
+
+### When a File Is Missing
+
+A file that can't be refreshed fails the run's File batch. That is a file fileservice answers 404 for, because it was
+deleted or this job can't see it. It is also a Hub file whose copy fileservice answers with:
+- **404:** the object is no longer at its location on the target.
+- **409:** Hub refused the copy, as it does for a deleted connection, expired credentials or revoked access.
+
+What happens then:
+- **The File batch** still carries every record it has, a Hub file's at the version fileservice already has. Its
+  deletes are off, and it gets one error that names each such file, marked terminal (`transient: false`).
+- **On the platform**, that batch fails while the run's other batches import, and the pipeline shows an error. Every
+  File object keeps its last version. This holds when every listed file answers 404 too; a wrong fileservice URL or
+  missing access looks the same, and the error says so.
+- **Every data mapping that reads such a file** fails as well, without reading it. Its batch gets the same terminal
+  error and its objects keep their last version. The other mappings run.
+
+It clears once the file is back at its source, is picked again, or is removed from the pipeline.
+
+### When a File Is Removed
+
+Removing a file from the pipeline deletes its File object: the platform imports the snapshot without it. On the next
+run, a mapping that reads a file the pipeline no longer lists reads nothing:
+- **No other mapping of the run writes its class:** the class gets one empty batch. Its deletes give the class's
+  objects deleted, empty versions.
+- **Another mapping writes its class:** that mapping's batch is left to do it. Its deletes already take out the objects
+  it no longer sends, and an empty batch of the same class and group would delete that mapping's objects too.
+
+The mappings stay configured and collect nothing until they are repointed or deleted. A run only takes a mapping for
+removed when it read the pipeline's list right before the File batch, and a preview run never does.
 
 ### Changes During a Run
 
 Right before it creates the File batch, the collector reads the pipeline's file list again, so an add or remove made
 while it ran is not undone. A file removed meanwhile is left out of the batch. A file added meanwhile is collected too,
 within the same deadline and copy-wait budget, because the run's batch supersedes the platform's own snapshot of the add
-and must carry its record. It resolves like any other file: unresolved turns deletes off, 404 leaves it out. If the list
-can't be read again, deletes are off.
+and must carry its record. It resolves like any other file: unresolved turns deletes off, 404 fails the batch. If the
+list can't be read again, deletes are off.
 
 When deletes are off, the batch carries a warning that says why, and nothing is deleted; the objects of removed files
 are deleted by the next run with deletes on.
 
 ### When No File Batch Is Sent
 
-- **Every listed file answers 404.** A wrong fileservice URL or missing access looks the same, and the batch would
-  delete every File object. The platform itself drops entries whose files are really gone.
-- **No file produced a record and deletes are off**, since such a batch would change nothing.
+- **No file produced a record, none failed, and deletes are off**, since such a batch would change nothing.
 - **The pipeline no longer has a `files` key.**
 
 An empty list still sends an empty batch, which deletes the objects of removed files.

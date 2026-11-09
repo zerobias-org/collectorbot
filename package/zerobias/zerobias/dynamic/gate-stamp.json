@@ -1,8 +1,8 @@
 {
-  "version": "1.1.2",
-  "branch": "feat/mapping-pipeline-id",
-  "sourceHash": "e73b0e77710974bf385538f7452e9a63f1a0bc8fa3cfeb4527efc4a091386f85",
-  "testHash": "36f554a56bfa13b636bda7fa15eac78cdf03258167776011e78bb26c5bdf1045",
+  "version": "1.1.2-uat.0",
+  "branch": "fix/pipeline-file-lifecycle",
+  "sourceHash": "d3e8e65859aa634b0c0cb5b8d34f92a25b3f16a3de8832b6831a2791a097dbbd",
+  "testHash": "a06c5f0877baf483f47276b7adf870de54e716ab3ee6cc97d8337267413d1dbe",
   "tasks": {
     "validate": "passed",
     "lint": "passed",
@@ -15,7 +15,7 @@
     "dataloaderExec": "passed"
   },
   "tests": {
-      "unit": { "expected": 96, "ran": 96, "status": "passed" },
+      "unit": { "expected": 105, "ran": 105, "status": "passed" },
       "integration": { "expected": 5, "ran": 5, "status": "passed" },
       "e2e": { "expected": 0, "ran": 0, "status": "skipped" }
   }
