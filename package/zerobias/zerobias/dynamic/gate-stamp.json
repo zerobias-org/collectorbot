@@ -1,7 +1,7 @@
 {
-  "version": "1.1.2",
-  "branch": "feat/mapping-pipeline-id",
-  "sourceHash": "e73b0e77710974bf385538f7452e9a63f1a0bc8fa3cfeb4527efc4a091386f85",
+  "version": "1.1.2-uat.0",
+  "branch": "feat/optional-dataproducer",
+  "sourceHash": "c6381871428ddf68d4babf9906cbf63aaf1c30421787100d5d511842986fa800",
   "testHash": "36f554a56bfa13b636bda7fa15eac78cdf03258167776011e78bb26c5bdf1045",
   "tasks": {
     "validate": "passed",
