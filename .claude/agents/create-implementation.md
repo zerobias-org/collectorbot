@@ -28,6 +28,8 @@ Read and follow:
 - `moduleConnectorName` - From generated BaseClient (e.g., `iam`, `workforcenowng`)
 - `schemaClasses` - Array of schema class names from collector.yml
 - `moduleOperations` - Available operations from module spec
+- `mode` - `tenant` (default) or `shared`
+- Shared mode only: `moduleFactory` (e.g. `newCmvp`), `hasConnectionProfile`, `credentialParameters` (names, may be empty), `groupId` (fixed global value)
 
 ## Tasks
 
@@ -50,11 +52,10 @@ export * from '../generated';
 
 1. **Imports**
 ```typescript
-import { ConnectionMetadata } from '@auditmation/hub-core';
-import { UUID } from '@auditmation/types-core-js';
-import { Batch } from '@auditmation/util-collector-utils';
+import { ConnectionMetadata, UUID } from '@zerobias-org/types-core-js';
+import { Batch } from '@zerobias-org/util-collector';
 import { injectable } from 'inversify';
-import { BaseClient } from '../generated/BaseClient';
+import { BaseClient } from '../generated/BaseClient.js';
 // Import schema types from -ts packages
 // Import module types
 ```
@@ -196,6 +197,55 @@ public async run(): Promise<void> {
 }
 ```
 
+### Task 3 (shared mode only): module as an in-process SDK
+
+In shared mode the source module is NOT in `hub.yml` and NOT on `BaseClient`. Replace items 3, 4, 6, 7 and 8 above with this shape:
+
+```typescript
+import { newCmvp } from '@zerobias-org/module-nist-cmvp';   // module factory, plain npm dependency
+import { Parameters } from '../generated/model/index.js';
+
+@injectable()
+export class CollectorNistCmvpImpl extends BaseClient {
+  private readonly groupId = 'nist-cmvp';                   // one fixed global groupId
+  private api = newCmvp();                                  // in-process, no Hub, no targetId
+  private parameters?: Parameters;
+
+  public async run(parameters: Parameters): Promise<void> {
+    this.parameters = parameters;
+    // Only if the module has a connection profile; credentials come from parameters
+    // (read-only, public-data scoped, set in the pipeline YAML `params:`):
+    // await this.api.connect({ apiKey: this.parameters.apiKey });
+    await this.loadCertificates();
+  }
+
+  private async loadCertificates(): Promise<void> {
+    const batch = await this.initBatchForClass(CmvpCertificate, this.groupId);
+    const pageSize = this.previewCount ?? this.parameters?.pageSize ?? 500;
+    // Explicit page loop. NEVER PagedResults.forEach / `for await` here:
+    // Hub paging helpers need Hub and fail in-process.
+    for (let pageNumber = 1; ; pageNumber += 1) {
+      const page = await this.api.getCertificateApi().list(pageNumber, pageSize);
+      for (const item of page.items) {                      // check the client's .d.ts for the page shape
+        try {
+          await batch.add(toCmvpCertificate(item), item);
+        } catch (err) {
+          await batch.error(`Failed to process: ${err.message}`, item);
+        }
+      }
+      if (this.previewCount || page.items.length < pageSize) break;
+    }
+    await batch.end();
+  }
+}
+```
+
+Rules:
+- No `this.<module>.metadata()` (there is no connection): pass `undefined` tags to `Batch`.
+- `connect(...)` only when the module has a connection profile; its arguments come from collector parameters, never hard-coded.
+- Bound concurrency yourself (`PromisePool` / `p-limit`, ≤30 in flight) if detail calls fan out per item.
+- Platform SDKs (`this.platform`, other `@zerobias-com/*-sdk` clients) are still injected by codegen and used normally.
+
 ## Critical Implementation Rules
 
 ### GroupId Strategy
@@ -203,7 +253,7 @@ public async run(): Promise<void> {
 - **AWS Regional**: `${accountId}-${region}`
 - **Azure**: `${subscriptionId}-${resourceGroup}` or `${subscriptionId}-global`
 - **GitHub**: `${orgName}-${resourceType}`
-- **Shared/Global**: `''` (empty string)
+- **Shared/Global**: one fixed value per collector (e.g. `'nist-cmvp'`) or `''` (empty string)
 
 See VENDOR_PATTERNS.md for specific patterns.
 
@@ -236,7 +286,7 @@ private previewCount?: number = this.context.previewMode
   : undefined;
 ```
 
-Use in all forEach: `forEach(callback, concurrency, this.previewCount)`
+Use in all forEach: `forEach(callback, concurrency, this.previewCount)`. Shared mode: use `previewCount` as the page size and stop after the first page.
 
 ## Output
 

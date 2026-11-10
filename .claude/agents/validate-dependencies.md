@@ -21,12 +21,18 @@ Read: `.claude/DEVELOPMENT_WORKFLOW.md` sections:
 
 ## Validation Checklist
 
+### Scope rule (zerobias-org repository)
+
+- [ ] ❌ ERROR: any `@auditlogic/*` dependency. Content comes from `@zerobias-org/*` (modules, schemas, products); the platform runtime from `@zerobias-com/*` (`hub-client`, `hub-core`, `platform-sdk`, `hub-client-codegen`, other `*-sdk`) is allowed.
+
 ### Module Dependencies
 
 - [ ] All modules from `hub.yml` are in package.json dependencies
 - [ ] Module package names match exactly
 - [ ] Versions use `^` prefix
-- [ ] No extra modules not in hub.yml
+- [ ] No extra modules not in hub.yml, **except** in a shared collector
+
+**Shared collector:** the source module (`@zerobias-org/module-*`) is a plain package.json dependency imported in `src/` (`newX()`) and must NOT appear in `hub.yml` `modules:`; listing it there makes codegen inject a `<X>HubImpl` that fails with `requires targetId`. Report that as an error. `@zerobias-com/*-sdk` packages may appear in either place.
 
 **Cross-reference:**
 ```yaml

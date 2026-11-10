@@ -20,7 +20,7 @@ Read and validate against: `.claude/COLLECTORBOT_RULES.md` sections:
 ## Validation Checklist
 
 ### package.json
-- [ ] Name follows `@auditlogic/collectorbot-<vendor>-<suite?>-<product>` pattern
+- [ ] Name follows `@zerobias-org/collectorbot-<vendor>-<suite?>-<product>` pattern
 - [ ] Version starts at `0.0.0` for new collectors
 - [ ] Main points to `dist/src/index.js`
 - [ ] Files includes: `dist`, `*.yml`, `*.md`, `dependency-tree.json`
@@ -40,6 +40,11 @@ Read and validate against: `.claude/COLLECTORBOT_RULES.md` sections:
 - [ ] Module package names match dependencies in package.json
 - [ ] **NO operations section** (should be omitted)
 - [ ] Permissions section optional (if present, for documentation only)
+- [ ] Shared collector: the source module is NOT listed under `modules` (only `@zerobias-com/*-sdk` entries, or `{}`)
+
+### parameters.yml (shared collector)
+- [ ] Credential parameters only when the module has a connection profile
+- [ ] Each credential parameter's description says it must be a read-only, public-data-scoped key (it is set in the public pipeline YAML)
 
 ### collector.yml
 - [ ] Has `classes` root key
@@ -98,9 +103,9 @@ Return structured JSON:
     {
       "file": "package.json",
       "line": 2,
-      "message": "Name doesn't follow pattern @auditlogic/collectorbot-*",
+      "message": "Name doesn't follow pattern @zerobias-org/collectorbot-*",
       "severity": "error",
-      "suggestion": "Change to: @auditlogic/collectorbot-amazon-aws-iam"
+      "suggestion": "Change to: @zerobias-org/collectorbot-amazon-aws-iam"
     }
   ],
   "stats": {

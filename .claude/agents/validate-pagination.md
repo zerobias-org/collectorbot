@@ -20,6 +20,16 @@ Read: `.claude/VENDOR_PATTERNS.md` for vendor-specific page size limits
 
 ## Validation Checklist
 
+### Shared collectors (module used in-process)
+
+A shared collector (source module NOT in `hub.yml` `modules:`, created via `newX()`; see the create-collector skill, "Collector modes") must page explicitly:
+- [ ] Explicit page loop (`pageNumber` / `pageSize`) that stops on a short or empty page, or at `pageCount` / `count`
+- [ ] ❌ ERROR: `PagedResults.forEach(...)` or `for await` over the module's paged results; Hub paging helpers need Hub and fail in-process
+- [ ] Preview mode: `previewCount` used as the page size, loop stops after the first page
+- [ ] pageSize is a parameter or a documented constant, not unbounded
+
+The `forEach` checks below apply to tenant collectors only.
+
 ### Complete Data Collection (NO DATA LOSS)
 
 **Critical checks:**

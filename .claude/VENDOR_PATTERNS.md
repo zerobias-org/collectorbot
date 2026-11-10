@@ -397,12 +397,24 @@ groupId = 'global';  // Explicit global scope
 id: standard.code  // e.g., "CVE-2024-1234", "NIST-800-53"
 ```
 
+### Module usage (no connection profile, no Hub)
+
+Shared collectors run once for everybody from a daily shared pipeline, so there is no customer connection and no Hub target:
+- The source module is a plain dependency used **in-process as an SDK**: `const api = newX();`. It is **not** listed in `hub.yml` `modules:` (codegen would inject a `<X>HubImpl` that needs a `targetId`).
+- Modules without a connection profile (e.g. `@zerobias-org/module-nist-cmvp`) need no `connect()`.
+- Modules with a connection profile get `connect(...)` with read-only, public-data-scoped credentials passed as collector **parameters**, which the pipeline YAML sets in `params:` (public repo).
+- Page explicitly (`list(pageNumber, pageSize)` until a short page). Don't use `PagedResults.forEach` / `for await`: Hub paging helpers fail without Hub.
+- Platform SDKs (`@zerobias-com/*-sdk`) are still injected by hub-client-codegen.
+
+Full procedure: `/create-collector <vendor> <suite?> <product> --shared`.
+
 ### Examples
 
-- AWS Service Catalog (shared service definitions)
-- NIST CVE database
-- Standard compliance frameworks
-- Product/service reference lists
+- NIST CMVP (`@zerobias-org/module-nist-cmvp`, module without connection profile)
+- NIST NVD CVE / CPE (read-only API key as a parameter)
+- TLS endpoint scan (`package/auditmation/generic/tls`, in-process module)
+- HL7 FHIR (`package/hl7/fhir`, no module, direct HTTP)
+- Standard compliance frameworks, product/service reference lists
 
 ---
 
