@@ -659,14 +659,15 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    * collects the pipeline's current list (see `currentPipelineFiles`).
    * Preview runs skip files entirely.
    *
-   * The snapshot is up to two batches (see `filesBatches`):
+   * The snapshot is two batches (see `filesBatches`), as the platform's own
+   * snapshots are:
    * - **`File`:** a record for each file that lists no evidence definitions.
    *   A file that comes to list some leaves it, so its deletes give that
    *   file's File object a deleted, empty version.
    * - **`EvidenceFile`:** a record for each evidence definition of each file
-   *   that lists some, sent only when a listed file does. The platform's own
-   *   snapshots always send both, which deletes the EvidenceFile objects of a
-   *   file that loses all of its evidence definitions.
+   *   that lists some. When no listed file does, it is empty, and its deletes
+   *   take out every EvidenceFile object left in the group, such as one a
+   *   stale run brought back after the platform deleted it.
    *
    * Every entry is resolved (see `collectFiles`) by the step's deadline,
    * `filesDeadlineMs` after it starts, before the batches are created, because
@@ -1216,31 +1217,41 @@ function sourceFailure(entry: HubPipelineFile, error: unknown): string | undefin
 
 /**
  * The batches a run's pipeline files go in (see `processFiles`), from what
- * `settleFiles` came to:
+ * `settleFiles` came to. Both are always there, as in the platform's own
+ * snapshots:
  * - **`File`:** the records and failures of the files that list no evidence
  *   definitions.
  * - **`EvidenceFile`:** the EvidenceFile records (see `evidenceFileRecords`)
- *   and the failures of the files that list some. It is left out when no
- *   listed file lists any.
+ *   and the failures of the files that list some. When no listed file lists
+ *   any, it is empty, so with deletes on it deletes every EvidenceFile object
+ *   left in the group.
+ *
+ * The empty batch is what lets the next run correct a stale one. A run that
+ * read the list before a file's last evidence definitions were taken off, or
+ * before the last file that lists some was removed, sends batches newer than
+ * the platform's snapshot of that change, and they bring back the
+ * EvidenceFile objects that snapshot deleted. Without the empty batch,
+ * nothing would delete them again.
+ *
+ * The pipeline's ID is only parsed, as the records' namespace, when there is
+ * an EvidenceFile record to build.
  */
 function filesBatches({ records, failed, evidence }: SettledFiles, pipelineId: string): FilesBatch[] {
   const listsEvidence = (fileId: string) => (evidence.get(fileId)?.length ?? 0) > 0;
-  const batches: FilesBatch[] = [{
-    className: FILE_CLASS,
-    records: records.filter((record) => !listsEvidence(record.id)),
-    failed: new Map([...failed].filter(([fileId]) => !listsEvidence(fileId))),
-  }];
-  if ([...evidence.keys()].some(listsEvidence)) {
-    const namespace = new UUID(pipelineId);
-    batches.push({
+  const evidenced = records.filter((record) => listsEvidence(record.id));
+  const namespace = evidenced.length > 0 ? new UUID(pipelineId) : undefined;
+  return [
+    {
+      className: FILE_CLASS,
+      records: records.filter((record) => !listsEvidence(record.id)),
+      failed: new Map([...failed].filter(([fileId]) => !listsEvidence(fileId))),
+    },
+    {
       className: EVIDENCE_FILE_CLASS,
-      records: records
-        .filter((record) => listsEvidence(record.id))
-        .flatMap((record) => evidenceFileRecords(record, evidence.get(record.id) ?? [], namespace)),
+      records: namespace ? evidenced.flatMap((record) => evidenceFileRecords(record, evidence.get(record.id) ?? [], namespace)) : [],
       failed: new Map([...failed].filter(([fileId]) => listsEvidence(fileId))),
-    });
-  }
-  return batches;
+    },
+  ];
 }
 
 /**
