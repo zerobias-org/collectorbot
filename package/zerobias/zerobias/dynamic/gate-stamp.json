@@ -1,8 +1,8 @@
 {
-  "version": "1.1.4",
-  "branch": "fix/pipeline-file-lifecycle",
-  "sourceHash": "bc9c8b22b21a256840f0337ce4652f45ab5cd28f8c80d72781de25917d1351f7",
-  "testHash": "7bae9c71c0c99bdf9a16b4c14037497310ca7ad1aec07cf7bbc65af59084dfe3",
+  "version": "1.1.4-uat.0",
+  "branch": "feat/pipeline-file-evidence",
+  "sourceHash": "41236f2cf8b4edb526fcb586edc3b5f8225ad464aab7c881942856caf3c4aee3",
+  "testHash": "eb4558ae3b3132fdd216f3a84ce9ad44a0174e977c5584d8cf898af1d2fafb59",
   "tasks": {
     "validate": "passed",
     "lint": "passed",
@@ -15,7 +15,7 @@
     "dataloaderExec": "passed"
   },
   "tests": {
-      "unit": { "expected": 105, "ran": 105, "status": "passed" },
+      "unit": { "expected": 116, "ran": 116, "status": "passed" },
       "integration": { "expected": 5, "ran": 5, "status": "passed" },
       "e2e": { "expected": 0, "ran": 0, "status": "skipped" }
   }

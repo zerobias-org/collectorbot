@@ -199,8 +199,8 @@ export interface DataMapping {
 
 /**
  * A file attached to the pipeline by the platform's pipeline-files endpoint,
- * which imports a `File` object for it as soon as it is added. The collector
- * collects every entry again on each run so those objects stay current.
+ * which imports its objects as soon as it is added. The collector collects
+ * every entry again on each run so those objects stay current.
  *
  *  - `upload`: the file was uploaded straight to file-service; a run only
  *    re-reads it.
@@ -208,12 +208,26 @@ export interface DataMapping {
  *    `objectId` on the hub target `targetId`; a run copies it again first so
  *    the latest remote contents become a new version.
  *
+ * Either may list `evidenceDefinitionIds`, the UUIDs of the evidence
+ * definitions the file is evidence for. A file that lists any is written as
+ * one `EvidenceFile` object per evidence definition instead of a `File`
+ * object (see `EvidenceFileRecord`). Repeats count once, and an empty list
+ * means none.
+ *
  * Entries arrive as JSON, so the collector checks each one's shape at run
  * time and treats one that does not match as unresolved.
  */
 export type PipelineFile =
-  | { fileId: string; name: string; source: 'upload' }
-  | { fileId: string; name: string; source: 'hub'; targetId: string; objectId: string; destinationPath: string };
+  | { fileId: string; name: string; source: 'upload'; evidenceDefinitionIds?: string[] }
+  | {
+    fileId: string;
+    name: string;
+    source: 'hub';
+    targetId: string;
+    objectId: string;
+    destinationPath: string;
+    evidenceDefinitionIds?: string[];
+  };
 
 /**
  * The `File` object written for a pipeline file. `name` is the pipeline
@@ -226,6 +240,17 @@ export interface PipelineFileRecord {
   fileVersionId: string;
   size: number;
   mimeType?: string;
+}
+
+/**
+ * The `EvidenceFile` object written for each evidence definition a pipeline
+ * file lists: the file's `PipelineFileRecord`, under an `id` of its own, a
+ * UUIDv5 of `<fileId>:<evidenceDefinitionId>` in the pipeline's ID as
+ * namespace, with the pipeline's ID and the evidence definition's ID added.
+ */
+export interface EvidenceFileRecord extends PipelineFileRecord {
+  pipelineId: string;
+  evidenceDefinition: string;
 }
 
 /**

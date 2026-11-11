@@ -372,6 +372,32 @@ describe('CollectorZerobiasZerobiasDynamicImpl — a pipeline file that is missi
       expect(fileBatch[0].arg).to.include({ deletesEnabled: false });
     });
 
+    it('takes no mapping for removed whose file a malformed entry still names', async () => {
+      const h = newHarness();
+      h.files.views.set(PLAN.fileId, { fileVersionId: 'v-plan', size: 4096 });
+      h.files.records.set('v-plan:/PhysicalSpace', rows('space', 2));
+      const malformed = { ...PLAN, evidenceDefinitionIds: 'not-a-list' } as unknown as PipelineFile;
+
+      await runWithFiles(h, [malformed], [sheetMapping(PLAN, 'PhysicalSpace')]);
+
+      const [spaces] = h.batchApi.batchesFor('PhysicalSpace');
+      expect(payloadsOf(spaces).map((p) => p.id)).to.deep.equal(['space-0', 'space-1']);
+      expect(h.logger.at('info').some((m) => m.includes('read a file the pipeline no longer lists'))).to.equal(false);
+    });
+
+    it('takes no mapping for removed when a malformed entry names no file, as it could be any file', async () => {
+      const h = newHarness();
+      h.files.views.set(PLAN.fileId, { fileVersionId: 'v-plan', size: 4096 });
+      h.files.records.set('v-plan:/PhysicalSpace', rows('space', 2));
+      h.files.views.set(OTHER_PLAN.fileId, { fileVersionId: 'v-other', size: 2048 });
+      const nameless = { name: 'no-id.xlsx', source: 'upload' } as unknown as PipelineFile;
+
+      await runWithFiles(h, [OTHER_PLAN, nameless], [sheetMapping(PLAN, 'PhysicalSpace')]);
+
+      const [spaces] = h.batchApi.batchesFor('PhysicalSpace');
+      expect(payloadsOf(spaces).map((p) => p.id)).to.deep.equal(['space-0', 'space-1']);
+    });
+
     it('clears nothing in a preview run, which skips pipeline files', async () => {
       const h = newHarness({ previewMode: true });
       h.files.views.set(PLAN.fileId, { fileVersionId: 'v-plan', size: 4096 });
