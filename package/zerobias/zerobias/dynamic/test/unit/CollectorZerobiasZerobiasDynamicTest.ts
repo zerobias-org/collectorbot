@@ -418,14 +418,18 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
       expect(h.batchApi.calls).to.deep.equal([]);
     });
 
-    it('sends an empty File batch with deletes on for an empty file list', async () => {
+    it('sends both batches empty, with deletes on, for an empty file list', async () => {
       const h = newHarness();
 
       await runWithFiles(h, []);
 
+      expect(createdClasses(h)).to.deep.equal(['File', 'EvidenceFile']);
       const calls = h.batchApi.callsFor('File');
       expect(ops(calls)).to.deep.equal(['create', 'end']);
       expect(calls[0].arg).to.include({ className: 'File', deletesEnabled: true });
+      const evidence = h.batchApi.callsFor('EvidenceFile');
+      expect(ops(evidence)).to.deep.equal(['create', 'end']);
+      expect(evidence[0].arg).to.include({ className: 'EvidenceFile', groupId: `pipeline-files:${PIPELINE_ID}`, deletesEnabled: true });
       expect(h.files.calls).to.deep.equal([]);
     });
 
@@ -805,6 +809,7 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
       expect(payloads(calls[2])).to.deep.equal([
         { id: UPLOAD.fileId, name: 'policy.pdf', fileVersionId: 'v-upload', size: 2048, mimeType: 'application/pdf' },
       ]);
+      expect(h.batchApi.callsFor('EvidenceFile')).to.deep.equal([]);
       expect(h.logger.at('warn').filter((m) => m.includes('is unresolved'))).to.have.length(2);
       expect(h.logger.at('error')).to.deep.equal([]);
     });
@@ -817,7 +822,9 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
       await runWithFiles(h, [NO_VERSION, BROKEN]);
 
       expect(h.batchApi.callsFor('File')).to.deep.equal([]);
+      expect(createdClasses(h)).to.deep.equal([]);
       expect(h.logger.at('warn').some((m) => m.includes('sending no File batch'))).to.equal(true);
+      expect(h.logger.at('warn').some((m) => m.includes('sending no EvidenceFile batch'))).to.equal(true);
       expect(h.logger.at('error')).to.deep.equal([]);
     });
 
@@ -1061,6 +1068,7 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
         expect(h.pipelineApi.gets).to.deep.equal([]);
         expect(h.files.calls).to.deep.equal([]);
         expect(h.batchApi.callsFor('File')).to.deep.equal([]);
+        expect(h.batchApi.callsFor('EvidenceFile')).to.deep.equal([]);
       }
     });
 
@@ -1171,7 +1179,25 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
           `{"id":"${UPLOAD.fileId}","name":"policy.pdf","fileVersionId":"v-upload","size":2048,"mimeType":"application/pdf"}`,
           `{"id":"${EMPTY.fileId}","name":"empty.txt","fileVersionId":"v-empty","size":0}`,
         ]);
-        expect(createdClasses(h)).to.deep.equal(['File']);
+        expect(createdClasses(h)).to.deep.equal(['File', 'EvidenceFile']);
+      });
+
+      it('sends an empty EvidenceFile batch with deletes on when no listed file lists evidence definitions, so a stale run is undone', async () => {
+        const h = newHarness();
+        h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
+        h.files.views.set(EMPTY.fileId, { fileVersionId: 'v-empty', size: 0 });
+
+        await runWithFiles(h, [withEvidence(UPLOAD, []), EMPTY]);
+
+        expect(createdClasses(h)).to.deep.equal(['File', 'EvidenceFile']);
+        const file = h.batchApi.callsFor('File');
+        expect(ops(file)).to.deep.equal(['create', 'addItems', 'end']);
+        expect(file[0].arg).to.include({ groupId: `pipeline-files:${PIPELINE_ID}`, deletesEnabled: true });
+        expect(payloads(file[1]).map((record) => record.id)).to.deep.equal([UPLOAD.fileId, EMPTY.fileId]);
+        const evidence = h.batchApi.callsFor('EvidenceFile');
+        expect(ops(evidence)).to.deep.equal(['create', 'end']);
+        expect(evidence[0].arg).to.include({ groupId: `pipeline-files:${PIPELINE_ID}`, deletesEnabled: true });
+        expect(h.logger.at('info')).to.include('Sending 0 pipeline file record(s) as the EvidenceFile batch (deletes on)');
       });
 
       it('sends both batches, each with its own records, when one file lists evidence definitions and another lists none', async () => {
@@ -1202,7 +1228,7 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
         expect(h.files.copies.map((copy) => copy.destinationPath)).to.deep.equal(['/pipelines/evidence.csv']);
       });
 
-      it('sends no EvidenceFile batch when no file the pipeline lists has evidence definitions, though one removed mid-run had', async () => {
+      it('sends an empty EvidenceFile batch with deletes on when the last file with evidence definitions is removed mid-run', async () => {
         const h = newHarness();
         h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
         h.files.views.set(EMPTY.fileId, { fileVersionId: 'v-empty', size: 0 });
@@ -1212,10 +1238,13 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
         await h.impl.run({ files: [UPLOAD, evidenced] });
 
         expect(h.files.calls).to.deep.equal([`get ${UPLOAD.fileId}`, `get ${EMPTY.fileId}`]);
-        expect(createdClasses(h)).to.deep.equal(['File']);
+        expect(createdClasses(h)).to.deep.equal(['File', 'EvidenceFile']);
         const calls = h.batchApi.callsFor('File');
         expect(calls[0].arg).to.include({ deletesEnabled: true });
         expect(payloads(calls[1]).map((record) => record.id)).to.deep.equal([UPLOAD.fileId]);
+        const evidence = h.batchApi.callsFor('EvidenceFile');
+        expect(ops(evidence)).to.deep.equal(['create', 'end']);
+        expect(evidence[0].arg).to.include({ groupId: `pipeline-files:${PIPELINE_ID}`, deletesEnabled: true });
       });
 
       it('counts an entry whose evidenceDefinitionIds is not a list of strings as malformed, which leaves it unresolved', async () => {

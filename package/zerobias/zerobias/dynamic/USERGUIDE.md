@@ -253,9 +253,12 @@ count once, and an empty list counts as none.
 - **A file that comes to list evidence definitions** leaves the File batch, whose deletes give its File object a
   deleted, empty version.
 
-The collector sends the EvidenceFile batch only when some listed file lists evidence definitions. The platform's own
-snapshots always send both batches, so the EvidenceFile objects of a file that loses all of its evidence definitions
-are deleted when that change is made.
+The collector sends both batches whenever it collects files, as the platform's own snapshots do (see *When No Batch Is
+Sent* for the exceptions). When no listed file lists evidence definitions, the EvidenceFile batch is empty, and with
+deletes on it deletes every EvidenceFile object left in the group. That is what lets the next run correct a stale one: a
+run that read the list before a file's last evidence definitions were taken off, or before the last file that lists some
+was removed, sends batches newer than the platform's snapshot of that change, and they bring back the EvidenceFile
+objects that snapshot deleted. Without the empty batch, nothing would delete them again.
 
 Both batches follow the rules below. Whatever turns deletes off turns them off on both batches, while a file that can't
 be refreshed fails only the batch its records belong to (see *When a File Is Missing*). An entry whose
@@ -325,9 +328,10 @@ are deleted by the next run with deletes on.
 Each batch is decided on its own:
 - **None of its files produced a record or failed, and deletes are off**, since such a batch would change nothing.
 - **The pipeline no longer has a `files` key**, which sends neither batch.
-- **No listed file lists evidence definitions**, which sends no EvidenceFile batch.
 
-An empty list still sends an empty File batch, which deletes the File objects of removed files.
+A batch with no record and deletes on is still sent, and deletes every object of its class left in the group. An
+empty list sends both batches empty, which deletes the objects of removed files, and a list in which no file lists
+evidence definitions sends an empty EvidenceFile batch (see *Evidence Definitions*).
 
 ### Deadline
 

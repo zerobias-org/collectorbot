@@ -355,6 +355,7 @@ describe('CollectorZerobiasZerobiasDynamicImpl — a pipeline file that is missi
       const [spaces] = h.batchApi.batchesFor('PhysicalSpace');
       expect(payloadsOf(spaces).map((p) => p.id)).to.deep.equal(['space-0', 'space-1']);
       expect(h.batchApi.batchesFor('File')).to.deep.equal([]);
+      expect(h.batchApi.batchesFor('EvidenceFile')).to.deep.equal([]);
     });
 
     it('takes no mapping for removed when the list could not be read right before the File batch', async () => {
@@ -408,6 +409,7 @@ describe('CollectorZerobiasZerobiasDynamicImpl — a pipeline file that is missi
       const [spaces] = h.batchApi.batchesFor('PhysicalSpace');
       expect(payloadsOf(spaces).map((p) => p.id)).to.deep.equal(['space-0', 'space-1']);
       expect(h.batchApi.batchesFor('File')).to.deep.equal([]);
+      expect(h.batchApi.batchesFor('EvidenceFile')).to.deep.equal([]);
     });
   });
 });
