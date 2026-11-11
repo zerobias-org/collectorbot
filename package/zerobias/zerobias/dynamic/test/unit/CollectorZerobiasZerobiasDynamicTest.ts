@@ -54,6 +54,10 @@ const BROKEN: PipelineFile = { fileId: '0e7c2a14-9b3d-4f6a-8c21-5d4e3f2a1b07', n
 const GONE_HUB: PipelineFile = { ...HUB, fileId: '0e7c2a14-9b3d-4f6a-8c21-5d4e3f2a1b08', name: 'deleted.csv' };
 const EMPTY: PipelineFile = { fileId: '0e7c2a14-9b3d-4f6a-8c21-5d4e3f2a1b09', name: 'empty.txt', source: 'upload' };
 
+/** Evidence definitions a pipeline file can list; with PIPELINE_ID and UPLOAD they make the platform's test vector. */
+const EVIDENCE_1 = '5a7d2c41-8e3f-4b6a-9c1d-2e4f6a8b0c11';
+const EVIDENCE_2 = '5a7d2c41-8e3f-4b6a-9c1d-2e4f6a8b0c12';
+
 /** The view of a file whose upload or copy never finished: no ready version, so no size either. */
 const NOT_READY_VIEW: FileServiceFile = { fileVersionId: null, size: null, mimeType: null };
 
@@ -366,12 +370,39 @@ const THING_MAPPING = {
   context: {},
 } as unknown as DataMapping;
 
+/** A mapping from the rows of `file` into `Evidence`; the harness's file-service refuses to read them. */
+function fileMapping(file: PipelineFile): DataMapping {
+  return {
+    id: `mapping-${file.name}`,
+    source: { objectName: file.name, objectPath: [], file: { fileId: file.fileId, containerPath: '/' } },
+    destination: { className: 'Evidence', classId: 'class-evidence', schema: { dataTypes: [], properties: [] } },
+    mappings: [],
+    metadata: { name: file.name, createdAt: '', description: '' },
+    context: {},
+  } as unknown as DataMapping;
+}
+
+/** `file` listing `evidenceDefinitionIds`. */
+function withEvidence(file: PipelineFile, evidenceDefinitionIds: string[]): PipelineFile {
+  return { ...file, evidenceDefinitionIds };
+}
+
+/** The id of the EvidenceFile of `fileId` for `evidenceDefinitionId`; the test-vector test pins the derivation. */
+function evidenceFileId(fileId: string, evidenceDefinitionId: string): string {
+  return UUID.generateV5(`${fileId}:${evidenceDefinitionId}`, new UUID(PIPELINE_ID)).toString();
+}
+
 function payloads(call: BatchCall): any[] {
   return call.arg.map((item: any) => item.payload);
 }
 
 function ops(calls: BatchCall[]): string[] {
   return calls.map((c) => c.op);
+}
+
+/** The class of each batch created, in order. */
+function createdClasses(h: Harness): string[] {
+  return h.batchApi.calls.filter((c) => c.op === 'create').map((c) => c.arg.className);
 }
 
 describe('CollectorZerobiasZerobiasDynamicImpl', () => {
@@ -1084,6 +1115,253 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
       expect(thing[1].arg.logLevel).to.equal(BatchLogLevelEnum.Error);
       expect(thing[1].arg.message).to.equal('Failed to fetch source items: Unable to initialize collector: producer unreachable');
       expect(h.logger.at('error')).to.include('Failed to process data mapping mapping-1: Unable to initialize collector: producer unreachable');
+    });
+
+    describe('evidence definitions', () => {
+      it('sends one EvidenceFile record per evidence definition, under the ids the platform gives them, and no File record', async () => {
+        const h = newHarness();
+        h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048, mimeType: 'application/pdf' });
+
+        await runWithFiles(h, [withEvidence(UPLOAD, [EVIDENCE_1, EVIDENCE_2])]);
+
+        const evidence = h.batchApi.callsFor('EvidenceFile');
+        expect(ops(evidence)).to.deep.equal(['create', 'addItems', 'end']);
+        expect(evidence[0].arg).to.include({
+          className: 'EvidenceFile', groupId: 'pipeline-files:6f1c9a52-3d2b-4c8e-9a71-2b5d0e4f8c13', deletesEnabled: true,
+        });
+        const records = payloads(evidence[1]);
+        expect(records).to.deep.equal([
+          {
+            id: 'e2475170-4a09-5571-bce4-2e4a59e2efd3',
+            name: 'policy.pdf',
+            fileVersionId: 'v-upload',
+            size: 2048,
+            mimeType: 'application/pdf',
+            pipelineId: '6f1c9a52-3d2b-4c8e-9a71-2b5d0e4f8c13',
+            evidenceDefinition: '5a7d2c41-8e3f-4b6a-9c1d-2e4f6a8b0c11',
+          },
+          {
+            id: '63b73ac3-606d-57bd-a759-0398c9aae3bd',
+            name: 'policy.pdf',
+            fileVersionId: 'v-upload',
+            size: 2048,
+            mimeType: 'application/pdf',
+            pipelineId: '6f1c9a52-3d2b-4c8e-9a71-2b5d0e4f8c13',
+            evidenceDefinition: '5a7d2c41-8e3f-4b6a-9c1d-2e4f6a8b0c12',
+          },
+        ]);
+        expect(Object.keys(records[0])).to.deep.equal(['id', 'name', 'fileVersionId', 'size', 'mimeType', 'pipelineId', 'evidenceDefinition']);
+        const file = h.batchApi.callsFor('File');
+        expect(ops(file)).to.deep.equal(['create', 'end']);
+        expect(file[0].arg).to.include({ deletesEnabled: true });
+        expect(h.files.calls).to.deep.equal([`get ${UPLOAD.fileId}`]);
+      });
+
+      it('keeps a file that lists no evidence definitions, or an empty list of them, in the File batch as before', async () => {
+        const h = newHarness();
+        h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048, mimeType: 'application/pdf' });
+        h.files.views.set(EMPTY.fileId, { fileVersionId: 'v-empty', size: 0, mimeType: '' });
+
+        await runWithFiles(h, [UPLOAD, withEvidence(EMPTY, [])]);
+
+        const calls = h.batchApi.callsFor('File');
+        expect(ops(calls)).to.deep.equal(['create', 'addItems', 'end']);
+        expect(calls[0].arg).to.include({ deletesEnabled: true });
+        expect(payloads(calls[1]).map((item) => JSON.stringify(item))).to.deep.equal([
+          `{"id":"${UPLOAD.fileId}","name":"policy.pdf","fileVersionId":"v-upload","size":2048,"mimeType":"application/pdf"}`,
+          `{"id":"${EMPTY.fileId}","name":"empty.txt","fileVersionId":"v-empty","size":0}`,
+        ]);
+        expect(createdClasses(h)).to.deep.equal(['File']);
+      });
+
+      it('sends both batches, each with its own records, when one file lists evidence definitions and another lists none', async () => {
+        const h = newHarness();
+        h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048, mimeType: 'application/pdf' });
+        h.files.views.set(HUB.fileId, { fileVersionId: 'v-hub', size: 512, mimeType: null });
+
+        await runWithFiles(h, [UPLOAD, withEvidence(HUB, [EVIDENCE_1])]);
+
+        expect(createdClasses(h)).to.deep.equal(['File', 'EvidenceFile']);
+        const file = h.batchApi.callsFor('File');
+        expect(ops(file)).to.deep.equal(['create', 'addItems', 'end']);
+        expect(file[0].arg).to.include({ groupId: `pipeline-files:${PIPELINE_ID}`, deletesEnabled: true });
+        expect(payloads(file[1])).to.deep.equal([
+          { id: UPLOAD.fileId, name: 'policy.pdf', fileVersionId: 'v-upload', size: 2048, mimeType: 'application/pdf' },
+        ]);
+        const evidence = h.batchApi.callsFor('EvidenceFile');
+        expect(ops(evidence)).to.deep.equal(['create', 'addItems', 'end']);
+        expect(evidence[0].arg).to.include({ groupId: `pipeline-files:${PIPELINE_ID}`, deletesEnabled: true });
+        expect(payloads(evidence[1])).to.deep.equal([{
+          id: evidenceFileId(HUB.fileId, EVIDENCE_1),
+          name: 'evidence.csv',
+          fileVersionId: 'v-hub',
+          size: 512,
+          pipelineId: PIPELINE_ID,
+          evidenceDefinition: EVIDENCE_1,
+        }]);
+        expect(h.files.copies.map((copy) => copy.destinationPath)).to.deep.equal(['/pipelines/evidence.csv']);
+      });
+
+      it('sends no EvidenceFile batch when no file the pipeline lists has evidence definitions, though one removed mid-run had', async () => {
+        const h = newHarness();
+        h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
+        h.files.views.set(EMPTY.fileId, { fileVersionId: 'v-empty', size: 0 });
+        const evidenced = withEvidence(EMPTY, [EVIDENCE_1]);
+        h.pipelineApi.answers = [{ files: [UPLOAD, evidenced] }, { files: [UPLOAD] }];
+
+        await h.impl.run({ files: [UPLOAD, evidenced] });
+
+        expect(h.files.calls).to.deep.equal([`get ${UPLOAD.fileId}`, `get ${EMPTY.fileId}`]);
+        expect(createdClasses(h)).to.deep.equal(['File']);
+        const calls = h.batchApi.callsFor('File');
+        expect(calls[0].arg).to.include({ deletesEnabled: true });
+        expect(payloads(calls[1]).map((record) => record.id)).to.deep.equal([UPLOAD.fileId]);
+      });
+
+      it('counts an entry whose evidenceDefinitionIds is not a list of strings as malformed, which leaves it unresolved', async () => {
+        const h = newHarness();
+        h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
+        const malformed = [
+          { ...EMPTY, evidenceDefinitionIds: EVIDENCE_1 },
+          { ...NO_SIZE, evidenceDefinitionIds: [EVIDENCE_1, 7] },
+          { ...BROKEN, evidenceDefinitionIds: null },
+          { ...HUB, evidenceDefinitionIds: { id: EVIDENCE_1 } },
+        ];
+
+        await runWithFiles(h, [withEvidence(UPLOAD, [EVIDENCE_1]), ...malformed]);
+
+        const evidence = h.batchApi.callsFor('EvidenceFile');
+        expect(ops(evidence)).to.deep.equal(['create', 'log', 'addItems', 'end']);
+        expect(evidence[0].arg).to.include({ deletesEnabled: false });
+        expect(evidence[1].arg.logLevel).to.equal(BatchLogLevelEnum.Warn);
+        expect(evidence[1].arg.message).to.contain('4 of 5 pipeline file(s) could not be resolved');
+        expect(payloads(evidence[2]).map((record) => record.id)).to.deep.equal([evidenceFileId(UPLOAD.fileId, EVIDENCE_1)]);
+        expect(h.batchApi.callsFor('File')).to.deep.equal([]);
+        expect(h.logger.at('warn').some((m) => m.includes('sending no File batch'))).to.equal(true);
+        expect(h.logger.at('warn').filter((m) => m.includes('is malformed'))).to.have.length(4);
+        expect(h.files.calls).to.deep.equal([`get ${UPLOAD.fileId}`]);
+      });
+
+      it('drops repeated evidence definitions, keeping the order they were first listed in', async () => {
+        const h = newHarness();
+        h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
+
+        await runWithFiles(h, [withEvidence(UPLOAD, [EVIDENCE_2, EVIDENCE_1, EVIDENCE_2, EVIDENCE_1])]);
+
+        const records = payloads(h.batchApi.callsFor('EvidenceFile')[1]);
+        expect(records.map((record) => [record.id, record.evidenceDefinition])).to.deep.equal([
+          ['63b73ac3-606d-57bd-a759-0398c9aae3bd', EVIDENCE_2],
+          ['e2475170-4a09-5571-bce4-2e4a59e2efd3', EVIDENCE_1],
+        ]);
+      });
+
+      it('fails only the EvidenceFile batch, and the File batch imports, when a file with evidence definitions can\'t be refreshed', async () => {
+        const h = newHarness();
+        h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
+        h.files.views.set(HUB.fileId, { fileVersionId: 'v-hub', size: 512, mimeType: 'text/csv' });
+        h.files.copyError = new FileServiceError('file-service PUT /copyFile returned 409: access denied', 409);
+        const hub = withEvidence(HUB, [EVIDENCE_1, EVIDENCE_2]);
+
+        await runWithFiles(h, [UPLOAD, hub, withEvidence(MISSING, [EVIDENCE_1])], { dataMappings: [fileMapping(hub)] });
+
+        const file = h.batchApi.callsFor('File');
+        expect(ops(file)).to.deep.equal(['create', 'addItems', 'end']);
+        expect(file[0].arg).to.include({ deletesEnabled: true });
+        expect(payloads(file[1]).map((record) => record.id)).to.deep.equal([UPLOAD.fileId]);
+        const evidence = h.batchApi.callsFor('EvidenceFile');
+        expect(ops(evidence)).to.deep.equal(['create', 'addItems', 'log', 'end']);
+        expect(evidence[0].arg).to.include({ deletesEnabled: false });
+        expect(payloads(evidence[1]).map((record) => [record.id, record.fileVersionId])).to.deep.equal([
+          [evidenceFileId(HUB.fileId, EVIDENCE_1), 'v-hub'],
+          [evidenceFileId(HUB.fileId, EVIDENCE_2), 'v-hub'],
+        ]);
+        expect(evidence[2].arg.logLevel).to.equal(BatchLogLevelEnum.Error);
+        expect(evidence[2].arg.data).to.deep.equal({ transient: false });
+        expect(evidence[2].arg.message)
+          .to.contain("2 pipeline file(s) can't be refreshed")
+          .and.contain(`"evidence.csv" (${HUB.fileId}): Hub refused to copy it`)
+          .and.contain(`"gone.txt" (${MISSING.fileId}): file-service answered 404 for it`)
+          .and.contain('The EvidenceFile objects keep their last version');
+        const mapped = h.batchApi.callsFor('Evidence');
+        expect(ops(mapped)).to.deep.equal(['create', 'log', 'end']);
+        expect(mapped[1].arg.message).to.contain(`Source file "evidence.csv" (${HUB.fileId}) can't be refreshed: Hub refused to copy it`);
+      });
+
+      it('fails both batches, counting every listed file, when every listed file answers 404', async () => {
+        const h = newHarness();
+
+        await runWithFiles(h, [MISSING, withEvidence(GONE_HUB, [EVIDENCE_1])]);
+
+        for (const className of ['File', 'EvidenceFile']) {
+          const calls = h.batchApi.callsFor(className);
+          expect(ops(calls), className).to.deep.equal(['create', 'log', 'end']);
+          expect(calls[0].arg, className).to.include({ deletesEnabled: false });
+          expect(calls[1].arg.message, className)
+            .to.contain('file-service answered 404 for all 2 pipeline file(s), as it would for a wrong file-service URL or missing access')
+            .and.contain(`The ${className} objects keep their last version`);
+        }
+        expect(h.batchApi.callsFor('File')[1].arg.message).to.contain(`"gone.txt" (${MISSING.fileId})`).and.not.contain(GONE_HUB.fileId);
+        expect(h.batchApi.callsFor('EvidenceFile')[1].arg.message).to.contain(`"deleted.csv" (${GONE_HUB.fileId})`).and.not.contain(MISSING.fileId);
+        expect(h.files.copies).to.deep.equal([]);
+      });
+
+      describe('deletes off', () => {
+        const evidenced = withEvidence(EMPTY, [EVIDENCE_1]);
+        const scenarios: { reason: string; message: string; arrange: (h: Harness) => unknown[] }[] = [
+          {
+            reason: 'a file is unresolved',
+            message: '1 of 3 pipeline file(s) could not be resolved: "broken.txt"',
+            arrange: (h) => {
+              h.files.viewErrors.set(BROKEN.fileId, new FileServiceError('file-service GET /files/x/metadata returned 500', 500));
+              return [UPLOAD, evidenced, BROKEN];
+            },
+          },
+          {
+            reason: 'an entry is malformed',
+            message: `1 of 3 pipeline file(s) could not be resolved: {"fileId":"${BROKEN.fileId}","name":"broken.txt"`,
+            arrange: () => [UPLOAD, evidenced, { ...BROKEN, evidenceDefinitionIds: EVIDENCE_1 }],
+          },
+          {
+            reason: 'the deadline passes before a file is reached',
+            message: '1 of 3 pipeline file(s) could not be resolved: "broken.txt"',
+            arrange: (h) => {
+              h.impl.filesDeadlineMs = 40;
+              h.files.viewDelaysMs.set(EMPTY.fileId, 80);
+              h.files.views.set(BROKEN.fileId, { fileVersionId: 'v-broken', size: 1 });
+              return [UPLOAD, evidenced, BROKEN];
+            },
+          },
+          {
+            reason: 'the list can\'t be read again before the batches',
+            message: "the pipeline's current file list could not be read before the batch was created",
+            arrange: (h) => {
+              h.pipelineApi.answers = [{ files: [UPLOAD, evidenced] }, new Error('platform returned 502')];
+              return [UPLOAD, evidenced];
+            },
+          },
+        ];
+
+        for (const { reason, message, arrange } of scenarios) {
+          it(`turns deletes off on both batches when ${reason}`, async () => {
+            const h = newHarness();
+            h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
+            h.files.views.set(EMPTY.fileId, { fileVersionId: 'v-empty', size: 0 });
+
+            await runWithFiles(h, arrange(h));
+
+            for (const className of ['File', 'EvidenceFile']) {
+              const calls = h.batchApi.callsFor(className);
+              expect(ops(calls), className).to.deep.equal(['create', 'log', 'addItems', 'end']);
+              expect(calls[0].arg, className).to.include({ deletesEnabled: false });
+              expect(calls[1].arg.logLevel, className).to.equal(BatchLogLevelEnum.Warn);
+              expect(calls[1].arg.message, className).to.contain(`Deletes are off for this run: ${message}`);
+            }
+            expect(payloads(h.batchApi.callsFor('File')[2]).map((record) => record.id)).to.deep.equal([UPLOAD.fileId]);
+            expect(payloads(h.batchApi.callsFor('EvidenceFile')[2]).map((record) => record.id))
+              .to.deep.equal([evidenceFileId(EMPTY.fileId, EVIDENCE_1)]);
+          });
+        }
+      });
     });
   });
 

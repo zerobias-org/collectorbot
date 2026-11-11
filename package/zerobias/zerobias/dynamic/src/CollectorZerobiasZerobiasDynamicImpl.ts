@@ -11,7 +11,7 @@ import {
 } from './FileServiceClient.js';
 import { applyMappings } from './Mappers.js';
 import {
-  DataMapping, DataMappingParams, DataMappingSource, FileSourceRecord, MappingFileSource, PipelineFile, PipelineFileRecord,
+  DataMapping, DataMappingParams, DataMappingSource, EvidenceFileRecord, FileSourceRecord, MappingFileSource, PipelineFile, PipelineFileRecord,
 } from './types/index.js';
 
 /** The `moduleTargets` key of the job's DataProducer target, as the generated container reads it. */
@@ -28,8 +28,17 @@ const FILE_RECORDS_PAGE_SIZE = 100;
  */
 export const FILE_RECORDS_MAX_PAGES = 10_000;
 
-/** How many File records go to the platform in one `addItems` call. */
+/** How many records of a pipeline files batch go to the platform in one `addItems` call. */
 const FILE_CHUNK_SIZE = 500;
+
+/** The class of the batch of pipeline files that list no evidence definitions. */
+const FILE_CLASS = 'File';
+
+/**
+ * The class of the batch of pipeline files that list evidence definitions, a
+ * concrete class that extends `File`.
+ */
+const EVIDENCE_FILE_CLASS = 'EvidenceFile';
 
 /**
  * The deadline of a run's files step, counted from its start: 10 minutes.
@@ -68,8 +77,8 @@ type HubPipelineFile = Extract<PipelineFile, { source: 'hub' }>;
  * - `pending`: it has no ready version, so it is left out with deletes as they are.
  * - `unresolved`: its state is unknown, which turns deletes off.
  *
- * A gone or failed file fails the run's File batch and the mappings that read
- * it (see `processFiles`).
+ * A gone or failed file fails the batch its records belong to and the
+ * mappings that read it (see `processFiles`).
  */
 type FileOutcome =
   | { kind: 'record'; record: PipelineFileRecord }
@@ -78,44 +87,61 @@ type FileOutcome =
   | { kind: 'pending' }
   | { kind: 'unresolved' };
 
-/** A pipeline file this run can't refresh: its entry name and why, as the File batch's error and its mappings' name them. */
+/** A pipeline file this run can't refresh: its entry name and why, as its batch's error and its mappings' name them. */
 interface FileFailure {
   name: string;
   reason: string;
 }
 
 /**
- * What collecting a run's pipeline files came to: the records to send, the
- * entries that turn deletes off (named for log lines), the files that can't be
- * refreshed, by file ID, and the keys (see `entryKey`) of every entry collected
- * and of those file-service answered 404 for.
+ * What collecting a run's pipeline files came to: the `File` records to send,
+ * the entries that turn deletes off (named for log lines), the files that
+ * can't be refreshed, by file ID, the evidence definitions each well-formed
+ * entry lists (see `evidenceDefinitionIdsOf`), by file ID, and the keys (see
+ * `entryKey`) of every entry collected and of those file-service answered 404
+ * for.
  */
 interface CollectedFiles {
   records: PipelineFileRecord[];
   unresolved: string[];
   failed: Map<string, FileFailure>;
+  evidence: Map<string, string[]>;
   keys: Set<string>;
   gone: Set<string>;
 }
 
 /**
- * The File batch a run sends once its list is read again (see `settleFiles`):
- * the records and failures of files still listed, the keys of the entries
- * listed, the file IDs listed when that read succeeded, and why deletes are
- * off, if they are.
+ * What a run's pipeline files batches are built from once its list is read
+ * again (see `settleFiles`): the `File` records and failures of files still
+ * listed, the evidence definitions each file lists, by file ID, the keys of
+ * the entries listed, the file IDs listed when that read succeeded, and why
+ * deletes are off, if they are.
  */
 interface SettledFiles {
   records: PipelineFileRecord[];
   failed: Map<string, FileFailure>;
+  evidence: Map<string, string[]>;
   listedKeys: Set<string>;
   listedFileIds?: Set<string>;
   deletesOffReasons: string[];
 }
 
 /**
+ * One batch of a run's pipeline files (see `filesBatches`): its class, its
+ * records, and the files whose records belong in it but can't be refreshed,
+ * by file ID.
+ */
+interface FilesBatch {
+  className: string;
+  records: PipelineFileRecord[];
+  failed: Map<string, FileFailure>;
+}
+
+/**
  * What a run's files step tells its data mappings (see `run`): the files that
  * can't be refreshed, by file ID, and the file IDs the pipeline lists, known
- * only when its list was read right before the File batch was created.
+ * only when its list was read right before the pipeline files batches were
+ * created.
  */
 interface FilesOutcome {
   failed: Map<string, FileFailure>;
@@ -626,41 +652,40 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
   }
 
   /**
-   * Collect the files attached to the pipeline again as a single `File`
-   * batch in group `pipeline-files:<pipelineId>`, a full snapshot, so the
-   * objects the platform imported when each file was added stay current and
-   * those of removed files are deleted. Only the job whose launch params
-   * carry `files` gets here, and it collects the pipeline's current list (see
-   * `currentPipelineFiles`). Preview runs skip files entirely.
+   * Collect the files attached to the pipeline again as a full snapshot in
+   * group `pipeline-files:<pipelineId>`, so the objects the platform imported
+   * when each file was added stay current and those of removed files are
+   * deleted. Only the job whose launch params carry `files` gets here, and it
+   * collects the pipeline's current list (see `currentPipelineFiles`).
+   * Preview runs skip files entirely.
+   *
+   * The snapshot is up to two batches (see `filesBatches`):
+   * - **`File`:** a record for each file that lists no evidence definitions.
+   *   A file that comes to list some leaves it, so its deletes give that
+   *   file's File object a deleted, empty version.
+   * - **`EvidenceFile`:** a record for each evidence definition of each file
+   *   that lists some, sent only when a listed file does. The platform's own
+   *   snapshots always send both, which deletes the EvidenceFile objects of a
+   *   file that loses all of its evidence definitions.
    *
    * Every entry is resolved (see `collectFiles`) by the step's deadline,
-   * `filesDeadlineMs` after it starts, before the batch is created, because
-   * `deletesEnabled` is fixed at creation. Right before creating it, the list
-   * is read again and the files added meanwhile are collected too (see
+   * `filesDeadlineMs` after it starts, before the batches are created, because
+   * `deletesEnabled` is fixed at creation. Right before creating them, the
+   * list is read again and the files added meanwhile are collected too (see
    * `settleFiles`), so an add or remove made during the run is not undone.
    * Deletes stay on only when that read succeeded and no entry collected is
    * malformed, unresolved or past the deadline, so a file-service hiccup
-   * never deletes the object of a file that is still attached. The copy-wait
-   * budget (`copyWait.perRunMs`) covers both collections.
+   * never deletes the object of a file that is still attached. Any of those
+   * turns deletes off on both batches. The copy-wait budget
+   * (`copyWait.perRunMs`) covers both collections.
    *
-   * A file that can't be refreshed fails the batch. That is a file file-service
-   * answers 404 for, or a Hub file whose source answers 404 or refuses the copy
-   * (see `collectFile`).
-   * - The batch still carries every record it has, with deletes off, plus one
-   *   error naming each such file, marked terminal.
-   * - The platform then fails this batch, imports the run's other batches and
-   *   shows the pipeline in error, while every File object keeps its last version.
-   * - This holds when every file answered 404 too. A wrong file-service URL or
-   *   missing access looks the same, and the error says so.
-   * - The mappings that read those files fail as well (see `run`).
+   * A file that can't be refreshed fails the batch its records belong to (see
+   * `sendFilesBatch`). That is a file file-service answers 404 for, or a Hub
+   * file whose source answers 404 or refuses the copy (see `collectFile`). The
+   * mappings that read those files fail as well (see `run`).
    *
-   * No batch is sent when there is no record, no failure and deletes are off,
-   * since it would change nothing. An empty list sends an empty batch, which
-   * deletes the objects of removed files. Records go to the platform
-   * `FILE_CHUNK_SIZE` at a time.
-   *
-   * Other problems are logged at warn, since an error log on the batch makes
-   * the platform fail it. A failed `addItems` fails the batch too (see `failBatch`).
+   * Other problems are logged at warn, since an error log on a batch makes the
+   * platform fail it.
    */
   private async processFiles(launchFiles: unknown[], pipelineId: string): Promise<FilesOutcome> {
     const nothing: FilesOutcome = { failed: new Map() };
@@ -684,23 +709,57 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
       return nothing;
     }
 
-    const { records, listedKeys, failed } = settled;
-    const outcome: FilesOutcome = { failed, listedFileIds: settled.listedFileIds };
+    const { listedKeys, failed } = settled;
     const allGone = listedKeys.size > 0 && [...listedKeys].every((key) => collected.gone.has(key));
     const reasons = collected.unresolved.length > 0
       ? [`${collected.unresolved.length} of ${collected.keys.size} pipeline file(s) could not be resolved: ${nameSome(collected.unresolved)}`]
       : [];
     reasons.push(...settled.deletesOffReasons);
+    for (const batch of filesBatches(settled, pipelineId)) {
+      await this.sendFilesBatch(batch, `pipeline-files:${pipelineId}`, reasons, allGone ? failed.size : undefined);
+    }
+    return { failed, listedFileIds: settled.listedFileIds };
+  }
+
+  /**
+   * Send one batch of a run's pipeline files (see `processFiles`) in
+   * `groupId`, with deletes on only when nothing in `reasons` turned them off
+   * and none of its files failed.
+   *
+   * When some did, the batch fails:
+   * - It still carries every record it has, with deletes off, plus one error
+   *   naming each such file, marked terminal (see `filesFailureMessage`).
+   * - The platform then fails this batch, imports the run's other batches and
+   *   shows the pipeline in error, while each of this batch's objects keeps
+   *   its last version.
+   * - This holds when every listed file answered 404 too. `allGone` is then
+   *   how many files the pipeline lists, since a wrong file-service URL or
+   *   missing access looks the same, and the error says so.
+   *
+   * No batch is sent when there is no record, no failure and deletes are off,
+   * since it would change nothing. Otherwise a batch with no record is sent
+   * empty, which deletes the objects of removed files. Records go to the
+   * platform `FILE_CHUNK_SIZE` at a time, and a failed `addItems` fails the
+   * batch too (see `failBatch`).
+   */
+  private async sendFilesBatch(
+    { className, records, failed }: FilesBatch,
+    groupId: string,
+    reasons: string[],
+    allGone?: number,
+  ): Promise<void> {
     const deletesEnabled = reasons.length === 0 && failed.size === 0;
     if (records.length === 0 && !deletesEnabled && failed.size === 0) {
-      this.logger.warn(`No pipeline file produced a record and deletes are off, so sending no File batch: ${reasons.join('; ')}`);
-      return outcome;
+      this.logger.warn(
+        `No pipeline file produced a ${className} record and deletes are off, so sending no ${className} batch: ${reasons.join('; ')}`
+      );
+      return;
     }
 
     this.logger.info(
-      `Sending ${records.length} pipeline file(s) as a File batch (deletes ${deletesEnabled ? 'on' : 'off'})`
+      `Sending ${records.length} pipeline file record(s) as the ${className} batch (deletes ${deletesEnabled ? 'on' : 'off'})`
     );
-    const batch = await this.initBatchForClass('File', `pipeline-files:${pipelineId}`, { deletesEnabled });
+    const batch = await this.initBatchForClass(className, groupId, { deletesEnabled });
     try {
       if (reasons.length > 0) {
         await batch.warn(`Deletes are off for this run: ${reasons.join('; ')}`);
@@ -710,15 +769,14 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
       }
     } catch (error) {
       await this.failBatch(batch, `Failed to add pipeline files to the batch: ${(error as Error).message}`, error as Error);
-      return outcome;
+      return;
     }
     if (failed.size > 0) {
-      const message = filesFailureMessage(failed, allGone);
+      const message = filesFailureMessage(className, failed, allGone);
       await this.failBatch(batch, message, new Error(message), { transient: false });
-      return outcome;
+      return;
     }
     await batch.end();
-    return outcome;
   }
 
   /**
@@ -728,14 +786,18 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    * entry not reached in time go in `unresolved`. An entry file-service
    * answered 404 for goes in `gone`, and in `failed` with one whose Hub source
    * answered 404 or refused the copy, which also keeps the record it still has.
+   * The evidence definitions of every well-formed entry go in `evidence`.
    */
   private async collectFiles(
     files: unknown[],
     deadline: number,
-    collected: CollectedFiles = { records: [], unresolved: [], failed: new Map(), keys: new Set(), gone: new Set() },
+    collected: CollectedFiles = { records: [], unresolved: [], failed: new Map(), evidence: new Map(), keys: new Set(), gone: new Set() },
   ): Promise<CollectedFiles> {
     for (const entry of files) {
       collected.keys.add(entryKey(entry));
+      if (isPipelineFile(entry)) {
+        collected.evidence.set(entry.fileId, evidenceDefinitionIdsOf(entry));
+      }
     }
     for (const [index, entry] of files.entries()) {
       if (Date.now() >= deadline) {
@@ -774,19 +836,28 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
   }
 
   /**
-   * Read the pipeline's list again right before the File batch is created and
-   * fit what this run collected to it, so a file added or removed meanwhile is
-   * not undone. The records of files no longer listed are dropped. Entries
-   * the list now holds that this run did not collect are collected into
-   * `collected` too, by the same `deadline`: the run's batch is newer than the
-   * platform's own snapshot of the add, which it supersedes, so it must carry
-   * their records. One of them that is malformed, unresolved or past the
-   * deadline turns deletes off, as in the first collection; one that answers
-   * 404, or whose Hub source fails, fails like any other. The failures of files
-   * no longer listed are dropped with their records. A failed read keeps every
-   * record and failure, turns deletes off and lists no file IDs, so no mapping
-   * is taken for one whose file was removed (see `run`). Returns undefined when
-   * the pipeline no longer has a `files` key.
+   * Read the pipeline's list again right before the pipeline files batches
+   * are created and fit what this run collected to it, so a file added or
+   * removed meanwhile is not undone. The records of files no longer listed are
+   * dropped. Entries the list now holds that this run did not collect are
+   * collected into `collected` too, by the same `deadline`: the run's batches
+   * are newer than the platform's own snapshot of the add, which they
+   * supersede, so they must carry their records. One of them that is
+   * malformed, unresolved or past the deadline turns deletes off, as in the
+   * first collection; one that answers 404, or whose Hub source fails, fails
+   * like any other. The failures of files no longer listed are dropped with
+   * their records. Each file's evidence definitions are taken from this read
+   * as well, so a change to them made meanwhile is not undone either.
+   *
+   * The file IDs it lists for `run` include those of malformed entries that
+   * name a `fileId`, so a malformed entry never makes its file's mappings look
+   * removed. A malformed entry without one could be any file, so the read then
+   * lists no file IDs at all.
+   *
+   * A failed read keeps every record and failure, and the evidence
+   * definitions as collected, turns deletes off and lists no file IDs, so no
+   * mapping is taken for one whose file was removed (see `run`). Returns
+   * undefined when the pipeline no longer has a `files` key.
    */
   private async settleFiles(collected: CollectedFiles, deadline: number): Promise<SettledFiles | undefined> {
     let listed: unknown[] | undefined;
@@ -797,6 +868,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
       return {
         records: collected.records,
         failed: collected.failed,
+        evidence: collected.evidence,
         listedKeys: collected.keys,
         deletesOffReasons: ["the pipeline's current file list could not be read before the batch was created"],
       };
@@ -814,7 +886,8 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
       await this.collectFiles(added, deadline, collected);
     }
 
-    const listedIds = new Set(listed.filter(isPipelineFile).map((entry) => entry.fileId));
+    const current = listed.filter(isPipelineFile);
+    const listedIds = new Set(current.map((entry) => entry.fileId));
     const removed = collected.records.filter((record) => !listedIds.has(record.id));
     if (removed.length > 0) {
       this.logger.info(
@@ -825,8 +898,9 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     return {
       records: collected.records.filter((record) => listedIds.has(record.id)),
       failed: new Map([...collected.failed].filter(([fileId]) => listedIds.has(fileId))),
+      evidence: new Map(current.map((entry): [string, string[]] => [entry.fileId, evidenceDefinitionIdsOf(entry)])),
       listedKeys: new Set(listed.map(entryKey)),
-      listedFileIds: listedIds,
+      listedFileIds: listed.some((entry) => namedFileId(entry) === undefined) ? undefined : new Set(listed.map(namedFileId) as string[]),
       deletesOffReasons: [],
     };
   }
@@ -1040,7 +1114,9 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    *   so its objects keep their last version (see `failMappingOfFailedFile`).
    * - **The pipeline no longer lists its file:** the mapping reads nothing,
    *   and its objects are deleted (see `clearRemovedMappings`). That is only
-   *   decided when the list was read right before the File batch.
+   *   decided when the list was read right before the pipeline files batches.
+   *
+   * Both go by file ID, whichever batch the file's records belong to.
    *
    * The Hub target is initialized only when a mapping reads from it (see
    * `initHubTarget`), so a pipeline whose mappings only read uploaded files
@@ -1139,17 +1215,47 @@ function sourceFailure(entry: HubPipelineFile, error: unknown): string | undefin
 }
 
 /**
- * The error that fails a run's File batch (see `processFiles`): each file that
- * can't be refreshed, why, and what to do about it. When every listed file
- * answered 404 it says so first, as a wrong file-service URL or missing access
- * looks the same.
+ * The batches a run's pipeline files go in (see `processFiles`), from what
+ * `settleFiles` came to:
+ * - **`File`:** the records and failures of the files that list no evidence
+ *   definitions.
+ * - **`EvidenceFile`:** the EvidenceFile records (see `evidenceFileRecords`)
+ *   and the failures of the files that list some. It is left out when no
+ *   listed file lists any.
  */
-function filesFailureMessage(failed: Map<string, FileFailure>, allGone: boolean): string {
+function filesBatches({ records, failed, evidence }: SettledFiles, pipelineId: string): FilesBatch[] {
+  const listsEvidence = (fileId: string) => (evidence.get(fileId)?.length ?? 0) > 0;
+  const batches: FilesBatch[] = [{
+    className: FILE_CLASS,
+    records: records.filter((record) => !listsEvidence(record.id)),
+    failed: new Map([...failed].filter(([fileId]) => !listsEvidence(fileId))),
+  }];
+  if ([...evidence.keys()].some(listsEvidence)) {
+    const namespace = new UUID(pipelineId);
+    batches.push({
+      className: EVIDENCE_FILE_CLASS,
+      records: records
+        .filter((record) => listsEvidence(record.id))
+        .flatMap((record) => evidenceFileRecords(record, evidence.get(record.id) ?? [], namespace)),
+      failed: new Map([...failed].filter(([fileId]) => listsEvidence(fileId))),
+    });
+  }
+  return batches;
+}
+
+/**
+ * The error that fails a run's `className` batch of pipeline files (see
+ * `sendFilesBatch`): each of its files that can't be refreshed, why, and what
+ * to do about it. When every listed file answered 404, `allGone` is how many
+ * the pipeline lists, and it says so first, as a wrong file-service URL or
+ * missing access looks the same.
+ */
+function filesFailureMessage(className: string, failed: Map<string, FileFailure>, allGone?: number): string {
   const files = [...failed].map(([fileId, failure]) => `"${failure.name}" (${fileId}): ${failure.reason}`);
   const head = allGone
-    ? `file-service answered 404 for all ${failed.size} pipeline file(s), as it would for a wrong file-service URL or missing access`
+    ? `file-service answered 404 for all ${allGone} pipeline file(s), as it would for a wrong file-service URL or missing access`
     : `${failed.size} pipeline file(s) can't be refreshed`;
-  return `${head}: ${nameSome(files)}. The File objects keep their last version. ` +
+  return `${head}: ${nameSome(files)}. The ${className} objects keep their last version. ` +
     'Restore each file at its source, pick it again, or remove it from the pipeline.';
 }
 
@@ -1169,17 +1275,44 @@ function unpagedMessage(where: string, pageNumber: number, page: FileServiceReco
  * Whether a `params.files` entry has the shape the collector needs: an
  * object with a string `fileId` and `name`, and a `source` of `upload`, or of
  * `hub` with a string `targetId`, `objectId` and `destinationPath` as well.
+ * Either may carry `evidenceDefinitionIds`, which must then be an array of
+ * strings; an entry whose `evidenceDefinitionIds` is anything else, null
+ * included, is malformed.
  */
 function isPipelineFile(entry: unknown): entry is PipelineFile {
   if (!entry || typeof entry !== 'object') {
     return false;
   }
-  const { fileId, name, source, targetId, objectId, destinationPath } = entry as Record<string, unknown>;
+  const {
+    fileId, name, source, targetId, objectId, destinationPath, evidenceDefinitionIds,
+  } = entry as Record<string, unknown>;
   if (typeof fileId !== 'string' || typeof name !== 'string') {
+    return false;
+  }
+  if (evidenceDefinitionIds !== undefined && !isStringArray(evidenceDefinitionIds)) {
     return false;
   }
   return source === 'upload'
     || (source === 'hub' && typeof targetId === 'string' && typeof objectId === 'string' && typeof destinationPath === 'string');
+}
+
+/** The `fileId` a listed entry names, well-formed or not, or undefined when it names none. */
+function namedFileId(entry: unknown): string | undefined {
+  const fileId = entry && typeof entry === 'object' ? (entry as Record<string, unknown>).fileId : undefined;
+  return typeof fileId === 'string' ? fileId : undefined;
+}
+
+/** Whether `value` is an array of strings. */
+function isStringArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.every((item) => typeof item === 'string');
+}
+
+/**
+ * The evidence definitions a pipeline file lists, each once, in the order
+ * first listed: none when it lists none, or an empty list.
+ */
+function evidenceDefinitionIdsOf(entry: PipelineFile): string[] {
+  return [...new Set(entry.evidenceDefinitionIds ?? [])];
 }
 
 /**
@@ -1206,6 +1339,24 @@ function pipelineFileRecord(
     record.mimeType = mimeType;
   }
   return record;
+}
+
+/**
+ * The `EvidenceFile` records of a pipeline file that lists evidence
+ * definitions, one per evidence definition, built as the platform builds
+ * them, key for key and value for value (see `pipelineFileRecord` for why):
+ * the file's `File` record under its own `id`, then `pipelineId` and
+ * `evidenceDefinition`. That `id` is a UUIDv5 of
+ * `<fileId>:<evidenceDefinitionId>` in the pipeline's ID as namespace, so a
+ * file and evidence definition keep one object across runs.
+ */
+function evidenceFileRecords(fileRecord: PipelineFileRecord, evidenceDefinitionIds: string[], pipelineId: UUID): EvidenceFileRecord[] {
+  return evidenceDefinitionIds.map((evidenceDefinitionId) => ({
+    ...fileRecord,
+    id: UUID.generateV5(`${fileRecord.id}:${evidenceDefinitionId}`, pipelineId).toString(),
+    pipelineId: pipelineId.toString(),
+    evidenceDefinition: evidenceDefinitionId,
+  }));
 }
 
 /**
