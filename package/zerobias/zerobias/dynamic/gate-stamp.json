@@ -1,5 +1,5 @@
 {
-  "version": "1.1.4-uat.0",
+  "version": "1.1.5",
   "branch": "feat/pipeline-file-evidence",
   "sourceHash": "41236f2cf8b4edb526fcb586edc3b5f8225ad464aab7c881942856caf3c4aee3",
   "testHash": "eb4558ae3b3132fdd216f3a84ce9ad44a0174e977c5584d8cf898af1d2fafb59",
