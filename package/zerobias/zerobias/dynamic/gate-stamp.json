@@ -1,5 +1,5 @@
 {
-  "version": "1.1.5-uat.0",
+  "version": "1.1.6",
   "branch": "fix/evidence-file-snapshot",
   "sourceHash": "437a757351f6da6815c2ad7ee72d2f4d466f38a4ec0b81c408467d4ecc97de68",
   "testHash": "3d9404c0c92e78f66ab9e4bc2613a37d4c6a504b9250210f6bcf72c079e2f43e",
