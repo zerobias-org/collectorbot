@@ -1,8 +1,8 @@
 {
-  "version": "1.1.6",
-  "branch": "fix/evidence-file-snapshot",
-  "sourceHash": "437a757351f6da6815c2ad7ee72d2f4d466f38a4ec0b81c408467d4ecc97de68",
-  "testHash": "3d9404c0c92e78f66ab9e4bc2613a37d4c6a504b9250210f6bcf72c079e2f43e",
+  "version": "1.1.6-uat.0",
+  "branch": "feat/template-required-files",
+  "sourceHash": "ddb2679c990f6ec647d5dc41c3e2800fbc6e62a945eee25311347543226cd3cf",
+  "testHash": "9325f46e53bd8be65f30ae5ccf7fc6e2ccb9066b580d735bfccd663de0681c88",
   "tasks": {
     "validate": "passed",
     "lint": "passed",
@@ -15,7 +15,7 @@
     "dataloaderExec": "passed"
   },
   "tests": {
-      "unit": { "expected": 117, "ran": 117, "status": "passed" },
+      "unit": { "expected": 126, "ran": 126, "status": "passed" },
       "integration": { "expected": 5, "ran": 5, "status": "passed" },
       "e2e": { "expected": 0, "ran": 0, "status": "skipped" }
   }
