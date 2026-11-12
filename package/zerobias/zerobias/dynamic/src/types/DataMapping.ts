@@ -254,6 +254,40 @@ export interface EvidenceFileRecord extends PipelineFileRecord {
 }
 
 /**
+ * A pipeline file as a mapping expression reads it from `$files` (see
+ * `MappingFiles`): its file-service ID, the newest ready version this run
+ * resolved, its name as the pipeline lists it, its size, and its MIME type,
+ * left out when file-service has none. It is the file's `PipelineFileRecord`
+ * with `id` as `fileId`.
+ */
+export interface MappingFile {
+  fileId: string;
+  fileVersionId: string;
+  name: string;
+  size: number;
+  mimeType?: string;
+}
+
+/**
+ * What every mapping expression reads as `$files`: the pipeline files this
+ * run resolved, each under its name as the pipeline lists it, so
+ * `$lookup($files, "floorplan.webp").fileVersionId` is the version of the file
+ * listed as `floorplan.webp`. `$lookup` takes the name as it is; a path such as
+ * `$files.floorplan.webp` would read `floorplan`, then `webp`.
+ *
+ *  - When several resolved files share a name, the first listed wins.
+ *  - A file the run could not resolve is left out: one that failed, is
+ *    unresolved or has no ready version yet.
+ *  - Only the job that collects the pipeline's files (see
+ *    `DataMappingParams`) has any. Every other job reads `{}`.
+ *  - A preview run copies nothing: it takes each listed file's version from
+ *    one metadata read, so a Hub file shows the version file-service has.
+ *
+ * It is frozen, values included, since every row of the run reads it.
+ */
+export type MappingFiles = Readonly<Record<string, Readonly<MappingFile>>>;
+
+/**
  * Parameters structure containing data mappings, the pipeline-level
  * saved-query registry the mappings reference by `sourceQueryKey`, and the
  * files attached to the pipeline.
@@ -271,7 +305,8 @@ export interface EvidenceFileRecord extends PipelineFileRecord {
  * cannot be read, and reads the list again right before it sends the batch.
  * There, an absent `files` means the pipeline has no file collection at all,
  * and an empty list means every file was removed, so the run deletes their
- * objects.
+ * objects. That job's mappings read the files it resolved as `$files` (see
+ * `MappingFiles`); every other job's read `{}`.
  */
 export interface DataMappingParams {
   dataMappings?: DataMapping[];

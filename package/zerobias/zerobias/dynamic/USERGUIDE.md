@@ -217,6 +217,66 @@ mapping. Before 1.1.0 paging stopped at 1000 pages (about 100,100 elements). A s
 fails its mapping too: at once when its elements carry an id-like key such as `id` or `name`, and at the page cap when
 they don't.
 
+## Mapping Expressions
+
+A mapping rule's `expression` transform is JSONata over the rule's source fields, which it reads by name. It can also
+read two variables the collector binds for every rule, each with a `$` in front:
+
+| Variable | Value |
+|---|---|
+| `$pipelineId` | the pipeline's id, the group its mappings' batches go to |
+| `$files` | the pipeline files this run resolved, each under the name the pipeline lists it by |
+
+### `$pipelineId`
+
+The platform's linker resolves a reference by id across the whole org, so pipelines that load the same workbook would
+link to each other's records. A template makes its ids unique to each pipeline with `$pipelineId`, as in
+`id != null ? $pipelineId & "/" & $string(id)`.
+
+### `$files`
+
+A pipeline created from a template gets its own copies of the files the template ships, attached as pipeline files (see
+*Pipeline Files*). The template can't know their fileservice ids, and a file's `fileVersionId` changes with every
+version uploaded, so a rule reads them from `$files` when the run maps. It is an object keyed by each listed file's
+name:
+
+```json
+{
+  "floorplan.webp": {
+    "fileId": "0e7c2a14-9b3d-4f6a-8c21-5d4e3f2a1b42",
+    "fileVersionId": "6b1d0c3e-2f4a-4b5c-8d6e-7f8091a2b3c4",
+    "name": "floorplan.webp",
+    "size": 106928,
+    "mimeType": "image/webp"
+  }
+}
+```
+
+- **Values:** each file as this run resolved it: its `fileId`, the `fileVersionId` and `size` of its newest ready
+  version (for a Hub file, the version its copy brought), its `name` as the pipeline lists it, and `mimeType` when
+  fileservice has one.
+- **Shared names:** when several resolved files are listed under one name, the first listed wins.
+- **Files the run couldn't resolve** are left out: one that failed, is unresolved or has no ready version yet (see *How
+  Each File Resolves*). That includes a Hub file whose copy fileservice refused, though its batch keeps the version
+  fileservice has. A rule then falls back to whatever else it reads.
+- **Which job:** only the job that collects the pipeline's files has them. A run that fans out over scopes launches one
+  job per scope and the platform gives `files` to one of them, so every other job's mappings read `$files` as `{}`, as
+  do the mappings of a pipeline with no files.
+- **Preview runs** collect no files, but they read each listed file's metadata, so a preview maps real values. They copy
+  nothing, so a Hub file shows the version fileservice has, where a run would copy it again first.
+
+Read a file with `$lookup`, which takes the name as it is. A path such as `$files.floorplan.webp` reads `floorplan`,
+then `webp`, and finds nothing; a quoted path such as `` $files.`floorplan.webp` `` works too.
+
+The Floor Plans template ships its drawing as `floorplan.webp`. The workbook's `File` sheet describes the drawing, and
+the File class requires the drawing's `fileVersionId`, so the template's rule for it takes the version this run
+resolved and falls back to the sheet's own `fileVersionId` column when the run has none, as in a job that doesn't
+collect the files:
+
+```
+$lookup($files, "floorplan.webp") ? $lookup($files, "floorplan.webp").fileVersionId : (fileVersionId ? $trim(fileVersionId))
+```
+
 ## Pipeline Files (1.1.0)
 
 The collector also collects the files attached to a dynamic pipeline. The platform keeps them in the pipeline's
@@ -231,7 +291,8 @@ platform builds the same record when a file is added, so both match key for key;
 order, since the platform sorts keys before it hashes a version.
 
 - **Which job:** only the job launched with `files` in its params, the first job of a run, collects them, from the list
-  the pipeline holds when the job runs. Preview runs skip files.
+  the pipeline holds when the job runs. Preview runs collect no files; they only read each listed file's metadata for
+  `$files` (see *Mapping Expressions*).
 - **Uploaded files** are read from fileservice as they are.
 - **Hub files** are copied from their Hub target again first, so the latest remote contents become a new version. The
   collector waits up to 30 s per file and 120 s per run for the copy, then records the version that is ready. A copy

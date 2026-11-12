@@ -1058,7 +1058,7 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
       });
     });
 
-    it('skips files entirely on a preview run', async () => {
+    it('collects no files on a preview run, only reading the metadata of each listed file for $files', async () => {
       for (const files of [[UPLOAD, HUB], []]) {
         const h = newHarness({ previewMode: true, previewCount: 5 });
         h.files.views.set(UPLOAD.fileId, { fileVersionId: 'v-upload', size: 2048 });
@@ -1066,7 +1066,8 @@ describe('CollectorZerobiasZerobiasDynamicImpl', () => {
         await runWithFiles(h, files);
 
         expect(h.pipelineApi.gets).to.deep.equal([]);
-        expect(h.files.calls).to.deep.equal([]);
+        expect(h.files.calls).to.deep.equal(files.map((file) => `get ${file.fileId}`));
+        expect(h.files.copies).to.deep.equal([]);
         expect(h.batchApi.callsFor('File')).to.deep.equal([]);
         expect(h.batchApi.callsFor('EvidenceFile')).to.deep.equal([]);
       }

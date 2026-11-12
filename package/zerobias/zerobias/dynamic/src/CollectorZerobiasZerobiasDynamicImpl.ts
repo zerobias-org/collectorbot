@@ -11,7 +11,8 @@ import {
 } from './FileServiceClient.js';
 import { applyMappings } from './Mappers.js';
 import {
-  DataMapping, DataMappingParams, DataMappingSource, EvidenceFileRecord, FileSourceRecord, MappingFileSource, PipelineFile, PipelineFileRecord,
+  DataMapping, DataMappingParams, DataMappingSource, EvidenceFileRecord, FileSourceRecord, MappingFile, MappingFileSource, MappingFiles,
+  PipelineFile, PipelineFileRecord,
 } from './types/index.js';
 
 /** The `moduleTargets` key of the job's DataProducer target, as the generated container reads it. */
@@ -50,6 +51,9 @@ export const FILES_DEADLINE_MS = 10 * 60_000;
 
 /** How many pipeline files a warning names before it only counts the rest. */
 const NAMED_FILES_LIMIT = 20;
+
+/** The `$files` of a run that resolved no pipeline file (see `MappingFiles`). */
+const NO_MAPPING_FILES: MappingFiles = Object.freeze({});
 
 /**
  * The most remote pages a mapping's collection is read for: 10,000, about
@@ -139,13 +143,15 @@ interface FilesBatch {
 
 /**
  * What a run's files step tells its data mappings (see `run`): the files that
- * can't be refreshed, by file ID, and the file IDs the pipeline lists, known
+ * can't be refreshed, by file ID, the file IDs the pipeline lists, known
  * only when its list was read right before the pipeline files batches were
- * created.
+ * created, and the files their expressions read as `$files` (see
+ * `MappingFiles`).
  */
 interface FilesOutcome {
   failed: Map<string, FileFailure>;
   listedFileIds?: Set<string>;
+  files: MappingFiles;
 }
 
 /**
@@ -553,15 +559,21 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    * tags. A file-backed batch carries none, like the File batch, so its tags
    * don't depend on whether the run also read from the target, or could.
    *
-   * Mapping expressions can read the pipeline's id as `$pipelineId` (the
-   * group the batch goes to), so a template can make ids from a workbook that
-   * several pipelines load unique to each one: the platform's linker resolves
-   * a reference by id across the whole org.
+   * Mapping expressions read two bindings:
+   * - **`$pipelineId`:** the pipeline's id, the group the batch goes to, so a
+   *   template can make ids from a workbook that several pipelines load
+   *   unique to each one: the platform's linker resolves a reference by id
+   *   across the whole org.
+   * - **`$files`:** `files`, the pipeline files this run resolved, by name
+   *   (see `MappingFiles`), so a template that ships a file can point a row
+   *   at the file's current version, whose ID it can't know:
+   *   `$lookup($files, "floorplan.webp").fileVersionId`.
    */
   private async processDataMapping(
     dataMapping: DataMapping,
     groupId: string,
     queries: SavedQueryRegistry,
+    files: MappingFiles,
   ): Promise<void> {
     const { source, destination, mappings, metadata } = dataMapping;
 
@@ -572,6 +584,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
 
     const tags = readsFromHubTarget(source) ? this.connectionMetadata?.tags : undefined;
     const batch = await this.initBatchForClass(destination.className, groupId, { tags });
+    const bindings = { pipelineId: groupId, files };
 
     try {
       // Process each item through the mappings
@@ -586,8 +599,8 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
 
         let mappedItem: any;
         try {
-          // Expressions read the pipeline as $pipelineId, so ids mapped from a shared workbook can be unique to it
-          const { result, errors } = await applyMappings(item, mappings, { pipelineId: groupId });
+          // Expressions read the pipeline as $pipelineId and its resolved files as $files
+          const { result, errors } = await applyMappings(item, mappings, bindings);
           mappedItem = result;
 
           if (errors.length > 0) {
@@ -657,7 +670,8 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    * when each file was added stay current and those of removed files are
    * deleted. Only the job whose launch params carry `files` gets here, and it
    * collects the pipeline's current list (see `currentPipelineFiles`).
-   * Preview runs skip files entirely.
+   * Preview runs collect no files: they only read each listed file's metadata
+   * for `$files` (see `previewMappingFiles`).
    *
    * The snapshot is two batches (see `filesBatches`), as the platform's own
    * snapshots are:
@@ -687,12 +701,15 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    *
    * Other problems are logged at warn, since an error log on a batch makes the
    * platform fail it.
+   *
+   * The data mappings read the files it resolved as `$files` (see
+   * `settledMappingFiles`).
    */
   private async processFiles(launchFiles: unknown[], pipelineId: string): Promise<FilesOutcome> {
-    const nothing: FilesOutcome = { failed: new Map() };
+    const nothing: FilesOutcome = { failed: new Map(), files: NO_MAPPING_FILES };
     if (this.context.previewMode) {
-      this.logger.info(`Preview run: skipping ${launchFiles.length} pipeline file(s)`);
-      return nothing;
+      this.logger.info(`Preview run: not collecting ${launchFiles.length} pipeline file(s), only reading their metadata for $files`);
+      return { failed: new Map(), files: await this.previewMappingFiles(launchFiles) };
     }
 
     const deadline = Date.now() + this.filesDeadlineMs;
@@ -719,7 +736,37 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     for (const batch of filesBatches(settled, pipelineId)) {
       await this.sendFilesBatch(batch, `pipeline-files:${pipelineId}`, reasons, allGone ? failed.size : undefined);
     }
-    return { failed, listedFileIds: settled.listedFileIds };
+    return { failed, listedFileIds: settled.listedFileIds, files: settledMappingFiles(settled) };
+  }
+
+  /**
+   * The `$files` of a preview run, which collects no files (see
+   * `processFiles`), so that a preview maps the values a run would. Each
+   * well-formed entry of the launch-time list gets one file-service metadata
+   * read, by the files deadline, and resolves as a run resolves it (see
+   * `fileOutcome`): no copy, no batch and no write. A Hub file therefore shows
+   * the version file-service has, where a run would copy it again first. A
+   * file whose read fails is left out, as are the entries the deadline stops
+   * before.
+   */
+  private async previewMappingFiles(launchFiles: unknown[]): Promise<MappingFiles> {
+    const deadline = Date.now() + this.filesDeadlineMs;
+    const records: PipelineFileRecord[] = [];
+    for (const entry of launchFiles.filter(isPipelineFile)) {
+      if (Date.now() >= deadline) {
+        this.logger.warn(`Preview run: reading pipeline file metadata reached its ${this.filesDeadlineMs} ms deadline; $files leaves the rest out`);
+        break;
+      }
+      try {
+        const outcome = this.fileOutcome(entry, await this.fileService.getFile(entry.fileId, { deadline }));
+        if (outcome.kind === 'record') {
+          records.push(outcome.record);
+        }
+      } catch (error) {
+        this.logger.warn(`Preview run: could not read pipeline file ${describeFile(entry)}, so $files leaves it out: ${(error as Error).message}`);
+      }
+    }
+    return mappingFiles(records);
   }
 
   /**
@@ -1110,6 +1157,11 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    * the no-mappings return, so a pipeline that only has files still collects
    * them; a failure there is logged and the data mappings still run.
    *
+   * Every data mapping's expressions read the files the step resolved as
+   * `$files` (see `processDataMapping`). A job whose launch params carry no
+   * `files`, as every job of a run but the one that collects them, reads
+   * `{}`, as does every mapping of a run whose files step throws.
+   *
    * What the files step found decides two kinds of file-backed mapping:
    * - **Its file can't be refreshed:** the mapping fails without reading it,
    *   so its objects keep their last version (see `failMappingOfFailedFile`).
@@ -1136,7 +1188,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     // Use pipeline ID for groupId as per requirements
     const pipelineId = this.context.pipelineId || 'default';
 
-    let filesOutcome: FilesOutcome = { failed: new Map() };
+    let filesOutcome: FilesOutcome = { failed: new Map(), files: NO_MAPPING_FILES };
     if (Array.isArray(files)) {
       try {
         filesOutcome = await this.processFiles(files, `${pipelineId}`);
@@ -1174,7 +1226,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
         if (fileId && failure) {
           await this.failMappingOfFailedFile(dataMapping, groupId, fileId, failure);
         } else {
-          await this.processDataMapping(dataMapping, groupId, queries);
+          await this.processDataMapping(dataMapping, groupId, queries, filesOutcome.files);
         }
       } catch (error) {
         this.logger.error(
@@ -1371,11 +1423,49 @@ function evidenceFileRecords(fileRecord: PipelineFileRecord, evidenceDefinitionI
 }
 
 /**
+ * The `$files` of a run's data mappings (see `MappingFiles`), from what
+ * `settleFiles` came to: the record of each file the run resolved, in the
+ * order of the list it settled on, so the first listed wins a name several
+ * share, even one added mid-run ahead of the files collected before it. A
+ * file that can't be refreshed is left out, though its pipeline files batch
+ * still carries the version file-service has; one that is unresolved or has
+ * no ready version has no record.
+ */
+function settledMappingFiles({ records, failed, listedKeys }: SettledFiles): MappingFiles {
+  const position = new Map([...listedKeys].map((key, index): [string, number] => [key, index]));
+  const listedAt = (record: PipelineFileRecord) => position.get(fileKey(record.id)) ?? position.size;
+  return mappingFiles(records.filter((record) => !failed.has(record.id)).toSorted((a, b) => listedAt(a) - listedAt(b)));
+}
+
+/**
+ * The `$files` that `records`, in list order, make: each as a `MappingFile`
+ * under its name, the first winning a name several share. It and its values
+ * are frozen: every row of the run reads the same objects, and data-utils
+ * puts an object an expression returns into the mapped item as it is, so a
+ * rule that wrote below it would otherwise change what the rows after read.
+ */
+function mappingFiles(records: PipelineFileRecord[]): MappingFiles {
+  const files = new Map<string, MappingFile>();
+  for (const { id, name, fileVersionId, size, mimeType } of records) {
+    if (!files.has(name)) {
+      files.set(name, Object.freeze({ fileId: id, fileVersionId, name, size, ...(mimeType ? { mimeType } : {}) }));
+    }
+  }
+  return Object.freeze(Object.fromEntries(files));
+}
+
+/**
  * The key a `params.files` entry is matched by between the run's two reads of
- * the list: the `fileId` of a well-formed entry, the JSON of a malformed one.
+ * the list: the `fileId` of a well-formed entry (see `fileKey`), the JSON of a
+ * malformed one.
  */
 function entryKey(entry: unknown): string {
-  return isPipelineFile(entry) ? `file:${entry.fileId}` : `entry:${JSON.stringify(entry) ?? String(entry)}`;
+  return isPipelineFile(entry) ? fileKey(entry.fileId) : `entry:${JSON.stringify(entry) ?? String(entry)}`;
+}
+
+/** The key (see `entryKey`) of a well-formed entry that lists `fileId`. */
+function fileKey(fileId: string): string {
+  return `file:${fileId}`;
 }
 
 /**
