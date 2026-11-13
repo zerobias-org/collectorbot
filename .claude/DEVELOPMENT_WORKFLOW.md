@@ -153,7 +153,7 @@ cp <reference-collector>/.gitignore .
     "build": "npm run generate && npm run transpile",
     "clean": "rm -rf generated && rm -rf dist",
     "generate": "npm run generate:models && npm run generate:hub-client",
-    "generate:hub-client": "node node_modules/@auditmation/hub-client-codegen/dist/index.js",
+    "generate:hub-client": "node node_modules/@com/hub-client-codegen/dist/index.js",
     "generate:models": "hub-generator generate -g hub-module -i ./parameters.yml -o generated/ --global-property models,supportingFiles=index.ts && rm ./generated/api/index.ts",
     "lint": "eslint src/",
     "lint:fix": "eslint --fix src/",
@@ -171,20 +171,20 @@ cp <reference-collector>/.gitignore .
     "@zerobias-org/product-<vendor>-<suite?>-<product>": "latest",
     "@auditlogic/schema-<vendor>-<suite?>-<product>": "^<version>",
     "@auditlogic/schema-<vendor>-<suite?>-<product>-ts": "^<version>",
-    "@auditmation/hub-client": "^8.8.39",
-    "@auditmation/hub-core": "^4.4.40",
-    "@auditmation/hydra-schema-resource": "^4.0.6",
+    "@com/hub-client": "^8.8.39",
+    "@com/hub-core": "^4.4.40",
+    "@com/hydra-schema-resource": "^4.0.6",
     "@auditmation/module-auditmation-auditmation-platform": "^4.1.6",
-    "@auditmation/types-core-js": "^4.9.8",
-    "@auditmation/util-collector-utils": "^4.3.4",
+    "@org/types-core-js": "^4.9.8",
+    "@com/util-collector-utils": "^4.3.4",
     "inversify": "^6.0.2",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
     "@auditmation/eslint-config": "^1.1.17",
-    "@auditmation/hub-client-codegen": "^2.0.8",
-    "@auditmation/hub-secrets-manager": "^2.0.16",
-    "@auditmation/util-codegen": "^5.5.19",
+    "@com/hub-client-codegen": "^2.0.8",
+    "@com/hub-secrets-manager": "^2.0.16",
+    "@com/util-codegen": "^5.5.19",
     "@types/chai": "^4.3.11",
     "@types/mocha": "^10.0.6",
     "@types/node": "^20.10.4",
@@ -347,7 +347,7 @@ openapi: 3.0.3
 info:
   description: Stub to use for codegen of parameters for a hub client
   version: ""
-  title: '@auditmation/hub-client-codegen'
+  title: '@com/hub-client-codegen'
 paths:
   /foo:
     get:
@@ -369,7 +369,7 @@ openapi: 3.0.3
 info:
   description: Stub to use for codegen of parameters for a hub client
   version: ""
-  title: '@auditmation/hub-client-codegen'
+  title: '@com/hub-client-codegen'
 paths:
   /foo:
     get:
@@ -571,9 +571,9 @@ export * from '../generated';
 **Standard Collector Template:**
 
 ```typescript
-import { ConnectionMetadata } from '@auditmation/hub-core';
-import { UUID } from '@auditmation/types-core-js';
-import { Batch } from '@auditmation/util-collector-utils';
+import { ConnectionMetadata } from '@com/hub-core';
+import { UUID } from '@org/types-core-js';
+import { Batch } from '@com/util-collector-utils';
 import { injectable } from 'inversify';
 import { BaseClient } from '../generated/BaseClient';
 import { toSchemaClass } from './Mappers';
@@ -779,7 +779,7 @@ function toMetadata(meta: moduleTypes.Metadata): schemaTypes.Metadata {
 // test/integration/Collector<Name>IT.ts
 import 'reflect-metadata';
 
-import { TestUtils } from '@auditmation/hub-client';
+import { TestUtils } from '@com/hub-client';
 import { expect } from 'chai';
 import { container } from '../../generated';
 
