@@ -77,7 +77,8 @@ collectorbot/
 │               ├── hub.yml
 │               ├── parameters.yml
 │               ├── tsconfig.json
-│               ├── .eslintrc
+│               ├── build.gradle.kts
+│               ├── gate-stamp.json
 │               ├── .mocharc.json
 │               ├── generated/     # Auto-generated (DO NOT EDIT)
 │               ├── src/           # Source code
@@ -152,17 +153,17 @@ Per-package (run from inside `package/<vendor>/<suite?>/<product>/`):
 # Install dependencies
 npm install
 
-# Generate code from hub.yml and parameters.yml
-npm run generate
-
-# Build the collector
-npm run build
+# Generate code from hub.yml and parameters.yml, and compile
+zbb build
 
 # Run linting
-npm run lint
+zbb lint
 
-# Run integration tests
-npm run test:integration
+# Run e2e tests (needs a live target; skips otherwise)
+zbb testDirect
+
+# Gate (stage new files first; commit gate-stamp.json)
+zbb gate
 ```
 
 ### Execution

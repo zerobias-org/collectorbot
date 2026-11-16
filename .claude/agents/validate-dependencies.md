@@ -15,6 +15,7 @@ Validate all dependencies are correct, versions match yml files, and no incorrec
 Read: `.claude/COLLECTORBOT_RULES.md` sections:
 - Package Naming Conventions
 - Package Configuration (dependencies section)
+- Dependency Management
 
 Read: `.claude/DEVELOPMENT_WORKFLOW.md` sections:
 - Step 3.1: Create package.json (Important notes)
@@ -23,13 +24,15 @@ Read: `.claude/DEVELOPMENT_WORKFLOW.md` sections:
 
 ### Scope rule (zerobias-org repository)
 
-- [ ] ❌ ERROR: any `@auditlogic/*` dependency. Content comes from `@zerobias-org/*` (modules, schemas, products); the platform runtime from `@zerobias-com/*` (`hub-client`, `hub-core`, `platform-sdk`, `hub-client-codegen`, other `*-sdk`) is allowed.
+- [ ] ❌ ERROR: any `@auditlogic/*` or `@auditmation/*` dependency or import. Content comes from `@zerobias-org/*` (modules, schemas, products, utils, types); the platform runtime from `@zerobias-com/*` (`hub-client`, `platform-sdk`, `hub-client-codegen`, `hub-secrets-manager`, other `*-sdk`) is allowed.
+- [ ] If a `@zerobias-org` package does not exist, report it as a blocker (it must be published first); never accept an `@auditlogic` fallback.
+- Known legacy collectors still carrying `@auditlogic` schemas/modules (`package/avigilon/alta/access`, `package/auditmation/generic/tls`): report as WARN "pending migration" instead of copying them as a pattern.
 
 ### Module Dependencies
 
 - [ ] All modules from `hub.yml` are in package.json dependencies
-- [ ] Module package names match exactly
-- [ ] Versions use `^` prefix
+- [ ] Module package names match exactly (`@zerobias-org/module-*`)
+- [ ] Versions are exact pins (no `^`, `~` or `latest`): WARN, not ERROR (the standard is in the gradle-migration skill; several existing collectors predate it and still use ranges)
 - [ ] No extra modules not in hub.yml, **except** in a shared collector
 
 **Shared collector:** the source module (`@zerobias-org/module-*`) is a plain package.json dependency imported in `src/` (`newX()`) and must NOT appear in `hub.yml` `modules:`; listing it there makes codegen inject a `<X>HubImpl` that fails with `requires targetId`. Report that as an error. `@zerobias-com/*-sdk` packages may appear in either place.
@@ -38,14 +41,14 @@ Read: `.claude/DEVELOPMENT_WORKFLOW.md` sections:
 ```yaml
 # hub.yml
 modules:
-  '@auditlogic/module-amazon-aws-iam':
+  '@zerobias-org/module-microsoft-azure-azureresourcegraph':
     ...
 ```
 
 ```json
 // package.json must have
 "dependencies": {
-  "@auditlogic/module-amazon-aws-iam": "^7.0.20"
+  "@zerobias-org/module-microsoft-azure-azureresourcegraph": "0.0.1"
 }
 ```
 
@@ -53,7 +56,7 @@ modules:
 
 - [ ] All schemas from `collector.yml` are in package.json dependencies
 - [ ] **BOTH** base and `-ts` versions included
-- [ ] Versions use `^` prefix
+- [ ] Versions are exact pins (no `^`, `~` or `latest`): WARN, not ERROR
 - [ ] Base and -ts versions match
 - [ ] No extra schemas not in collector.yml
 
@@ -61,82 +64,92 @@ modules:
 ```yaml
 # collector.yml
 classes:
-  - "@auditlogic/schema-amazon-aws-iam":
+  - "@zerobias-org/schema-microsoft-azure":
 ```
 
 ```json
 // package.json must have BOTH
 "dependencies": {
-  "@auditlogic/schema-amazon-aws-iam": "^1.16.2",
-  "@auditlogic/schema-amazon-aws-iam-ts": "^1.16.2"
+  "@zerobias-org/schema-microsoft-azure": "3.0.1",
+  "@zerobias-org/schema-microsoft-azure-ts": "3.0.1"
 }
 ```
+
+### Product Dependency
+
+- [ ] `@zerobias-org/product-<vendor>-<suite?>-<product>` is a direct dependency (source of the product UUID used in `hub.yml`)
+- [ ] The product package matches the product in `hub.yml`
 
 ### Forbidden Dependencies
 
 **CRITICAL:** These should NEVER be in dependencies
 
-- [ ] ❌ No `@auditlogic/product-*` packages (transitive via module)
-- [ ] ❌ No `@auditlogic/vendor-<vendor>` packages (transitive via product)
-- [ ] ✅ Exception: `@auditlogic/vendor-neverfail` (always included)
+- [ ] ❌ No `@auditlogic/*` packages of any kind
+- [ ] ❌ No `@auditmation/*` packages of any kind
+- [ ] ❌ No `@zerobias-org/vendor-*` packages (vendor packages are not used in zerobias-org collectors)
+- [ ] ❌ No `dotenv`, no `node-fetch` (Gradle/zbb manages env; Node 22 has built-in `fetch`)
 
 **Report as errors:**
 ```
-package.json:38 - Product package @auditlogic/product-amazon-aws-iam should NOT be in dependencies
-Suggestion: Remove - module already depends on it (transitive dependency)
+package.json:38 - Package @auditlogic/schema-amazon-aws-iam is not allowed in this repository
+Suggestion: Use @zerobias-org/schema-amazon-aws-iam (publish it first if it does not exist)
 ```
 
 ### Required Core Dependencies
 
 **Must have:**
-- [ ] `@auditmation/hub-client`
-- [ ] `@auditmation/hub-core`
-- [ ] `@auditmation/util-collector-utils`
-- [ ] `@auditmation/module-auditmation-auditmation-platform`
-- [ ] `@auditmation/types-core-js` (can be in peerDependencies)
+- [ ] `@zerobias-com/hub-client`
+- [ ] `@zerobias-com/platform-sdk`
+- [ ] `@zerobias-org/util-collector`
+- [ ] `@zerobias-org/types-core-js`
 - [ ] `inversify`
 - [ ] `reflect-metadata`
-- [ ] `@auditlogic/vendor-neverfail`
+
+Optional: `@supercharge/promise-pool` (only if used).
 
 ### Version Consistency
 
-- [ ] TypeScript version is exactly `4.9.5` (no `^`)
-- [ ] All other dependencies use `^` prefix
+- [ ] TypeScript version is exactly `5.9.3` (no `^`)
+- [ ] All dependencies and devDependencies are exact pins (only `@zerobias-org/eslint-config` may be `latest`): WARN, not ERROR
 - [ ] Schema base and -ts versions match
+- [ ] `peerDependencies` use `^` from latest (e.g. `axios: ^1.13.0`)
 
 ### DevDependencies
 
 **Must have:**
-- [ ] `@auditmation/eslint-config`
-- [ ] `@auditmation/hub-client-codegen`
-- [ ] `@auditmation/hub-secrets-manager`
-- [ ] `@auditmation/util-codegen`
+- [ ] `@zerobias-org/eslint-config`
+- [ ] `@zerobias-com/hub-client-codegen`
+- [ ] `@zerobias-com/hub-secrets-manager`
+- [ ] `@zerobias-org/util-codegen`
 - [ ] `@types/chai`
 - [ ] `@types/mocha`
 - [ ] `@types/node`
 - [ ] `chai`
 - [ ] `mocha`
-- [ ] `ts-node`
-- [ ] `typescript` (exact 4.9.5)
+- [ ] `tsx` (replaces `ts-node`)
+- [ ] `typescript` (exact 5.9.3)
 
 ### PeerDependencies
 
 **Should have:**
-- [ ] `@auditmation/types-core-js` (if not in dependencies)
-- [ ] `axios: 0.27.2` (exact version)
+- [ ] `axios` (`^1.13.0`)
+
+### Overrides
+
+- [ ] `overrides` pins `@zerobias-org/types-core-js` (`$@zerobias-org/types-core-js`) and `@zerobias-org/logger`
 
 ### Import Validation
 
 **Check imports match dependencies:**
-- [ ] Every import from @auditlogic/* has corresponding dependency
-- [ ] Every import from @auditmation/* has corresponding dependency
+- [ ] Every import from `@zerobias-org/*` has a corresponding dependency
+- [ ] Every import from `@zerobias-com/*` has a corresponding dependency (or is codegen-injected)
+- [ ] No imports from `@auditlogic/*` or `@auditmation/*`
 - [ ] No imports from packages not in package.json
 
-### npm-shrinkwrap.json
+### Lock file
 
-- [ ] File exists
-- [ ] Is up to date (run npm shrinkwrap to verify)
-- [ ] No package-lock.json present (shrinkwrap replaces it)
+- [ ] `package-lock.json` exists and `npm ci --dry-run` passes (lock in sync with `package.json`)
+- [ ] `npm-shrinkwrap.json` is not hand-maintained (release automation generates it; it stays in `files`)
 
 ## Output Format
 
@@ -148,23 +161,23 @@ Suggestion: Remove - module already depends on it (transitive dependency)
     {
       "file": "package.json",
       "line": 38,
-      "message": "Product package @auditlogic/product-amazon-aws-iam should NOT be in dependencies",
+      "message": "Package @auditlogic/schema-amazon-aws-iam is not allowed in this repository",
       "severity": "error",
-      "suggestion": "Remove - it's a transitive dependency via module"
+      "suggestion": "Use @zerobias-org/schema-amazon-aws-iam"
     },
     {
       "file": "package.json",
       "line": 42,
-      "message": "Schema @auditlogic/schema-amazon-aws-iam-ts missing from dependencies",
+      "message": "Schema @zerobias-org/schema-amazon-aws-iam-ts missing from dependencies",
       "severity": "error",
-      "suggestion": "Add: \"@auditlogic/schema-amazon-aws-iam-ts\": \"^1.16.2\""
+      "suggestion": "Add: \"@zerobias-org/schema-amazon-aws-iam-ts\": \"<same version as the base schema>\""
     },
     {
       "file": "hub.yml",
       "line": 2,
-      "message": "Module @auditlogic/module-amazon-aws-iam in hub.yml but not in package.json",
+      "message": "Module @zerobias-org/module-amazon-aws-iam in hub.yml but not in package.json",
       "severity": "error",
-      "suggestion": "Add to package.json dependencies with ^ version"
+      "suggestion": "Add to package.json dependencies with an exact version"
     }
   ]
 }
@@ -174,9 +187,9 @@ Suggestion: Remove - module already depends on it (transitive dependency)
 
 1. Read package.json, hub.yml, collector.yml
 2. Cross-reference all dependencies
-3. Check for forbidden packages (product, vendor)
+3. Check for forbidden packages (`@auditlogic`, `@auditmation`, vendor packages)
 4. Verify required packages present
-5. Check version prefixes (^ vs exact)
+5. Check version pins (exact, not ranges)
 6. Scan source files for imports
 7. Report ALL dependency violations
 8. Return structured results

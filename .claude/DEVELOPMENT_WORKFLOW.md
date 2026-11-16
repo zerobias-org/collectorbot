@@ -17,36 +17,32 @@ Before starting, ensure you understand:
 
 Collector bots depend on Hub modules and Schema packages. **CRITICAL:** Check these exist before proceeding.
 
-**Naming Pattern (zerobias-org repository):**
+**Naming Pattern (zerobias-org repository, everything is `@zerobias-org`):**
 - Collector: `@zerobias-org/collectorbot-<vendor>-<suite?>-<product>`
-- Module: `@zerobias-org/module-<vendor>-<suite?>-<product>` (fallback: `@auditlogic/module-*`)
+- Module: `@zerobias-org/module-<vendor>-<suite?>-<product>`
 - Product: `@zerobias-org/product-<vendor>-<suite?>-<product>`
-- Schema: `@auditlogic/schema-<vendor>-<suite?>-<product>` (centralized)
+- Schema: `@zerobias-org/schema-<vendor>-<suite?>-<product>` (+ `-ts`)
+
+There is **no `@auditlogic` fallback** for modules, schemas or products.
 
 **Check if Module Exists:**
 ```bash
-# Prefer zerobias-org, fallback to auditlogic
 npm view @zerobias-org/module-<vendor>-<suite?>-<product>
-# OR
-npm view @auditlogic/module-<vendor>-<suite?>-<product>
 
 # Or check module bundle
 npm view @zerobias-org/module-bundle --json | jq '.dependencies'
-npm view @auditlogic/module-bundle --json | jq '.dependencies'
 ```
 
 **Check if Schema Exists:**
 ```bash
-# Schema is always @auditlogic
-npm view @auditlogic/schema-<vendor>-<suite?>-<product>
+npm view @zerobias-org/schema-<vendor>-<suite?>-<product>
 
 # Or check schema bundle
-npm view @auditlogic/schema-bundle --json | jq '.dependencies'
+npm view @zerobias-org/schema-bundle --json | jq '.dependencies'
 ```
 
 **Check if Product Exists:**
 ```bash
-# Product is always @zerobias-org in this repo
 npm view @zerobias-org/product-<vendor>-<suite?>-<product>
 
 # Or check product bundle
@@ -55,22 +51,24 @@ npm view @zerobias-org/product-bundle --json | jq '.dependencies'
 
 **If Module or Schema Missing:**
 - **STOP** and inform the user
-- These must be created first (different workflow)
+- These must be created and published to `@zerobias-org` first (different workflow)
+- Do **not** work around it with an `@auditlogic/*` dependency
 - Cannot proceed with collector development
 
 ### Step 1.2: Determine Collector Type
 
-**Standard Collector:**
-- Connects to a Hub module (module handles authentication)
-- Most common type
-- Example: `package/amazon/aws/iam/`
+**Standard (tenant) Collector, the default:**
+- Connects to a Hub module (Hub handles authentication through the customer's connection profile)
+- The module is listed in `hub.yml` and injected into `BaseClient`
+- Almost every collector is this type
+- Example: `package/microsoft/azure/azureresourcegraph/`
 
-**Shared Collector:**
-- No Hub module connection
-- Accepts credentials in `parameters.yml`
-- Creates its own module connection internally
-- Used for shared/reference data (e.g., service catalogs, standards)
-- Example: `package/amazon/aws/accounts-shared/`
+**Shared Collector, an edge case:**
+- Global/public data with no per-customer connection (e.g. NIST CMVP, CVE)
+- The source module is used in-process as an SDK and is NOT listed in `hub.yml`
+- Credentials, only when the module has a connection profile, are read-only collector parameters set in the public pipeline YAML
+- Built with `/create-collector <vendor> <suite?> <product> --shared`; see the create-collector skill ("Collector modes") and [Shared Collector Specifics](#shared-collector-specifics) below
+- Examples: `package/auditmation/generic/tls` (in-process module; still on legacy `@auditlogic` deps), `package/hl7/fhir` (no module, direct HTTP)
 
 ---
 
@@ -92,38 +90,38 @@ mkdir -p package/adp/workforcenowng
 cd package/adp/workforcenowng
 ```
 
-### Step 2.2: Create Required Symlinks
+### Step 2.2: Create `.npmrc` and `.nvmrc`
 
-**CRITICAL:** Always symlink, never copy `.npmrc` and `.nvmrc`
+**CRITICAL:** These are regular committed files in every package (copies of the root files), **not** symlinks. Existing collectors in this repo do not use symlinks.
 
 ```bash
 # For 4-level depth (package/vendor/suite/product)
-ln -s ../../../../.npmrc .npmrc
-ln -s ../../../../.nvmrc .nvmrc
+cp ../../../../.npmrc .npmrc
+cp ../../../../.nvmrc .nvmrc
 
 # For 3-level depth (package/vendor/product)
-ln -s ../../../.npmrc .npmrc
-ln -s ../../../.nvmrc .nvmrc
+cp ../../../.npmrc .npmrc
+cp ../../../.nvmrc .nvmrc
 
-# Verify
-ls -la .npmrc .nvmrc
-# Should show: .npmrc -> ../../../../.npmrc
+# Verify (mode 100644 = regular file)
+git ls-files -s .npmrc .nvmrc
 ```
 
 ### Step 2.3: Copy Template Configuration Files
 
 Find a similar reference collector:
-- **Simple collector**: `package/adp/workforcenowng/`
-- **Complex collector**: `package/amazon/aws/iam/`
-- **Shared collector**: `package/amazon/aws/accounts-shared/`
+- **Standard collector:** `package/microsoft/azure/azureresourcegraph/`
+- **Shared collector:** see [Shared Collector Specifics](#shared-collector-specifics)
 
 ```bash
 # Copy configuration templates
-cp <reference-collector>/.eslintrc .
 cp <reference-collector>/.mocharc.json .
 cp <reference-collector>/tsconfig.json .
 cp <reference-collector>/.gitignore .
+cp <reference-collector>/build.gradle.kts .   # plugins { id("zb.typescript-collectorbot") }
 ```
+
+There is no per-package `.eslintrc`; linting uses the root `eslint.config.js`.
 
 ---
 
@@ -136,94 +134,79 @@ cp <reference-collector>/.gitignore .
 {
   "name": "@zerobias-org/collectorbot-<vendor>-<suite?>-<product>",
   "version": "0.0.0",
-  "description": "<Product Name> collectorbot",
+  "description": "<Product Name> Collector",
   "license": "UNLICENSED",
   "author": "team@zerobias.com",
+  "type": "module",
   "main": "dist/src/index.js",
-  "directories": {
-    "src": "src"
-  },
   "files": [
     "dist",
-    "pnpm-lock.yaml",
-    "*.yml",
-    "*.md"
+    "npm-shrinkwrap.json",
+    "*.yml"
   ],
   "scripts": {
-    "build": "npm run generate && npm run transpile",
-    "clean": "rm -rf generated && rm -rf dist",
-    "generate": "npm run generate:models && npm run generate:hub-client",
-    "generate:hub-client": "node node_modules/@auditmation/hub-client-codegen/dist/index.js",
-    "generate:models": "hub-generator generate -g hub-module -i ./parameters.yml -o generated/ --global-property models,supportingFiles=index.ts && rm ./generated/api/index.ts",
-    "lint": "eslint src/",
-    "lint:fix": "eslint --fix src/",
-    "test": "",
-    "test:integration": "mocha --exit --inline-diffs --reporter=list test/integration/**/*.ts",
-    "transpile": "tsc"
+    "clean": "rm -rf dist/ generated/"
   },
   "repository": {
     "type": "git",
     "url": "git@github.com:zerobias-org/collectorbot.git",
     "directory": "package/<vendor>/<suite?>/<product>"
   },
+  "zerobias": {
+    "package": "<vendor>.<suite?>.<product>.collectorbot",
+    "dataloader-version": "1.0.0",
+    "import-artifact": "collectorbot"
+  },
   "dependencies": {
-    "@zerobias-org/module-<vendor>-<suite?>-<product>": "^<version>",
-    "@zerobias-org/product-<vendor>-<suite?>-<product>": "latest",
-    "@auditlogic/schema-<vendor>-<suite?>-<product>": "^<version>",
-    "@auditlogic/schema-<vendor>-<suite?>-<product>-ts": "^<version>",
-    "@auditmation/hub-client": "^8.8.39",
-    "@auditmation/hub-core": "^4.4.40",
-    "@auditmation/hydra-schema-resource": "^4.0.6",
-    "@auditmation/module-auditmation-auditmation-platform": "^4.1.6",
-    "@auditmation/types-core-js": "^4.9.8",
-    "@auditmation/util-collector-utils": "^4.3.4",
-    "inversify": "^6.0.2",
-    "reflect-metadata": "^0.1.13"
+    "@zerobias-com/hub-client": "<exact latest>",
+    "@zerobias-com/platform-sdk": "<exact latest>",
+    "@zerobias-org/module-<vendor>-<suite?>-<product>": "<exact latest>",
+    "@zerobias-org/product-<vendor>-<suite?>-<product>": "<exact latest>",
+    "@zerobias-org/schema-<vendor>-<suite?>-<product>": "<exact latest>",
+    "@zerobias-org/schema-<vendor>-<suite?>-<product>-ts": "<exact latest>",
+    "@zerobias-org/types-core-js": "<exact latest>",
+    "@zerobias-org/util-collector": "<exact latest>",
+    "inversify": "6.0.2",
+    "reflect-metadata": "0.2.2"
   },
   "devDependencies": {
-    "@auditmation/eslint-config": "^1.1.17",
-    "@auditmation/hub-client-codegen": "^2.0.8",
-    "@auditmation/hub-secrets-manager": "^2.0.16",
-    "@auditmation/util-codegen": "^5.5.19",
-    "@types/chai": "^4.3.11",
-    "@types/mocha": "^10.0.6",
-    "@types/node": "^20.10.4",
-    "chai": "^4.3.10",
-    "mocha": "^10.2.0",
-    "ts-node": "^10.9.2",
-    "typescript": "4.9.5"
+    "@types/chai": "5.2.3",
+    "@types/mocha": "10.0.10",
+    "@types/node": "22.0.0",
+    "@zerobias-com/hub-client-codegen": "<exact latest>",
+    "@zerobias-com/hub-secrets-manager": "<exact latest>",
+    "@zerobias-org/eslint-config": "latest",
+    "@zerobias-org/util-codegen": "<exact latest>",
+    "chai": "4.3.8",
+    "mocha": "11.7.5",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3"
   },
-  "auditmation": {
-    "package": "<vendor>.<suite?>.<product>.collectorbot",
-    "dataloader-version": "0.5.4",
-    "import-artifact": "collectorbot"
+  "peerDependencies": {
+    "axios": "^1.13.0"
+  },
+  "overrides": {
+    "@zerobias-org/types-core-js": "$@zerobias-org/types-core-js",
+    "@zerobias-org/logger": "3.0.9"
   }
 }
 ```
 
 **Important (zerobias-org specific):**
-- Use `^` for module and schema dependencies
-- Use `latest` for product package
-- Use exact version `4.9.5` for TypeScript
+- Pin every dependency and devDependency to the exact latest (`npm view <pkg> version`); no `^`, `~` or `latest` (only `@zerobias-org/eslint-config` is `latest`)
 - Include both base schema and `-ts` schema packages
-- **Module**: Prefer `@zerobias-org/module-*`, fallback to `@auditlogic/module-*`
-- **Product**: Always use `@zerobias-org/product-*` and include directly (not transitive in this repo)
-- **Schema**: Always use `@auditlogic/schema-*` (centralized)
+- **Module / Product / Schema**: `@zerobias-org/*` only, no `@auditlogic` fallback; the product package is a direct dependency in this repo
+- **Platform runtime**: `@zerobias-com/hub-client`, `@zerobias-com/platform-sdk` replace the old `@auditmation/hub-*` and platform modules
 - **Vendor packages**: Not used in zerobias-org collectors
+- Only the `clean` script; build/test/lint run through Gradle (`zbb`)
+- Shared collector: same template, with the module as a plain dependency (see Shared Collector Specifics)
 
 ### Step 3.2: Get Module and Product UUIDs
 
 **Module UUID:**
 ```bash
-# Install module (prefer zerobias-org, fallback to auditlogic)
-npm install @zerobias-org/module-<vendor>-<suite?>-<product>
-# OR
-npm install @auditlogic/module-<vendor>-<suite?>-<product>
-
-# Get module ID
-cat node_modules/@zerobias-org/module-*/package.json | grep module-id
-# OR
-cat node_modules/@auditlogic/module-*/package.json | grep module-id
+npm view @zerobias-org/module-<vendor>-<suite?>-<product> moduleId
+# (or, once installed) jq -r .moduleId node_modules/@zerobias-org/module-*/package.json
 ```
 
 **Product UUID:**
@@ -239,33 +222,33 @@ cat node_modules/@zerobias-org/product-<vendor>-<suite?>-<product>/index.yml | g
 
 **For Standard Collectors (with module connection):**
 
-Create `hub.yml` (skip `operations` section - not needed):
+Create `hub.yml` (no `operations` section, no `version`):
 
 ```yaml
 modules:
   '@zerobias-org/module-<vendor>-<suite?>-<product>':
-    id: <uuid-from-module-package-json-module-id-field>
+    id: <uuid-from-module-package-json-moduleId-field>
     name: module-<vendor>-<suite?>-<product>
     module: <ModuleClassName>  # Will find after code generation
-    version: <module-version>
 products:
   <vendor>.<suite?>.<product>:
     id: <product-uuid-from-product-package-index-yml>
     name: <Product Display Name>
 ```
 
-**Note:** If using `@auditlogic/module-*` as fallback, use that scope in hub.yml instead.
-
 **Notes:**
 - Skip `operations` section - not needed
-- `permissions` is optional (documentation only)
-- Module class name: Leave placeholder initially, will get from generated code after `npm run generate`
+- Module class name: Leave placeholder initially, will get from generated code after `zbb build`
 
 **For Shared Collectors (no module connection):**
 ```yaml
 modules: {}
-products: {}
+products:
+  <vendor>.<suite?>.<product>:
+    id: <product-uuid-from-product-package-index-yml>
+    name: <Product Display Name>
 ```
+The source module is NOT listed here (codegen would inject a `<X>HubImpl` that needs a `targetId`).
 
 **IMPORTANT - Multiple Modules:**
 If you need data from multiple modules (e.g., IAM + STS + Organizations), **actively warn the user** that the UI does not currently support collectors with multiple connection profiles. This is a known limitation.
@@ -286,14 +269,14 @@ Only include multiple schema packages when collecting data that is:
 
 **Step 1: List all schema classes**
 ```bash
-npm install @auditlogic/schema-<vendor>-<product>-ts
-ls node_modules/@auditlogic/schema-<vendor>-<product>-ts/dist/
-cat node_modules/@auditlogic/schema-<vendor>-<product>-ts/dist/index.d.ts
+npm install @zerobias-org/schema-<vendor>-<product>-ts
+ls node_modules/@zerobias-org/schema-<vendor>-<product>-ts/dist/
+cat node_modules/@zerobias-org/schema-<vendor>-<product>-ts/dist/index.d.ts
 ```
 
 **Step 2: Match module operations to schema classes**
 ```bash
-cat node_modules/@auditlogic/module-<vendor>-<product>/module-<vendor>-<product>.yml
+cat node_modules/@zerobias-org/module-<vendor>-<product>/module-<vendor>-<product>.yml
 ```
 
 Map each operation's return type to corresponding schema class(es).
@@ -309,7 +292,7 @@ If module returns User data and schema has:
 
 ```yaml
 classes:
-    - "@auditlogic/schema-<vendor>-<product>":
+    - "@zerobias-org/schema-<vendor>-<product>":
         - User
         - AdminUser
         - ServiceUser
@@ -410,12 +393,14 @@ npm install
 This will:
 - Install all dependencies
 - Create `node_modules/`
-- Create `npm-shrinkwrap.json`
+- Create `package-lock.json`
+
+(When you later change dependencies, regenerate the lock from scratch: `rm -rf node_modules package-lock.json && npm install`; see COLLECTORBOT_RULES.md "Lock file".)
 
 ### Step 4.2: Generate Code
 
 ```bash
-npm run generate
+zbb build        # runs generate + compile (or ./gradlew :<vendor>:<suite?>:<product>:build from the repo root)
 ```
 
 This generates:
@@ -466,7 +451,7 @@ Should show DI symbols for each module.
 
 View the module's OpenAPI specification:
 ```bash
-cat node_modules/@auditlogic/module-<vendor>-<product>/module-<vendor>-<product>.yml
+cat node_modules/@zerobias-org/module-<vendor>-<product>/module-<vendor>-<product>.yml
 ```
 
 **What to look for:**
@@ -498,7 +483,7 @@ This tells you:
 
 ```bash
 # View available TypeScript interfaces
-cat node_modules/@auditlogic/schema-<vendor>-<product>-ts/dist/index.d.ts
+cat node_modules/@zerobias-org/schema-<vendor>-<product>-ts/dist/index.d.ts
 ```
 
 **What to look for:**
@@ -552,7 +537,7 @@ export interface AwsIamUser {
 ### Step 6.1: Create src/index.ts
 
 ```typescript
-import { Collector<Vendor><Suite?><Product>Impl } from './Collector<Vendor><Suite?><Product>Impl';
+import { Collector<Vendor><Suite?><Product>Impl } from './Collector<Vendor><Suite?><Product>Impl.js';
 
 export default Collector<Vendor><Suite?><Product>Impl;
 // eslint-disable-next-line
@@ -568,15 +553,14 @@ export * from '../generated';
 
 ### Step 6.2: Create src/Collector*Impl.ts
 
-**Standard Collector Template:**
+**Standard (tenant) Collector Template** (shared collectors: see [Shared Collector Specifics](#shared-collector-specifics)):
 
 ```typescript
-import { ConnectionMetadata } from '@auditmation/hub-core';
-import { UUID } from '@auditmation/types-core-js';
-import { Batch } from '@auditmation/util-collector-utils';
+import { ConnectionMetadata, UUID } from '@zerobias-org/types-core-js';
+import { Batch } from '@zerobias-org/util-collector';
 import { injectable } from 'inversify';
-import { BaseClient } from '../generated/BaseClient';
-import { toSchemaClass } from './Mappers';
+import { BaseClient } from '../generated/BaseClient.js';
+import { toSchemaClass } from './Mappers.js';
 
 @injectable()
 export class Collector<Name>Impl extends BaseClient {
@@ -727,8 +711,8 @@ const resources = await this.module.getResourceApi().list(
 **Purpose:** Transform module data types to schema types
 
 ```typescript
-import * as moduleTypes from '@auditlogic/module-<vendor>-<product>';
-import * as schemaTypes from '@auditlogic/schema-<vendor>-<product>-ts';
+import * as moduleTypes from '@zerobias-org/module-<vendor>-<product>';
+import * as schemaTypes from '@zerobias-org/schema-<vendor>-<product>-ts';
 
 export function toSchemaClass(
   source: moduleTypes.SourceType,
@@ -771,39 +755,36 @@ function toMetadata(meta: moduleTypes.Metadata): schemaTypes.Metadata {
 
 **For complex mapping scenarios, see:** [ADVANCED_MAPPING_GUIDE.md](./ADVANCED_MAPPING_GUIDE.md)
 
-### Step 6.4: Create Integration Test
+### Step 6.4: Create E2E Test
 
-**Copy test structure from similar collector** and adjust the class name and parameters.
+**Copy test structure from a similar collector** (`test/e2e/`) and adjust the class name and parameters.
 
 ```typescript
-// test/integration/Collector<Name>IT.ts
+// test/e2e/Collector<Name>IT.ts
+import { getClient } from '@zerobias-com/hub-client';
 import 'reflect-metadata';
-
-import { TestUtils } from '@auditmation/hub-client';
-import { expect } from 'chai';
-import { container } from '../../generated';
+import { container } from '../../generated/index.js';
 
 describe('Collector<Name>IT', function () {
   let client;
 
-  it('Should collect data from <Product>', async () => {
-    client = await TestUtils.getClient(container);
-    try {
-      // If collector has parameters, pass them here
-      // e.g., await client.run({ region: 'us-east-1' });
-      await client.run();
-    } catch (e) {
-      console.log(e);
+  it('Should collect data from <Product>', async function () {
+    if (!process.env.TARGET_ID && !process.env.HUB_TARGET_ID) {
+      this.skip();   // no live hub target: skip instead of failing
     }
-    expect(client).to.not.be.null;
+    client = await getClient(container);
+    // If collector has parameters, pass them here
+    // e.g., await client.run({ region: 'us-east-1' });
+    await client.run();
   });
 });
 ```
 
 **Notes:**
-- Tests use built-in environment variables (like target IDs) handled by `TestUtils.getClient()`
-- Just copy from similar collector and adjust parameters for `run()` method
+- `getClient(container)` reads the target from environment variables (`TARGET_ID` / `HUB_TARGET_ID`)
+- Just copy from a similar collector and adjust parameters for `run()`
 - No need to manually set up connection - the container handles it
+- Shared collectors have no Hub target: call the implementation directly with the parameters and do not require `TARGET_ID`
 
 ---
 
@@ -812,31 +793,29 @@ describe('Collector<Name>IT', function () {
 ### Step 7.1: Build
 
 ```bash
-npm run build
+zbb build
 ```
 
 Expected output:
-- `dist/` directory created
+- `generated/` and `dist/` directories created
 - No TypeScript errors
 
 ### Step 7.2: Lint
 
 ```bash
-npm run lint
+zbb lint
 ```
 
-Fix any linting errors:
-```bash
-npm run lint:fix
-```
+Fix lint errors in `src/` / `test/` by hand (generated code is ignored by the root config).
 
-### Step 7.3: Generate Shrinkwrap
+### Step 7.3: Gate
 
 ```bash
-npm shrinkwrap
+git add <the new package files>   # gate hashes git-tracked files only: stage first
+zbb gate
 ```
 
-This creates/updates `npm-shrinkwrap.json`.
+Commit the generated `gate-stamp.json` with your changes (CI validates it; do not gitignore it). Re-run the gate after any late `git add`.
 
 ---
 
@@ -877,9 +856,9 @@ This collector uses the following groupId pattern:
 
 ```bash
 npm install
-npm run build
-npm run lint
-npm run test:integration
+zbb build
+zbb lint
+zbb testDirect
 ```
 ```
 
@@ -970,35 +949,37 @@ This collector requires no additional parameters. Simply configure the connectio
 - [ ] All classes have mappers in `src/Mappers.ts`
 - [ ] All classes are collected in `run()` method
 - [ ] No uncertain mappings left (or documented with TODO + user consulted)
-- [ ] Build succeeds: `npm run build`
-- [ ] Lint passes: `npm run lint`
+- [ ] Build succeeds: `zbb build`
+- [ ] Lint passes: `zbb lint`
+- [ ] `zbb gate` passes and `gate-stamp.json` is committed
 - [ ] No manual edits to `generated/` or `dist/`
 
 **Required files checklist:**
-- [ ] `.npmrc` and `.nvmrc` (symlinks!)
-- [ ] `.eslintrc`
+- [ ] `.npmrc` and `.nvmrc` (regular files, copies of root)
 - [ ] `.mocharc.json`
 - [ ] `.gitignore`
 - [ ] `tsconfig.json`
+- [ ] `build.gradle.kts`
 - [ ] `package.json`
-- [ ] `npm-shrinkwrap.json`
+- [ ] `package-lock.json`
+- [ ] `gate-stamp.json`
 - [ ] `collector.yml`
 - [ ] `hub.yml`
 - [ ] `parameters.yml`
 - [ ] `src/index.ts`
 - [ ] `src/Collector*Impl.ts`
 - [ ] `src/Mappers.ts`
-- [ ] `test/integration/Collector*IT.ts`
+- [ ] `test/e2e/Collector*IT.ts`
 - [ ] `README.md`
 - [ ] `USERGUIDE.md` (if has parameters)
 - [ ] `generated/` (auto-generated, verify exists)
 - [ ] `dist/` (build output, verify exists)
-- [ ] `CHANGELOG.md` (auto-generated by Lerna - do NOT create manually)
+- [ ] No `CHANGELOG.md` (release automation owns it; do NOT create manually)
 
 ### Step 9.2: Commit with Conventional Commit
 
 ```bash
-git add .
+git add package/<vendor>/<suite?>/<product>   # stage selectively; never `git add .` / `git add -A`
 git commit -m "feat(<vendor>-<product>): initial collector implementation
 
 - Collects <list of data>
@@ -1156,6 +1137,8 @@ await childBatch.end();
 
 ### Pattern: Memory-Efficient Collection
 
+> Tenant collectors only. Shared collectors have no Hub, so `for await` / `PagedResults.forEach` over module results fail; use an explicit `pageNumber`/`pageSize` loop (see Shared Collector Specifics).
+
 ```typescript
 // For large datasets, use for await instead of forEach
 const resources = await this.module.getResources();
@@ -1230,102 +1213,63 @@ await resources.forEach(async (resource) => {
 
 ## Shared Collector Specifics
 
-Shared collectors handle their own module connections instead of using injected connectors.
+**Standard (tenant) collectors above are the norm; shared collectors are the edge case.** A shared collector serves global/public data (e.g. NIST CMVP, CVE) and runs once for everybody from a daily shared pipeline (`executionMode: caller`, `batchMode: full`, one global groupId). There is no customer connection and no Hub target, so it uses the source module **in-process as a SDK**. Full procedure: `/create-collector <vendor> <suite?> <product> --shared`.
 
-### Key Differences:
+### Key Differences
 
-1. **hub.yml:**
+1. **hub.yml:** `modules: {}` plus `products`. The source module is **not** listed (codegen would inject a `<X>HubImpl` that fails with `requires targetId`):
 ```yaml
 modules: {}
-products: {}
+products:
+  nist.cmvp:
+    id: <product-uuid>
+    name: NIST CMVP
 ```
 
-2. **parameters.yml includes connection credentials:**
-```yaml
-components:
-  schemas:
-    Parameters:
-      type: object
-      required:
-        - accessKeyId
-        - secretKey
-      properties:
-        accessKeyId:
-          type: string
-        secretKey:
-          type: string
-          format: password
-```
+2. **package.json:** the source module (`@zerobias-org/module-*`) is a plain exact-pinned dependency imported in `src/`. `@zerobias-com/*-sdk` packages that hub-client-codegen injects stay declared in `hub.yml` / `collector.yml` / `package.json` as usual.
 
-3. **Collector creates connection internally:**
+3. **parameters.yml:** credential parameters **only** when the module has a connection profile. They must be read-only, public-data-scoped keys, because the pipeline YAML that sets them lives in the public `zerobias-org/pipeline` repo. Modules without a connection profile need no credentials and no `connect()`.
+
+4. **Collector creates the module itself and pages explicitly:**
 ```typescript
-import { newModule } from '@auditlogic/module-<vendor>-<product>';
-import { ConnectionProfile } from '@auditlogic/module-<vendor>-<product>';
+import { newCmvp } from '@zerobias-org/module-nist-cmvp';   // factory name from the module's index
+import { Parameters } from '../generated/model/index.js';
 
 @injectable()
-export class CollectorSharedImpl extends BaseClient {
-  private module?: ModuleConnector;
+export class CollectorNistCmvpImpl extends BaseClient {
+  private readonly groupId = 'nist-cmvp';   // fixed global groupId
+  private api = newCmvp();
+  private parameters?: Parameters;
 
-  private async init() {
-    // Create module connection from parameters
-    const params = this.context.parameters;
-
-    this.module = newModule();
-    await this.module.connect(ConnectionProfile.newInstance({
-      accessKeyId: params.accessKeyId,
-      secretKey: params.secretKey,
-      // ... other connection params
-    }));
+  public async run(parameters: Parameters): Promise<void> {
+    this.parameters = parameters;
+    // await this.api.connect({ apiKey: this.parameters.apiKey });   // only if the module has a connection profile
+    await this.loadCertificates();
   }
 
-  public async run(): Promise<void> {
-    await this.init();
-
-    // Use this.module just like standard collectors
-    const data = await this.module.getData();
-
-    // Don't forget to disconnect
-    await this.module.disconnect();
+  private async loadCertificates(): Promise<void> {
+    const batch = await this.initBatchForClass(CmvpCertificate, this.groupId);
+    const pageSize = this.previewCount ?? this.parameters?.pageSize ?? 500;
+    for (let pageNumber = 1; ; pageNumber += 1) {
+      const page = await this.api.getCertificateApi().list(pageNumber, pageSize);
+      for (const item of page.items) {
+        try { await batch.add(toCmvpCertificate(item), item); }
+        catch (err) { await batch.error(`Failed to process: ${err.message}`, item); }
+      }
+      if (this.previewCount || page.items.length < pageSize) break;
+    }
+    await batch.end();
   }
 }
 ```
 
-**Finding ConnectionProfile Structure:**
-```bash
-# After installing module
-cat node_modules/@auditlogic/module-<vendor>-<product>/generated/models/ConnectionProfile.ts
-```
+5. **No `PagedResults.forEach` / `for await`** over module results (Hub paging helpers fail without Hub), no `metadata()` call, concurrency of at most 30 (PromisePool).
 
-This shows the exact structure needed for connection.
+**Finding the connection profile (only if the module has one):** check `connectionProfile.yml` in the module package (`node_modules/@zerobias-org/module-<vendor>-<product>/connectionProfile.yml`) for the exact fields, then map each collector parameter to a `connect({...})` field. Modules without that file have no profile.
 
-**Example ConnectionProfile:**
-```typescript
-export interface ConnectionProfile {
-  accessKeyId: string;
-  secretAccessKey: string;
-  region?: string;
-  sessionToken?: string;
-}
-```
-
-**Mapping parameters to ConnectionProfile:**
-```typescript
-// parameters.yml defines what users provide
-// Transform to ConnectionProfile structure
-
-import { ConnectionProfile } from '@auditlogic/module-<vendor>-<product>';
-
-const profile = ConnectionProfile.newInstance({
-  // Map from this.context.parameters to ConnectionProfile fields
-  accessKeyId: this.context.parameters.awsAccessKeyId,
-  secretAccessKey: this.context.parameters.awsSecretKey,
-  region: this.context.parameters.region
-});
-```
-
-**Reference Examples:**
-- `package/amazon/aws/accounts-shared/`
-- `package/amazon/aws/ec2-shared/`
+**Reference examples in this repo:**
+- `package/auditmation/generic/tls` - in-process module, `modules: {}` (still on legacy `@auditlogic` deps, pending migration; do not copy those)
+- `package/hl7/fhir` - no module, direct HTTP
 
 ---
 
@@ -1339,7 +1283,7 @@ const profile = ConnectionProfile.newInstance({
 ### Generate fails
 - Check `hub.yml` has valid module references
 - Check `parameters.yml` is valid OpenAPI 3.0.3
-- Run `npm run clean` and try again
+- Run `npm run clean` and `zbb build` again
 
 ### Lint errors in generated code
 - Add `/* eslint-disable */` comment to generated files
@@ -1383,7 +1327,7 @@ const profile = ConnectionProfile.newInstance({
 **Step 1: Update collector.yml**
 ```yaml
 classes:
-    - "@auditlogic/schema-<vendor>-<product>":
+    - "@zerobias-org/schema-<vendor>-<product>":
         - ExistingClass1
         - ExistingClass2
         - NewClass  # Add here
@@ -1391,8 +1335,9 @@ classes:
 
 **Step 2: Add schema dependency if from new package**
 ```bash
-npm install @auditlogic/schema-<new-package> @auditlogic/schema-<new-package>-ts
-npm shrinkwrap
+# add both @zerobias-org/schema-<new-package> and ...-ts to package.json (exact pins), then:
+rm -rf node_modules package-lock.json
+npm install
 ```
 
 **Step 3: Create mapper**
@@ -1431,8 +1376,8 @@ public async run(): Promise<void> {
 
 **Step 5: Test, lint, commit**
 ```bash
-npm run build
-npm run lint
+zbb build
+zbb lint
 git commit -m "feat(<product>): add <NewClass> collection"
 ```
 
@@ -1454,7 +1399,7 @@ components:
 
 **Step 2: Regenerate code**
 ```bash
-npm run generate
+zbb build
 ```
 
 This updates `generated/model/Parameters.ts`.
@@ -1476,7 +1421,7 @@ Document the new parameter for users.
 
 **Step 5: Test and commit**
 ```bash
-npm run build
+zbb build
 git commit -m "feat(<product>): add <newParam> parameter"
 ```
 
@@ -1514,8 +1459,8 @@ export function toUser(source: ModuleUser): SchemaUser {
 
 **Step 4: Test and commit**
 ```bash
-npm run build
-npm run lint
+zbb build
+zbb lint
 git commit -m "fix(<product>): correct user status enum mapping"
 ```
 
@@ -1525,16 +1470,16 @@ git commit -m "fix(<product>): correct user status enum mapping"
 ```json
 {
   "dependencies": {
-    "@auditlogic/module-<vendor>-<product>": "^<new-version>"
+    "@zerobias-org/module-<vendor>-<product>": "^<new-version>"
   }
 }
 ```
 
-**Step 2: Install and regenerate**
+**Step 2: Reinstall and regenerate**
 ```bash
+rm -rf node_modules package-lock.json
 npm install
-npm run generate
-npm shrinkwrap
+zbb build
 ```
 
 **Step 3: Check for breaking changes**
@@ -1544,7 +1489,7 @@ npm shrinkwrap
 
 **Step 4: Test and commit**
 ```bash
-npm run build
+zbb build
 git commit -m "chore(deps): update module-<vendor>-<product> to <version>"
 ```
 
@@ -1580,11 +1525,11 @@ groupId = `${accountId}-all-users`;
 
 ---
 
-## When to Run npm run generate
+## When to Regenerate (`zbb build`)
 
-**CRITICAL:** Code must be regenerated when certain files change.
+**CRITICAL:** Code must be regenerated when certain files change. `zbb build` runs the Gradle generate + compile steps.
 
-**Run `npm run generate` after:**
+**Run `zbb build` after:**
 
 | Changed File | What Gets Regenerated | Why |
 |--------------|----------------------|-----|
@@ -1595,15 +1540,13 @@ groupId = `${accountId}-all-users`;
 **Workflow:**
 ```bash
 # Changed hub.yml or parameters.yml
-npm run generate
+zbb build
 
 # Changed dependencies in package.json
+rm -rf node_modules package-lock.json
 npm install
-npm run generate  # Always regenerate after dependency changes
-npm shrinkwrap
-
-# Build to verify
-npm run build
+npm ci --dry-run      # lock must be in sync
+zbb build             # always regenerate after dependency changes
 ```
 
 **DO NOT EDIT generated/ or dist/ directories** - they will be overwritten!
@@ -1615,28 +1558,27 @@ npm run build
 ```bash
 # Setup new collector
 npm install
-npm run generate
-npm run build
+zbb build
 
 # Development
-npm run lint
-npm run lint:fix
-npm run transpile:watch
+zbb lint
+zbb testUnit
 
 # After modifying parameters.yml or hub.yml
-npm run generate
-npm run build
+zbb build
 
 # After modifying dependencies
+rm -rf node_modules package-lock.json
 npm install
-npm run generate
-npm shrinkwrap
-npm run build
+npm ci --dry-run
+zbb build
 
-# Testing
-npm run test:integration
+# E2E (needs a live target)
+zbb testDirect
 
-# Release
+# Before the PR (stage new files first: the gate hashes git-tracked files only)
+git add <package files>
+zbb gate              # commit gate-stamp.json
 git commit -m "feat(<product>): <description>"
 ```
 

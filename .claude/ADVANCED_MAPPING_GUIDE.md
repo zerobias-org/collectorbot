@@ -25,8 +25,8 @@ This document covers complex topics for autonomous collector development: schema
 ### Understanding Schema Structure
 
 Each schema has TWO packages:
-1. **Base schema** (`@auditlogic/schema-<vendor>-<product>`) - Runtime definitions with full metadata
-2. **TypeScript schema** (`@auditlogic/schema-<vendor>-<product>-ts`) - Generated TypeScript interfaces
+1. **Base schema** (`@zerobias-org/schema-<vendor>-<product>`) - Runtime definitions with full metadata
+2. **TypeScript schema** (`@zerobias-org/schema-<vendor>-<product>-ts`) - Generated TypeScript interfaces
 
 **CRITICAL:** TypeScript interfaces are INCOMPLETE for validation. Always cross-reference with base schema.
 
@@ -34,7 +34,7 @@ Each schema has TWO packages:
 
 **Step 1: Check TypeScript Interface**
 ```bash
-cat node_modules/@auditlogic/schema-<vendor>-<product>-ts/dist/index.d.ts
+cat node_modules/@zerobias-org/schema-<vendor>-<product>-ts/dist/index.d.ts
 ```
 
 Look for:
@@ -45,9 +45,9 @@ Look for:
 **Step 2: Check Base Schema**
 ```bash
 # Find the class/interface definition
-cat node_modules/@auditlogic/schema-<vendor>-<product>/classes/MyClass.ts
+cat node_modules/@zerobias-org/schema-<vendor>-<product>/classes/MyClass.ts
 # OR
-cat node_modules/@auditlogic/schema-<vendor>-<product>/interfaces/MyInterface.ts
+cat node_modules/@zerobias-org/schema-<vendor>-<product>/interfaces/MyInterface.ts
 ```
 
 Look for:
@@ -67,10 +67,10 @@ export interface AwsIamUser extends AwsPrincipal {
 Check the parent interface (might be in a dependency):
 ```bash
 # Check package.json for dependencies
-cat node_modules/@auditlogic/schema-<vendor>-<product>/package.json
+cat node_modules/@zerobias-org/schema-<vendor>-<product>/package.json
 
 # Find parent interface
-cat node_modules/@auditlogic/schema-<parent-package>/interfaces/AwsPrincipal.ts
+cat node_modules/@zerobias-org/schema-<parent-package>/interfaces/AwsPrincipal.ts
 ```
 
 ### Main Validation Concerns
@@ -164,11 +164,11 @@ Check both module API spec and schema JSDoc:
 # Module operation response (check your actual module scope)
 cat node_modules/@zerobias-org/module-<vendor>/module-<vendor>.yml
 # OR
-cat node_modules/@auditlogic/module-<vendor>/module-<vendor>.yml
+cat node_modules/@zerobias-org/module-<vendor>/module-<vendor>.yml
 # Look at response schema descriptions
 
-# Schema field descriptions (always @auditlogic)
-cat node_modules/@auditlogic/schema-<vendor>-ts/dist/index.d.ts
+# Schema field descriptions (always @zerobias-org)
+cat node_modules/@zerobias-org/schema-<vendor>-ts/dist/index.d.ts
 # Check JSDoc comments
 ```
 
@@ -188,7 +188,7 @@ If descriptions indicate semantic equivalence, map even if names differ.
 
 **Check base schema to distinguish:**
 ```bash
-cat node_modules/@auditlogic/schema-<vendor>/classes/MyClass.ts
+cat node_modules/@zerobias-org/schema-<vendor>/classes/MyClass.ts
 ```
 
 Look for field definitions:
@@ -249,7 +249,7 @@ return {
 ### Helper Function Template
 
 ```typescript
-import { Date as SchemaDate } from '@auditlogic/schema-<vendor>-ts';
+import { Date as SchemaDate } from '@zerobias-org/schema-<vendor>-ts';
 
 // For date fields
 function toDate(date?: Date): SchemaDate | undefined {
@@ -274,7 +274,7 @@ function toDateTime(date?: Date): string | undefined {
 
 **In TypeScript schema package:**
 ```bash
-cat node_modules/@auditlogic/schema-<vendor>-<product>-ts/dist/index.d.ts
+cat node_modules/@zerobias-org/schema-<vendor>-<product>-ts/dist/index.d.ts
 ```
 
 **Two formats:**
@@ -536,13 +536,13 @@ Relationships between objects are defined in the **base schema package** (not Ty
 **Step 1: Locate the interface file**
 ```bash
 # Check both locations
-ls node_modules/@auditlogic/schema-<vendor>/classes/
-ls node_modules/@auditlogic/schema-<vendor>/interfaces/
+ls node_modules/@zerobias-org/schema-<vendor>/classes/
+ls node_modules/@zerobias-org/schema-<vendor>/interfaces/
 ```
 
 **Step 2: Read the interface definition**
 ```bash
-cat node_modules/@auditlogic/schema-<vendor>/classes/User.ts
+cat node_modules/@zerobias-org/schema-<vendor>/classes/User.ts
 ```
 
 **Step 3: Look for linkTo**
@@ -1485,7 +1485,7 @@ const resources = await this.module.list();
 **For specific operations that need retry:**
 
 ```typescript
-import { retry } from '@auditmation/types-core-js';
+import { retry } from '@zerobias-org/types-core-js';
 
 // Retry with exponential backoff
 const resources = await retry(

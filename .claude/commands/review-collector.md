@@ -142,7 +142,7 @@ score = (passedChecks / totalChecks) * 100
 
 If user confirms, can auto-fix simple issues:
 - Missing YAML frontmatter
-- Incorrect symlinks
+- .npmrc/.nvmrc that are symlinks instead of regular files
 - Missing required fields in package.json
 
 ---

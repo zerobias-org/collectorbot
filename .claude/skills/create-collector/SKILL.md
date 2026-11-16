@@ -39,7 +39,7 @@ Create a new collector bot package with automatic implementation and validation.
 
 **Why the source module stays out of `hub.yml` in shared mode:** hub-client-codegen turns every non-SDK `modules:` entry into a `<X>HubImpl` binding that throws `requires targetId` when no Hub connection exists (`optional: true` only lets hub-client start; the generated binding still needs a target). Platform SDKs (`@zerobias-com/*-sdk`, e.g. `platform-sdk`) are different: codegen discovers them from `hub.yml` or `package.json` and injects a connected `<X>ApiClient` derived from the run context, so declare and use those normally.
 
-**Reference shared collectors:** `package/auditmation/generic/tls` (in-process module), `package/hl7/fhir` (no module, direct HTTP). Worked example for a module without a connection profile: `@zerobias-org/module-nist-cmvp` (`newCmvp().getCertificateApi().list(page, size)`, no `connect()`).
+**Reference shared collectors:** `package/auditmation/generic/tls` (in-process module; still on legacy `@auditlogic` deps pending migration, do not copy those), `package/hl7/fhir` (no module, direct HTTP). Worked example for a module without a connection profile: `@zerobias-org/module-nist-cmvp` (`newCmvp().getCertificateApi().list(page, size)`, no `connect()`).
 
 ## Description
 
@@ -77,13 +77,18 @@ npm view @zerobias-org/module-<vendor>-<suite?>-<product>
 npm view @zerobias-org/schema-<vendor>-<suite?>-<product>
 npm view @zerobias-org/schema-<vendor>-<suite?>-<product>-ts
 npm view @zerobias-org/product-<vendor>-<suite?>-<product>
+
+# Or browse the bundles
+npm view @zerobias-org/module-bundle --json | jq '.dependencies'
+npm view @zerobias-org/schema-bundle --json | jq '.dependencies'
+npm view @zerobias-org/product-bundle --json | jq '.dependencies'
 ```
 
 **Never** depend on `@auditlogic/*` packages: this repository is open source and only takes `@zerobias-org/*` content plus the `@zerobias-com/*` platform runtime (`hub-client`, `hub-core`, `platform-sdk`, `hub-client-codegen`). If only an `@auditlogic` version exists, STOP and tell the user the module/schema/product must first be published to zerobias-org.
 
 **Shared mode, extra check:** does the module have a connection profile?
 ```bash
-npm pack @zerobias-org/module-<...> --dry-run 2>/dev/null | grep -i connectionProfile   # or read its README "Authentication"
+npm view @zerobias-org/module-<...> files | grep -i connectionProfile   # connectionProfile.yml present = has a profile
 ```
 - No profile (e.g. `module-nist-cmvp`) → no `connect()`, no credential parameters.
 - Profile with read-only credentials → plan collector parameters for them (Step 3.3).
@@ -100,27 +105,32 @@ mkdir -p package/<vendor>/<suite?>/<product>
 cd package/<vendor>/<suite?>/<product>
 ```
 
-**Step 2.2: Create symlinks**
+**Step 2.2: Create .npmrc and .nvmrc** (regular committed files, copies of the root; not symlinks)
 ```bash
 # Based on depth (3 or 4 levels)
-ln -s ../../../../.npmrc .npmrc    # or ../../../
-ln -s ../../../../.nvmrc .nvmrc    # or ../../../
+cp ../../../../.npmrc .npmrc    # or ../../../
+cp ../../../../.nvmrc .nvmrc    # or ../../../
 ```
 
 **Step 2.3: Copy templates**
 ```bash
-# Copy from reference collector (adp/workforcenowng for simple)
-cp ../../../adp/workforcenowng/.eslintrc .
-cp ../../../adp/workforcenowng/.mocharc.json .
-cp ../../../adp/workforcenowng/tsconfig.json .
+# Copy from a reference collector (microsoft/azure/azureresourcegraph for tenant mode)
+cp ../../../microsoft/azure/azureresourcegraph/.mocharc.json .
+cp ../../../microsoft/azure/azureresourcegraph/tsconfig.json .
+cp ../../../microsoft/azure/azureresourcegraph/build.gradle.kts .   # plugins { id("zb.typescript-collectorbot") }
 ```
+(No per-package `.eslintrc`: linting uses the root `eslint.config.js`.)
 
 **Step 2.4: Create .gitignore**
 ```
 node_modules/
 dist/
 generated/
+build/
+eslint.config.js
+eslint.config.mjs
 ```
+(Never ignore `gate-stamp.json`.)
 
 ---
 
@@ -129,13 +139,13 @@ generated/
 **Step 3.1: Create package.json** (use template from DEVELOPMENT_WORKFLOW.md)
 - Version: 0.0.0
 - Author: team@zerobias.com
-- Dependencies: module + schema (base + ts) + core deps
-- Get latest versions from npm
+- Dependencies: module + product + schema (base + ts) + core deps, all `@zerobias-org` / `@zerobias-com`
+- Exact pins of the latest versions (`npm view <pkg> version`); no `^`, `~` or `latest`
 
 **Step 3.2: Get UUIDs and create hub.yml**
 ```bash
 npm install  # Temporary to get module installed
-cat node_modules/@zerobias-org/module-*/package.json | grep module-id
+jq -r .moduleId node_modules/@zerobias-org/module-*/package.json   # field is camelCase moduleId
 cat node_modules/@zerobias-org/product-*/index.yml | grep "^id:"
 ```
 
@@ -169,7 +179,7 @@ Match operations to classes and include ALL classes with module data.
 **Step 3.5: Generate code**
 ```bash
 npm install
-npm run generate
+zbb build        # generate + compile
 ```
 
 Verify generated/BaseClient.ts and get module connector name. Shared mode: BaseClient must NOT contain a `<X>HubImpl` for the source module (only SDK `ApiClient`s, if any); get the module's factory name instead (`newCmvp`, `newNvd`, …) from its `dist/index.d.ts`.
@@ -209,8 +219,8 @@ Wait for both to complete.
 - How to find values (shared mode: how to obtain a read-only key, and that it ends up in a public pipeline YAML)
 - Example JSON
 
-**Step 5.3: Create test/integration/Collector*IT.ts**
-- Copy pattern from similar collector
+**Step 5.3: Create test/e2e/Collector*IT.ts**
+- Copy pattern from a similar collector (`getClient` from `@zerobias-com/hub-client`, skip when no live target)
 - Adjust class name and parameters
 
 ---
@@ -218,8 +228,8 @@ Wait for both to complete.
 ### Phase 6: Build & Lint
 
 ```bash
-npm run build
-npm run lint
+zbb build
+zbb lint
 ```
 
 If errors: attempt to fix common issues, otherwise report to user.
@@ -249,9 +259,11 @@ This spawns all 8 validation agents.
 
 ### Phase 8: Finalize
 
-**Step 8.1: Run npm shrinkwrap**
+**Step 8.1: Lock file and gate**
 ```bash
-npm shrinkwrap
+rm -rf node_modules package-lock.json && npm install && npm ci --dry-run   # lock in sync
+git add <the new package files>        # the gate hashes git-tracked files only
+zbb gate                               # commit the generated gate-stamp.json
 ```
 
 **Step 8.2: Report to user**
@@ -278,7 +290,7 @@ Display summary:
 
 📝 Next steps:
    1. Review the implementation in src/
-   2. Test with: npm run test:integration
+   2. Test with: zbb testDirect (needs a live target; skips otherwise)
    3. Commit with: git commit -m "feat(s3): initial S3 collector"
    4. Shared mode: after the collector is published, add its pipeline artifact
       in zerobias-org/pipeline (daily, executionMode: caller, batchMode: full,

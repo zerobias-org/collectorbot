@@ -75,8 +75,8 @@ Run `npm view <pkg> version` to find the latest for each package.
 Example (Avigilon Alta Access shape — adapt scope per package):
 ```json
 "dependencies": {
-  "@auditlogic/schema-<vendor>-<product>-<sub>": "latest",
-  "@auditlogic/schema-<vendor>-<product>-<sub>-ts": "latest",
+  "@zerobias-org/schema-<vendor>-<product>-<sub>": "latest",
+  "@zerobias-org/schema-<vendor>-<product>-<sub>-ts": "latest",
   "@supercharge/promise-pool": "3.3.0",
   "@zerobias-com/hub-client": "latest",
   "@zerobias-com/platform-sdk": "latest",
@@ -244,9 +244,11 @@ This repo's collectorbots publish under `@zerobias-org/collectorbot-*`. Other co
 | `@zerobias-org/module-*` | **NO CHANGE** | Open-source modules stay `@zerobias-org` |
 | `@zerobias-org/product-*` | **NO CHANGE** | Open-source product catalogs stay `@zerobias-org` |
 | `@zerobias-org/vendor-*` | **NO CHANGE** | Open-source vendors stay `@zerobias-org` |
-| `@auditlogic/schema-*` | **NO CHANGE** | Schemas stay `@auditlogic` (shared scope) |
+| `@zerobias-org/schema-*` | **NO CHANGE** | Schemas are `@zerobias-org` in this repo |
+| `@auditlogic/schema-*` (legacy) | -> `@zerobias-org/schema-*` | **Never keep `@auditlogic`**: if the `@zerobias-org` schema does not exist yet, publish it first (Avigilon Alta Access is pending exactly this) |
 | `@auditmation/*` | -> `@zerobias-org/*` or `@zerobias-com/*` | All utilities move |
 | `@auditlogic/product-*` (legacy) | -> `@zerobias-org/product-*` | Product catalogs move to org scope |
+| `@auditlogic/module-*` (legacy) | -> `@zerobias-org/module-*` | No `@auditlogic` fallback |
 
 **Key difference vs the proprietary counterpart repo:** it uses `@auditlogic/collectorbot-*` and `@auditlogic/module-*`. This repo (zerobias-org) uses `@zerobias-org/collectorbot-*` and `@zerobias-org/module-*`. **Do not change package scopes when migrating bots in this repo.**
 

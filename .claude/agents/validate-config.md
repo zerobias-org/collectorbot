@@ -22,14 +22,17 @@ Read and validate against: `.claude/COLLECTORBOT_RULES.md` sections:
 ### package.json
 - [ ] Name follows `@zerobias-org/collectorbot-<vendor>-<suite?>-<product>` pattern
 - [ ] Version starts at `0.0.0` for new collectors
-- [ ] Main points to `dist/src/index.js`
-- [ ] Files includes: `dist`, `*.yml`, `*.md`, `dependency-tree.json`
-- [ ] All required scripts present and EXACT match to template
+- [ ] `type` is `module`; main points to `dist/src/index.js`
+- [ ] Files includes: `dist`, `npm-shrinkwrap.json`, `*.yml`
+- [ ] Only the `clean` script is present (`rm -rf dist/ generated/`); build/lint/test run through Gradle (`zbb`)
+- [ ] No `directories` section; no `auditmation` key
 - [ ] Repository directory matches package path
 - [ ] Author is `team@zerobias.com` for new collectors
-- [ ] auditmation.package format: `<vendor>.<suite?>.<product>.collectorbot`
-- [ ] auditmation.dataloader-version is exactly `0.5.4`
-- [ ] auditmation.import-artifact is exactly `collectorbot`
+- [ ] zerobias.package format: `<vendor>.<suite?>.<product>.collectorbot`
+- [ ] zerobias.dataloader-version is exactly `1.0.0` (the legacy Avigilon bot still has `0.5.4`: WARN, pending migration)
+- [ ] zerobias.import-artifact is exactly `collectorbot`
+- [ ] `overrides` pins `@zerobias-org/types-core-js` and `@zerobias-org/logger`
+- [ ] `build.gradle.kts` applies `zb.typescript-collectorbot`; `gate-stamp.json` is present and committed
 - [ ] Dependencies section valid (see dependency validator)
 
 ### hub.yml
@@ -57,39 +60,39 @@ Read and validate against: `.claude/COLLECTORBOT_RULES.md` sections:
 - [ ] Has `components.schemas.Parameters`
 - [ ] Parameters is type `object`
 - [ ] Has required stub path `/foo` with GET operation
-- [ ] info.title is `@auditmation/hub-client-codegen`
+- [ ] info.title is the literal stub `@auditmation/hub-client-codegen` (a title string used by codegen, not a dependency; leave as is)
 
 ### tsconfig.json
 - [ ] experimentalDecorators: true
 - [ ] emitDecoratorMetadata: true
 - [ ] outDir: dist
-- [ ] target: ES5
-- [ ] module: commonjs
+- [ ] target: es2024, lib: ["es2024"]
+- [ ] module and moduleResolution: nodenext
 - [ ] includes: src/**, test/**, generated/**
 - [ ] excludes: dist, node_modules
+- [ ] relative imports in `src/` and `test/` use the `.js` extension
 
-### .eslintrc
-- [ ] Extends @auditmation
-- [ ] Parser is @typescript-eslint/parser
-- [ ] max-len code: 150
-- [ ] Allows no-await-in-loop, no-continue
-- [ ] env includes: commonjs, node, mocha
+### ESLint
+- [ ] No per-package `.eslintrc` (linting uses the root `eslint.config.js`, which extends `@zerobias-org/eslint-config`)
+- [ ] `@zerobias-org/eslint-config` is in devDependencies
 
 ### .mocharc.json
 - [ ] extension: ["ts"]
-- [ ] require: ts-node/register
+- [ ] require: tsx
 - [ ] timeout: exactly 6000000
 
 ### .gitignore
 - [ ] Includes node_modules/
 - [ ] Includes dist/
 - [ ] Includes generated/
-- [ ] Does NOT include .npmrc or .nvmrc (they're symlinks)
+- [ ] Does NOT ignore gate-stamp.json, .npmrc or .nvmrc (they are committed)
 
 ### .npmrc and .nvmrc
-- [ ] Are SYMLINKS (not regular files)
-- [ ] Point to correct depth (../../../ or ../../../../ based on structure)
-- [ ] Verified with `ls -la`
+- [ ] Are regular committed files (git mode 100644), copies of the root files; NOT symlinks
+- [ ] Verified with `git ls-files -s .npmrc .nvmrc`
+
+### Tests
+- [ ] E2E tests live in `test/e2e/` (not `test/integration/`) and skip when no live target is configured
 
 ## Output Format
 

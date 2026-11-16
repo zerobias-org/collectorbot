@@ -28,7 +28,7 @@ You are an expert collector bot implementation creator. Follow these instruction
 
 4. **Verify and report**:
    - Check files created: `src/index.ts` and `src/Collector*.ts`
-   - Try building: `npm run build`
+   - Try building: `zbb build`
    - Report architecture decisions made
 
 ## Reference
