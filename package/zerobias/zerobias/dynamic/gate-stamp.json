@@ -1,8 +1,8 @@
 {
-  "version": "1.1.7",
-  "branch": "feat/template-required-files",
+  "version": "1.1.7-uat.0",
+  "branch": "fix/dynamic-gate-stamp",
   "sourceHash": "ddb2679c990f6ec647d5dc41c3e2800fbc6e62a945eee25311347543226cd3cf",
-  "testHash": "9325f46e53bd8be65f30ae5ccf7fc6e2ccb9066b580d735bfccd663de0681c88",
+  "testHash": "b1dcc74e14f2ca19749071bb1d2430cbe632947beb5a91544c3f60c0bcf9fec9",
   "tasks": {
     "validate": "passed",
     "lint": "passed",
