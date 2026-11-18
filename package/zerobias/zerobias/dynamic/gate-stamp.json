@@ -1,8 +1,8 @@
 {
   "version": "1.1.7-uat.0",
-  "branch": "fix/dynamic-gate-stamp",
-  "sourceHash": "ddb2679c990f6ec647d5dc41c3e2800fbc6e62a945eee25311347543226cd3cf",
-  "testHash": "b1dcc74e14f2ca19749071bb1d2430cbe632947beb5a91544c3f60c0bcf9fec9",
+  "branch": "feat/dynamic-file-bindings",
+  "sourceHash": "e0d4a2059494610b2a6941a48765cbd7880d37d546aa21f3d372be5f1ff6a7e5",
+  "testHash": "0b5ae145a0a3e586784692ec43f2013e007ba252c0a128e47f9315b1b5c10204",
   "tasks": {
     "validate": "passed",
     "lint": "passed",
@@ -15,7 +15,7 @@
     "dataloaderExec": "passed"
   },
   "tests": {
-      "unit": { "expected": 126, "ran": 126, "status": "passed" },
+      "unit": { "expected": 131, "ran": 131, "status": "passed" },
       "integration": { "expected": 5, "ran": 5, "status": "passed" },
       "e2e": { "expected": 0, "ran": 0, "status": "skipped" }
   }

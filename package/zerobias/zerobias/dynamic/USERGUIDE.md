@@ -220,12 +220,13 @@ they don't.
 ## Mapping Expressions
 
 A mapping rule's `expression` transform is JSONata over the rule's source fields, which it reads by name. It can also
-read two variables the collector binds for every rule, each with a `$` in front:
+read three variables the collector binds for every rule, each with a `$` in front:
 
 | Variable | Value |
 |---|---|
 | `$pipelineId` | the pipeline's id, the group its mappings' batches go to |
 | `$files` | the pipeline files this run resolved, each under the name the pipeline lists it by |
+| `$bindings` | the same files by the pipeline's file bindings, each under the binding's `variableName` |
 
 ### `$pipelineId`
 
@@ -276,6 +277,45 @@ collect the files:
 ```
 $lookup($files, "floorplan.webp") ? $lookup($files, "floorplan.webp").fileVersionId : (fileVersionId ? $trim(fileVersionId))
 ```
+
+### `$bindings`
+
+A pipeline's file bindings (`params.fileBindings`) are named slots its mappings read a file through, each pointing at
+one of its files or at none yet. Users swap a file by pointing the binding at another, so a rule that reads a file by
+binding keeps working whatever the file is called. `$bindings` holds each binding whose file this run resolved, under
+its `variableName`, with the same values as `$files`:
+
+```json
+{
+  "floorplanImage": {
+    "fileId": "0e7c2a14-9b3d-4f6a-8c21-5d4e3f2a1b42",
+    "fileVersionId": "6b1d0c3e-2f4a-4b5c-8d6e-7f8091a2b3c4",
+    "name": "My floor plan.webp",
+    "size": 106928,
+    "mimeType": "image/webp"
+  }
+}
+```
+
+- **Names:** a binding name is a JSONata identifier, so a path reads it: `$bindings.floorplanImage.fileVersionId`.
+- **Left out:** a binding with no file, and one whose file `$files` leaves out (see above). Which job has them, and
+  preview runs, are as for `$files`.
+- **Renaming a binding** through the platform renames it in every mapping that reads `$bindings.<name>` or
+  `$lookup($bindings, "<name>")`.
+
+The Floor Plans template's drawing rule, by binding:
+
+```
+$bindings.floorplanImage ? $bindings.floorplanImage.fileVersionId : (fileVersionId ? $trim(fileVersionId))
+```
+
+### File sources by binding
+
+A file-backed mapping's source can name a binding instead of a file: `source.file = { binding, containerPath }`. Each
+run reads the file the binding points at. A binding with no file fails the mapping's batch with `File binding <name>
+has no file`; the platform refuses to run such a pipeline, so this only happens when the binding is cleared after the
+run started. The platform also keeps `source.file.fileId` pointing at the binding's file, so a collector older than
+binding support reads the same file; a binding the params don't list falls back to that `fileId`.
 
 ## Pipeline Files (1.1.0)
 

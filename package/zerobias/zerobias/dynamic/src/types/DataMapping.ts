@@ -95,10 +95,29 @@ export interface DataMappingSource {
  *  - With `containerPath`: the rows of that container — a workbook sheet
  *    (`/File`) or a CSV (`/`) — one source item per row.
  *  - Without: the file itself, as one item of `FileSourceRecord`.
+ *
+ * A source that names a `binding` reads the file that binding of
+ * `params.fileBindings` points at (see `PipelineFileBinding`). The platform
+ * keeps `fileId` pointing at the same file, so an older collector that reads
+ * only `fileId` reads it too.
  */
 export interface MappingFileSource {
-  fileId: string;
+  fileId?: string;
+  binding?: string;
   containerPath?: string;
+}
+
+/**
+ * A pipeline's file binding, as `params.fileBindings` lists it: a named slot
+ * its data mappings read a file through (`MappingFileSource.binding`),
+ * pointing at one of the pipeline's files, or at none yet. The platform
+ * refuses to run a pipeline whose mappings read a binding with no file.
+ */
+export interface PipelineFileBinding {
+  variableName: string;
+  description?: string;
+  mimeTypes?: string[];
+  fileId?: string;
 }
 
 /** The one source item of a whole-file source: its file-service metadata. */
@@ -284,6 +303,12 @@ export interface MappingFile {
  *    one metadata read, so a Hub file shows the version file-service has.
  *
  * It is frozen, values included, since every row of the run reads it.
+ *
+ * Mapping expressions read the same files by file binding as `$bindings`:
+ * each binding of `params.fileBindings` under its `variableName`, as
+ * `$bindings.floorplanImage.fileVersionId`, holding the file it points at,
+ * when this run resolved it. A binding with no file, or whose file the run
+ * left out, is left out.
  */
 export type MappingFiles = Readonly<Record<string, Readonly<MappingFile>>>;
 
@@ -312,5 +337,6 @@ export interface DataMappingParams {
   dataMappings?: DataMapping[];
   queries?: Record<string, PipelineSavedQuery>;
   files?: PipelineFile[];
+  fileBindings?: PipelineFileBinding[];
 }
 
