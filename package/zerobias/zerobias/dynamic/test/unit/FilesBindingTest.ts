@@ -417,3 +417,76 @@ describe('CollectorZerobiasZerobiasDynamicImpl — $files in mapping expressions
     expect(h.logger.at('warn').some((m) => m.includes('"gone.txt"') && m.includes('$files leaves it out'))).to.equal(true);
   });
 });
+
+/** The File sheet mapping, reading the workbook through binding `binding`, with a stale or no `fileId` of its own. */
+function boundSheetMapping(binding: string, fileId?: string, ...extra: ReturnType<typeof expression>[]): DataMapping {
+  const mapping = fileSheetMapping(...extra);
+  return { ...mapping, source: { ...mapping.source, file: { binding, containerPath: '/File', ...(fileId ? { fileId } : {}) } } } as DataMapping;
+}
+
+describe('CollectorZerobiasZerobiasDynamicImpl — file bindings', () => {
+  const SPREADSHEET = { variableName: 'floorplanSpreadsheet', fileId: WORKBOOK.fileId };
+  const IMAGE = { variableName: 'floorplanImage', fileId: DRAWING.fileId };
+
+  it('binds each bound file this run resolved under its binding name as $bindings, which a rule reads the drawing from', async () => {
+    const h = newHarness();
+    h.files.views.set(DRAWING.fileId, { fileVersionId: 'v-drawing', size: 106928, mimeType: 'image/webp' });
+    h.pipelineApi.params = { files: [WORKBOOK, DRAWING] };
+
+    await h.impl.run({
+      files: [WORKBOOK, DRAWING],
+      fileBindings: [SPREADSHEET, IMAGE, { variableName: 'sitePhotos' }, { variableName: 'gone', fileId: MISSING.fileId }],
+      dataMappings: [fileSheetMapping(expression('drawing', '$bindings.floorplanImage.fileVersionId'), expression('bindings', '$bindings'))],
+    });
+
+    const [item] = mapped(h);
+    expect(item.drawing).to.equal('v-drawing');
+    expect(JSON.stringify(item.bindings)).to.equal(JSON.stringify({
+      floorplanSpreadsheet: { fileId: WORKBOOK.fileId, fileVersionId: 'v-book', name: 'floorplan.xlsx', size: 4096 },
+      floorplanImage: { fileId: DRAWING.fileId, fileVersionId: 'v-drawing', name: 'floorplan.webp', size: 106928, mimeType: 'image/webp' },
+    }));
+  });
+
+  it("reads a mapping's file through its binding, whatever fileId its source still carries", async () => {
+    const h = newHarness();
+    h.pipelineApi.params = { files: [WORKBOOK] };
+
+    await h.impl.run({ files: [WORKBOOK], fileBindings: [SPREADSHEET], dataMappings: [boundSheetMapping('floorplanSpreadsheet', MISSING.fileId)] });
+
+    expect(mapped(h)).to.deep.equal([{ id: 'drawing', name: 'Ground floor', fileVersionId: 'v-sheet' }]);
+    expect(h.files.calls).to.not.include(`get ${MISSING.fileId}`);
+  });
+
+  it("fails the mapping's batch, naming the binding, when its binding has no file", async () => {
+    const h = newHarness();
+    h.pipelineApi.params = { files: [WORKBOOK] };
+
+    await h.impl.run({ files: [WORKBOOK], fileBindings: [{ variableName: 'floorplanSpreadsheet' }], dataMappings: [boundSheetMapping('floorplanSpreadsheet')] });
+
+    const logs = h.batchApi.calls.filter((c) => c.op === 'log').map((c) => JSON.stringify(c.arg));
+    expect(logs.some((log) => log.includes('File binding floorplanSpreadsheet has no file'))).to.equal(true);
+  });
+
+  it('falls back to the fileId its source carries when the params list no such binding', async () => {
+    const h = newHarness();
+    h.pipelineApi.params = { files: [WORKBOOK] };
+
+    await h.impl.run({ files: [WORKBOOK], dataMappings: [boundSheetMapping('floorplanSpreadsheet', WORKBOOK.fileId)] });
+
+    expect(mapped(h)).to.deep.equal([{ id: 'drawing', name: 'Ground floor', fileVersionId: 'v-sheet' }]);
+  });
+
+  it('binds $bindings in a preview from each listed file\'s metadata, as it binds $files', async () => {
+    const h = newHarness({ previewMode: true, previewCount: 5 });
+    h.files.views.set(DRAWING.fileId, { fileVersionId: 'v-drawing', size: 106928, mimeType: 'image/webp' });
+
+    await h.impl.run({
+      files: [WORKBOOK, DRAWING],
+      fileBindings: [SPREADSHEET, IMAGE],
+      dataMappings: [boundSheetMapping('floorplanSpreadsheet', undefined, expression('drawing', '$bindings.floorplanImage.fileVersionId'))],
+    });
+
+    expect(mapped(h)).to.deep.equal([{ id: 'drawing', name: 'Ground floor', fileVersionId: 'v-drawing', drawing: 'v-drawing' }]);
+    expect(h.batchApi.calls.filter((c) => c.op === 'create').map((c) => c.arg.groupId)).to.deep.equal([PIPELINE_ID]);
+  });
+});

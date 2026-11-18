@@ -12,7 +12,7 @@ import {
 import { applyMappings } from './Mappers.js';
 import {
   DataMapping, DataMappingParams, DataMappingSource, EvidenceFileRecord, FileSourceRecord, MappingFile, MappingFileSource, MappingFiles,
-  PipelineFile, PipelineFileRecord,
+  PipelineFile, PipelineFileBinding, PipelineFileRecord,
 } from './types/index.js';
 
 /** The `moduleTargets` key of the job's DataProducer target, as the generated container reads it. */
@@ -145,13 +145,14 @@ interface FilesBatch {
  * What a run's files step tells its data mappings (see `run`): the files that
  * can't be refreshed, by file ID, the file IDs the pipeline lists, known
  * only when its list was read right before the pipeline files batches were
- * created, and the files their expressions read as `$files` (see
- * `MappingFiles`).
+ * created, and the files their expressions read as `$files` and, by file
+ * binding, as `$bindings` (see `MappingFiles`).
  */
 interface FilesOutcome {
   failed: Map<string, FileFailure>;
   listedFileIds?: Set<string>;
   files: MappingFiles;
+  bindings: MappingFiles;
 }
 
 /**
@@ -375,7 +376,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     queries: SavedQueryRegistry,
   ): AsyncIterable<any> {
     if (source.file) {
-      yield* this.fetchFileSourceItems(source.file);
+      yield* this.fetchFileSourceItems(this.resolvedFileSource(source.file));
       return;
     }
 
@@ -430,6 +431,36 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
   }
 
   /**
+   * The file a mapping's file source reads (see `MappingFileSource`): the one
+   * its `binding` points at in `params.fileBindings`, or none when that
+   * binding has no file. A source with no binding, or one the list doesn't
+   * have, reads its own `fileId`, which the platform keeps pointing at the
+   * binding's file.
+   */
+  private mappingFileId(file: MappingFileSource): string | undefined {
+    const binding = file.binding === undefined
+      ? undefined
+      : fileBindings(this.parameters.fileBindings).find(({ variableName }) => variableName === file.binding);
+    return binding ? binding.fileId : file.fileId;
+  }
+
+  /**
+   * `file` with the `fileId` it reads (see `mappingFileId`). A source whose
+   * binding has no file, or that names no file, throws, which fails the
+   * mapping's batch: the platform refuses to run such a pipeline, so this
+   * only meets a binding cleared after the run launched.
+   */
+  private resolvedFileSource(file: MappingFileSource): { fileId: string; containerPath?: string } {
+    const fileId = this.mappingFileId(file);
+    if (!fileId) {
+      throw new Error(file.binding !== undefined
+        ? `File binding ${file.binding} has no file: point it at one of the pipeline's files`
+        : 'The mapping\'s file source names no file');
+    }
+    return { fileId, ...(file.containerPath !== undefined ? { containerPath: file.containerPath } : {}) };
+  }
+
+  /**
    * Yield the items of a file-backed mapping, all from one version: the
    * file's current ready version, `fileVersionId` in its metadata. That is
    * the records of `containerPath` (see `fetchContainerRecords`) or, with no
@@ -437,7 +468,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    * file-service answers 404 for, or one with no ready version yet, throws
    * with a message saying so, which fails the mapping's batch.
    */
-  private async *fetchFileSourceItems(file: MappingFileSource): AsyncIterable<any> {
+  private async *fetchFileSourceItems(file: { fileId: string; containerPath?: string }): AsyncIterable<any> {
     let view: FileServiceFile;
     try {
       view = await this.fileService.getFile(file.fileId);
@@ -568,12 +599,15 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    *   (see `MappingFiles`), so a template that ships a file can point a row
    *   at the file's current version, whose ID it can't know:
    *   `$lookup($files, "floorplan.webp").fileVersionId`.
+   * - **`$bindings`:** `boundFiles`, the same files by the file binding that
+   *   points at each (see `MappingFiles`): `$bindings.floorplanImage.fileVersionId`.
    */
   private async processDataMapping(
     dataMapping: DataMapping,
     groupId: string,
     queries: SavedQueryRegistry,
     files: MappingFiles,
+    boundFiles: MappingFiles = NO_MAPPING_FILES,
   ): Promise<void> {
     const { source, destination, mappings, metadata } = dataMapping;
 
@@ -584,7 +618,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
 
     const tags = readsFromHubTarget(source) ? this.connectionMetadata?.tags : undefined;
     const batch = await this.initBatchForClass(destination.className, groupId, { tags });
-    const bindings = { pipelineId: groupId, files };
+    const bindings = { pipelineId: groupId, files, bindings: boundFiles };
 
     try {
       // Process each item through the mappings
@@ -706,10 +740,11 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    * `settledMappingFiles`).
    */
   private async processFiles(launchFiles: unknown[], pipelineId: string): Promise<FilesOutcome> {
-    const nothing: FilesOutcome = { failed: new Map(), files: NO_MAPPING_FILES };
+    const nothing: FilesOutcome = { failed: new Map(), files: NO_MAPPING_FILES, bindings: NO_MAPPING_FILES };
     if (this.context.previewMode) {
       this.logger.info(`Preview run: not collecting ${launchFiles.length} pipeline file(s), only reading their metadata for $files`);
-      return { failed: new Map(), files: await this.previewMappingFiles(launchFiles) };
+      const records = await this.previewRecords(launchFiles);
+      return { failed: new Map(), files: mappingFiles(records), bindings: boundMappingFiles(records, this.parameters.fileBindings) };
     }
 
     const deadline = Date.now() + this.filesDeadlineMs;
@@ -736,7 +771,12 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     for (const batch of filesBatches(settled, pipelineId)) {
       await this.sendFilesBatch(batch, `pipeline-files:${pipelineId}`, reasons, allGone ? failed.size : undefined);
     }
-    return { failed, listedFileIds: settled.listedFileIds, files: settledMappingFiles(settled) };
+    return {
+      failed,
+      listedFileIds: settled.listedFileIds,
+      files: settledMappingFiles(settled),
+      bindings: boundMappingFiles(settled.records.filter((record) => !failed.has(record.id)), this.parameters.fileBindings),
+    };
   }
 
   /**
@@ -747,9 +787,9 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
    * `fileOutcome`): no copy, no batch and no write. A Hub file therefore shows
    * the version file-service has, where a run would copy it again first. A
    * file whose read fails is left out, as are the entries the deadline stops
-   * before.
+   * before. It gives the records, from which `$files` and `$bindings` are made.
    */
-  private async previewMappingFiles(launchFiles: unknown[]): Promise<MappingFiles> {
+  private async previewRecords(launchFiles: unknown[]): Promise<PipelineFileRecord[]> {
     const deadline = Date.now() + this.filesDeadlineMs;
     const records: PipelineFileRecord[] = [];
     for (const entry of launchFiles.filter(isPipelineFile)) {
@@ -766,7 +806,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
         this.logger.warn(`Preview run: could not read pipeline file ${describeFile(entry)}, so $files leaves it out: ${(error as Error).message}`);
       }
     }
-    return mappingFiles(records);
+    return records;
   }
 
   /**
@@ -1188,7 +1228,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
     // Use pipeline ID for groupId as per requirements
     const pipelineId = this.context.pipelineId || 'default';
 
-    let filesOutcome: FilesOutcome = { failed: new Map(), files: NO_MAPPING_FILES };
+    let filesOutcome: FilesOutcome = { failed: new Map(), files: NO_MAPPING_FILES, bindings: NO_MAPPING_FILES };
     if (Array.isArray(files)) {
       try {
         filesOutcome = await this.processFiles(files, `${pipelineId}`);
@@ -1215,7 +1255,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
 
     // Process each data mapping
     for (const dataMapping of dataMappings) {
-      const fileId = dataMapping.source.file?.fileId;
+      const fileId = dataMapping.source.file ? this.mappingFileId(dataMapping.source.file) : undefined;
       const failure = fileId ? filesOutcome.failed.get(fileId) : undefined;
       if (fileId && !failure && filesOutcome.listedFileIds && !filesOutcome.listedFileIds.has(fileId)) {
         removed.push(dataMapping);
@@ -1226,7 +1266,7 @@ export class CollectorZerobiasZerobiasDynamicImpl extends BaseClient {
         if (fileId && failure) {
           await this.failMappingOfFailedFile(dataMapping, groupId, fileId, failure);
         } else {
-          await this.processDataMapping(dataMapping, groupId, queries, filesOutcome.files);
+          await this.processDataMapping(dataMapping, groupId, queries, filesOutcome.files, filesOutcome.bindings);
         }
       } catch (error) {
         this.logger.error(
@@ -1452,6 +1492,33 @@ function mappingFiles(records: PipelineFileRecord[]): MappingFiles {
     }
   }
   return Object.freeze(Object.fromEntries(files));
+}
+
+/** The well-formed bindings of `params.fileBindings`: a name, and a string `fileId` when it has one. */
+function fileBindings(listed: unknown): PipelineFileBinding[] {
+  return (Array.isArray(listed) ? listed : []).filter((binding): binding is PipelineFileBinding => !!binding
+    && typeof binding === 'object' && typeof (binding as PipelineFileBinding).variableName === 'string'
+    && ((binding as PipelineFileBinding).fileId === undefined || typeof (binding as PipelineFileBinding).fileId === 'string'));
+}
+
+/**
+ * The `$bindings` that `records`, the files a run resolved, make for the
+ * pipeline's `fileBindings`: each binding whose file the run resolved, under
+ * its name, as that file's `MappingFile`. A binding with no file, or whose
+ * file isn't among `records`, is left out. It and its values are frozen, for
+ * the reason `mappingFiles` gives.
+ */
+function boundMappingFiles(records: PipelineFileRecord[], listed: unknown): MappingFiles {
+  const byId = new Map(records.map((record): [string, PipelineFileRecord] => [record.id.toLowerCase(), record]));
+  const bound = new Map<string, MappingFile>();
+  for (const { variableName, fileId } of fileBindings(listed)) {
+    const record = fileId ? byId.get(fileId.toLowerCase()) : undefined;
+    if (record && !bound.has(variableName)) {
+      const { id, name, fileVersionId, size, mimeType } = record;
+      bound.set(variableName, Object.freeze({ fileId: id, fileVersionId, name, size, ...(mimeType ? { mimeType } : {}) }));
+    }
+  }
+  return Object.freeze(Object.fromEntries(bound));
 }
 
 /**
