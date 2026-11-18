@@ -1,5 +1,5 @@
 {
-  "version": "1.1.7-uat.0",
+  "version": "1.1.8",
   "branch": "feat/dynamic-file-bindings",
   "sourceHash": "e0d4a2059494610b2a6941a48765cbd7880d37d546aa21f3d372be5f1ff6a7e5",
   "testHash": "0b5ae145a0a3e586784692ec43f2013e007ba252c0a128e47f9315b1b5c10204",
