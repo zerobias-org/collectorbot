@@ -25,8 +25,8 @@ This document covers complex topics for autonomous collector development: schema
 ### Understanding Schema Structure
 
 Each schema has TWO packages:
-1. **Base schema** (`@auditlogic/schema-<vendor>-<product>`) - Runtime definitions with full metadata
-2. **TypeScript schema** (`@auditlogic/schema-<vendor>-<product>-ts`) - Generated TypeScript interfaces
+1. **Base schema** (`@zerobias-org/schema-<vendor>-<product>`) - Runtime definitions with full metadata
+2. **TypeScript schema** (`@zerobias-org/schema-<vendor>-<product>-ts`) - Generated TypeScript interfaces
 
 **CRITICAL:** TypeScript interfaces are INCOMPLETE for validation. Always cross-reference with base schema.
 
@@ -34,7 +34,8 @@ Each schema has TWO packages:
 
 **Step 1: Check TypeScript Interface**
 ```bash
-cat node_modules/@auditlogic/schema-<vendor>-<product>-ts/dist/index.d.ts
+cat node_modules/@zerobias-org/schema-<vendor>-<product>-ts/dist/src/index.d.ts
+ls node_modules/@zerobias-org/schema-<vendor>-<product>-ts/dist/src/class/   # one .d.ts per class
 ```
 
 Look for:
@@ -42,12 +43,13 @@ Look for:
 - Field types
 - Enum definitions
 
-**Step 2: Check Base Schema**
+**Step 2: Check Base Schema** (YAML, not TypeScript)
 ```bash
-# Find the class/interface definition
-cat node_modules/@auditlogic/schema-<vendor>-<product>/classes/MyClass.ts
-# OR
-cat node_modules/@auditlogic/schema-<vendor>-<product>/interfaces/MyInterface.ts
+# Class / interface definitions
+cat node_modules/@zerobias-org/schema-<vendor>-<product>/classes/MyClass.yml
+cat node_modules/@zerobias-org/schema-<vendor>-<product>/interfaces/MyInterface.yml
+# Field definitions (type: date | date-time | string | ...)
+ls node_modules/@zerobias-org/schema-<vendor>-<product>/fields/
 ```
 
 Look for:
@@ -57,20 +59,20 @@ Look for:
 - Constraints and validations
 
 **Step 3: Check Extended Interfaces**
-If the interface extends another:
-```typescript
-export interface AwsIamUser extends AwsPrincipal {
-  // ...
-}
+If the class extends another (`extends:` in the class YAML):
+```yaml
+# classes/AzureSubscription.yml
+extends:
+ - CloudService
 ```
 
 Check the parent interface (might be in a dependency):
 ```bash
 # Check package.json for dependencies
-cat node_modules/@auditlogic/schema-<vendor>-<product>/package.json
+cat node_modules/@zerobias-org/schema-<vendor>-<product>/package.json
 
-# Find parent interface
-cat node_modules/@auditlogic/schema-<parent-package>/interfaces/AwsPrincipal.ts
+# Find the parent (often in schema-zerobias-zerobias-base)
+cat node_modules/@zerobias-org/schema-<parent-package>/classes/CloudService.yml
 ```
 
 ### Main Validation Concerns
@@ -161,14 +163,13 @@ return {
 
 Check both module API spec and schema JSDoc:
 ```bash
-# Module operation response (check your actual module scope)
-cat node_modules/@zerobias-org/module-<vendor>/module-<vendor>.yml
-# OR
-cat node_modules/@auditlogic/module-<vendor>/module-<vendor>.yml
+# Module operation response (OpenAPI spec shipped with the module)
+cat node_modules/@zerobias-org/module-<vendor>-<product>/dist/module-<vendor>-<product>.yml
+# or the source spec: node_modules/@zerobias-org/module-<vendor>-<product>/api.yml
 # Look at response schema descriptions
 
-# Schema field descriptions (always @auditlogic)
-cat node_modules/@auditlogic/schema-<vendor>-ts/dist/index.d.ts
+# Schema field descriptions (always @zerobias-org)
+cat node_modules/@zerobias-org/schema-<vendor>-ts/dist/src/index.d.ts
 # Check JSDoc comments
 ```
 
@@ -186,20 +187,22 @@ If descriptions indicate semantic equivalence, map even if names differ.
 
 ### Detection
 
-**Check base schema to distinguish:**
+**Check the field definitions in the base schema (YAML) to distinguish:**
 ```bash
-cat node_modules/@auditlogic/schema-<vendor>/classes/MyClass.ts
+# Which field does the property use? (properties: - <name>: field: <fieldName>)
+cat node_modules/@zerobias-org/schema-<vendor>/classes/MyClass.yml
+# Field files live in the schema package or in a schema it depends on (often schema-zerobias-zerobias-base)
+grep -l -E '^type: "?date"?$' node_modules/@zerobias-org/schema-*/fields/*.yml
+grep -l -E '^type: "?date-time"?$' node_modules/@zerobias-org/schema-*/fields/*.yml
 ```
 
-Look for field definitions:
-```typescript
-// This is a DATE (not datetime)
-@Property({ type: 'date' })
-dateCreated: string;
+Field definitions:
+```yaml
+# fields/dateEffective.yml -> a DATE (YYYY-MM-DD)
+type: "date"
 
-// This is a DATETIME
-@Property({ type: 'datetime' })
-lastModified: string;
+# fields/visitor.checkInTime.yml -> a DATETIME (ISO 8601)
+type: "date-time"
 ```
 
 ### Conversion Patterns
@@ -249,7 +252,7 @@ return {
 ### Helper Function Template
 
 ```typescript
-import { Date as SchemaDate } from '@auditlogic/schema-<vendor>-ts';
+import { Date as SchemaDate } from '@zerobias-org/schema-<vendor>-ts';
 
 // For date fields
 function toDate(date?: Date): SchemaDate | undefined {
@@ -274,7 +277,8 @@ function toDateTime(date?: Date): string | undefined {
 
 **In TypeScript schema package:**
 ```bash
-cat node_modules/@auditlogic/schema-<vendor>-<product>-ts/dist/index.d.ts
+cat node_modules/@zerobias-org/schema-<vendor>-<product>-ts/dist/src/index.d.ts
+ls node_modules/@zerobias-org/schema-<vendor>-<product>-ts/dist/src/class/   # one .d.ts per class
 ```
 
 **Two formats:**
@@ -536,37 +540,29 @@ Relationships between objects are defined in the **base schema package** (not Ty
 **Step 1: Locate the interface file**
 ```bash
 # Check both locations
-ls node_modules/@auditlogic/schema-<vendor>/classes/
-ls node_modules/@auditlogic/schema-<vendor>/interfaces/
+ls node_modules/@zerobias-org/schema-<vendor>/classes/      # *.yml
+ls node_modules/@zerobias-org/schema-<vendor>/interfaces/   # *.yml
 ```
 
 **Step 2: Read the interface definition**
 ```bash
-cat node_modules/@auditlogic/schema-<vendor>/classes/User.ts
+cat node_modules/@zerobias-org/schema-<vendor>/classes/User.yml
 ```
 
-**Step 3: Look for linkTo**
-```typescript
-export interface User {
-  id: string;
-  name: string;
-
-  // Single relationship
-  groups: {
-    linkTo: 'Group',  // Links to Group class
-    // No type specified - infer from property type
-  }
-
-  // Could also be
-  manager: {
-    linkTo: 'User',  // Self-referential
-  }
-}
+**Step 3: Look for linkTo** (class YAML)
+```yaml
+# classes/User.yml
+properties:
+  - manager:
+    linkTo: User        # single link (self-referential)
+  - groups:
+    linkTo: Group       # multi link
+    multi: true
 ```
 
-**Step 4: Check property type for single vs multi**
+**Step 4: Check single vs multi**
 
-In TypeScript interface:
+`multi: true` in the YAML means an array. In the generated `-ts` class:
 ```typescript
 // Single relationship
 manager: string;  // linkTo: 'User'
@@ -947,7 +943,7 @@ for (const region of regions) {
   // Collect for this region
   const resources = await this.module.listInRegion(region);
   await resources.forEach(async (r) => {
-    await batch.add(toResource(r, region), r);
+    await batch.add(toResource(r, region));
   }, undefined, this.previewCount);
 
   await batch.end();
@@ -968,7 +964,7 @@ await Promise.all(
     const users = await this.module.getUsersForTenant(tenant.id);
 
     await users.forEach(async (u) => {
-      await batch.add(toUser(u), u);
+      await batch.add(toUser(u));
     });
 
     await batch.end();
@@ -1068,17 +1064,18 @@ const resources = await this.module.list(
 
 **Strategies:**
 
-#### 1. Use for await Instead of forEach for Large Datasets
+#### 1. Use for await Instead of forEach for Strictly Serial Work
+
+> Both `forEach` and `for await` stream page by page through Hub (`forEach` runs up to 10 items concurrently). **Shared collectors use neither:** without a Hub `baseUrl` both silently stop after the first page; use the explicit page loop in DEVELOPMENT_WORKFLOW.md "Shared Collector Specifics".
 
 ```typescript
-// BAD - forEach loads ALL results into memory first
+// Concurrent: forEach (default 10 in flight)
 const resources = await this.module.listResources();
 await resources.forEach(async (resource) => {
-  await batch.add(toResource(resource), resource);
-});
-// If 100,000 resources, all loaded into memory!
+  await batch.add(toResource(resource));
+}, 10, this.previewCount);
 
-// GOOD - for await processes one at a time
+// Serial: for await processes one at a time
 const resources = await this.module.listResources();
 let count = 0;
 
@@ -1086,7 +1083,7 @@ for await (const resource of resources) {
   if (this.previewCount && count >= this.previewCount) break;
 
   try {
-    await batch.add(toResource(resource), resource);
+    await batch.add(toResource(resource));
     count++;
   } catch (err) {
     await batch.error(`Failed to process: ${err.message}`, resource);
@@ -1095,9 +1092,8 @@ for await (const resource of resources) {
 ```
 
 **When to use for await:**
-- Large datasets (>10,000 items)
-- Memory-constrained environments
-- When item processing is lightweight
+- Item processing must be strictly serial (ordering, rate-limited detail calls)
+- When item processing is lightweight and concurrency buys nothing
 
 #### 2. Batch Processing with Pagination
 
@@ -1111,7 +1107,7 @@ while (hasMore) {
   const resources = await this.module.list(undefined, pageNumber, pageSize);
 
   await resources.forEach(async (resource) => {
-    await batch.add(toResource(resource), resource);
+    await batch.add(toResource(resource));
   });
 
   hasMore = resources.hasNext();
@@ -1136,7 +1132,7 @@ private async loadUsers() {
 
   await users.forEach(async (user) => {
     const mapped = toUser(user);
-    await batch.add(mapped, user);
+    await batch.add(mapped);
     // User is processed and can be garbage collected
   });
 
@@ -1227,7 +1223,7 @@ await users.forEach(async (user) => {
     mapped.tags = tags.map(toTag);
   }
 
-  await batch.add(mapped, user);
+  await batch.add(mapped);
 });
 ```
 
@@ -1307,7 +1303,7 @@ public async run(): Promise<void> {
   const resources = await this.module.listModifiedSince(since);
 
   await resources.forEach(async (resource) => {
-    await batch.add(toResource(resource), resource);
+    await batch.add(toResource(resource));
   }, undefined, this.previewCount);
 
   await batch.end();
@@ -1381,7 +1377,7 @@ public async run(): Promise<void> {
     const page = await this.module.listWithCursor(cursor);
 
     await page.items.forEach(async (resource) => {
-      await batch.add(toResource(resource), resource);
+      await batch.add(toResource(resource));
     });
 
     cursor = page.nextCursor;
@@ -1410,7 +1406,7 @@ private async runFullCollection(): Promise<void> {
 
   const resources = await this.module.listAll();
   await resources.forEach(async (r) => {
-    await batch.add(toResource(r), r);
+    await batch.add(toResource(r));
   }, undefined, this.previewCount);
 
   await batch.end();
@@ -1422,7 +1418,7 @@ private async runIncrementalCollection(since: Date): Promise<void> {
 
   const resources = await this.module.listModifiedSince(since);
   await resources.forEach(async (r) => {
-    await batch.add(toResource(r), r);
+    await batch.add(toResource(r));
   }, undefined, this.previewCount);
 
   await batch.end();
@@ -1478,24 +1474,27 @@ const resources = await this.module.list();
 // No manual retry needed
 ```
 
-**Most Auditmation modules** include retry logic already.
+**Most `@zerobias-org` modules** include retry logic already.
 
 ### Pattern 2: Operation-Level Retry
 
 **For specific operations that need retry:**
 
-```typescript
-import { retry } from '@auditmation/types-core-js';
+`@zerobias-org/types-core-js` has no `retry` helper; write a small local one in `src/`:
 
-// Retry with exponential backoff
-const resources = await retry(
-  async () => await this.module.listResources(),
-  {
-    maxAttempts: 3,
-    delayMs: 1000,
-    backoffMultiplier: 2  // 1s, 2s, 4s delays
+```typescript
+async function withRetry<T>(fn: () => Promise<T>, maxAttempts = 3, delayMs = 1000): Promise<T> {
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (attempt >= maxAttempts) throw err;
+      await new Promise((resolve) => setTimeout(resolve, delayMs * 2 ** (attempt - 1)));   // 1s, 2s, 4s
+    }
   }
-);
+}
+
+const resources = await withRetry(() => this.module.listResources());
 ```
 
 ### Pattern 3: Item-Level Retry
@@ -1517,7 +1516,7 @@ private async processItemWithRetry(
 
       // Map and add
       const mapped = toSchemaClass(item, details);
-      await batch.add(mapped, item);
+      await batch.add(mapped);
 
       return; // Success - exit retry loop
 
@@ -1621,7 +1620,7 @@ private async loadResources() {
   );
 
   await resources.forEach(async (r) => {
-    await batch.add(toResource(r), r);
+    await batch.add(toResource(r));
   });
 
   await batch.end();

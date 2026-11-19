@@ -55,8 +55,8 @@ export function toUser(source: ModuleUser): SchemaUser {
 
 **Validation process:**
 1. Find mapper returning Date type
-2. Check corresponding schema base package (node_modules/@auditlogic/schema-*/classes/*.ts)
-3. Look for `@Property({ type: 'date' })` vs `@Property({ type: 'datetime' })`
+2. Check corresponding schema base package (node_modules/@zerobias-org/schema-*/classes/*.yml, then the `field:` it references in `fields/*.yml`)
+3. Look for `type: date` vs `type: date-time`
 4. Verify correct conversion used
 
 **Report errors:**

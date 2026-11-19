@@ -11,8 +11,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **[.claude/VENDOR_PATTERNS.md](.claude/VENDOR_PATTERNS.md)** - Vendor-specific architectural patterns and best practices
 
 **Creation & Validation System:**
-- **[/create-collector](.claude/skills/create-collector.md)** - Create new collector with automatic validation
-- **[/review-collector](.claude/skills/review-collector.md)** - Comprehensive validation using 8 parallel agents
+- **[/create-collector](.claude/skills/create-collector/SKILL.md)** - Create new collector with automatic validation (tenant or `--shared`)
+- **[/review-collector](.claude/skills/review-collector/SKILL.md)** - Comprehensive validation using 8 parallel agents
 - **[.claude/agents/*.md](.claude/agents/)** - 10 specialized agents (2 for creation, 8 for validation)
 
 **Rules document defines:**
@@ -77,7 +77,8 @@ collectorbot/
 │               ├── hub.yml
 │               ├── parameters.yml
 │               ├── tsconfig.json
-│               ├── .eslintrc
+│               ├── build.gradle.kts
+│               ├── gate-stamp.json
 │               ├── .mocharc.json
 │               ├── generated/     # Auto-generated (DO NOT EDIT)
 │               ├── src/           # Source code
@@ -108,6 +109,21 @@ This will:
 6. **Automatically validate with /review-collector**
 7. Report compliance score and any issues
 
+### Shared collectors
+
+Global/public data (NIST CMVP, CVE, CPE, standards) is collected once for everybody by a **shared collector**: `/create-collector <vendor> <suite?> <product> --shared`.
+
+```
+pipeline YAML params (read-only creds, public repo)  ──►  run(parameters)
+                                                          │ newX()  [+ connect(params) only if the module has a profile]
+                                                          │ explicit page loop (no PagedResults.forEach / for await)
+                                                          ▼
+                                                        Batch (one global groupId) ──► platform
+hub.yml: products + @zerobias-com/*-sdk only — the source module is NOT under modules:
+```
+
+The source module is used in-process as an SDK, never through Hub: a `hub.yml` module entry makes codegen inject a `<X>HubImpl` that needs a customer `targetId`. Details: "Collector modes" in the create-collector skill.
+
 **Manual creation** (if needed):
 1. Create directory: `package/<vendor>/<suite?>/<product>/`
 2. Copy structure from existing collector
@@ -137,17 +153,17 @@ Per-package (run from inside `package/<vendor>/<suite?>/<product>/`):
 # Install dependencies
 npm install
 
-# Generate code from hub.yml and parameters.yml
-npm run generate
-
-# Build the collector
-npm run build
+# Generate code from hub.yml and parameters.yml, and compile
+zbb build
 
 # Run linting
-npm run lint
+zbb lint
 
-# Run integration tests
-npm run test:integration
+# Run e2e tests (needs a live target; skips otherwise)
+zbb testDirect
+
+# Gate (stage new files first; commit gate-stamp.json)
+zbb gate
 ```
 
 ### Execution
@@ -196,12 +212,12 @@ Collector Bot
 | Package Type | Scope | Example |
 |-------------|-------|---------|
 | **Collector bots** (this repo) | `@zerobias-org/collectorbot-*` | `@zerobias-org/collectorbot-avigilon-alta-access` |
-| **Hub modules** | `@zerobias-org/module-*` (fallback: `@auditlogic/module-*`) | `@zerobias-org/module-avigilon-alta-access` |
+| **Hub modules** | `@zerobias-org/module-*` | `@zerobias-org/module-avigilon-alta-access` |
 | **Product packages** | `@zerobias-org/product-*` | `@zerobias-org/product-avigilon-alta-access` |
-| **Schema packages** | `@auditlogic/schema-*` | `@auditlogic/schema-avigilon-alta-access` |
-| **Schema TypeScript** | `@auditlogic/schema-*-ts` | `@auditlogic/schema-avigilon-alta-access-ts` |
-| **Hub infrastructure** | `@auditmation/hub-*` | `@auditmation/hub-client` |
-| **Utility packages** | `@auditmation/util-*` | `@auditmation/util-collector-utils` |
+| **Schema packages** | `@zerobias-org/schema-*` | `@zerobias-org/schema-hl7-fhir` |
+| **Schema TypeScript** | `@zerobias-org/schema-*-ts` | `@zerobias-org/schema-hl7-fhir-ts` |
+| **Platform runtime** | `@zerobias-com/hub-client`, `platform-sdk`, `hub-client-codegen`, `hub-secrets-manager` | `@zerobias-com/hub-client` |
+| **Utility packages** | `@zerobias-org/util-*`, `@zerobias-org/types-core-js` | `@zerobias-org/util-collector` |
 
 ### Package Naming Convention
 
@@ -241,10 +257,9 @@ This will show all available products in the ZeroBias ecosystem. Match by the pa
 
 When resolving dependencies:
 
-1. **Modules:** Prefer `@zerobias-org/module-*`, fallback to `@auditlogic/module-*`
-2. **Products:** Always use `@zerobias-org/product-*` (`@auditlogic/product-*` is deprecated)
-3. **Schemas:** Always use `@auditlogic/schema-*` (no alternative)
-4. **Infrastructure:** Always use `@auditmation/*` (hub, utils, types)
+1. **Content (modules, products, schemas):** `@zerobias-org/*` only. **Never** depend on `@auditlogic/*`; if a package only exists there, it must be published to zerobias-org first.
+2. **Platform runtime:** `@zerobias-com/*` (hub-client, platform-sdk, hub-client-codegen, hub-secrets-manager, other `*-sdk`) is allowed. `@zerobias-com/hub-core` is allowed too but no collector source imports it; don't add it to a new collector.
+3. **Utilities and types:** `@zerobias-org/util-*`, `@zerobias-org/types-core-js`.
 
 ## Related Documentation
 

@@ -8,7 +8,7 @@ This replaces the old workflow (Lerna orchestration, npm scripts for build/test)
 - **Gradle** for build lifecycle (validate -> generate -> compile -> lint -> test -> gate -> publish)
 - **zbb** for local development (build, test, gate)
 - **`test/e2e/`** tests (renamed from `test/integration/`)
-- **Pinned dependencies** to exact latest versions
+- **Pinned dependencies**: exact versions (content packages at latest, platform packages newest within the 1.x line)
 
 ## Reference Implementations
 
@@ -68,53 +68,52 @@ a timeout error.
 - `directories` section
 - `auditmation` metadata key (use `zerobias` instead)
 
-**Pin all dependencies to exact latest versions (no `^` or `~` or `latest`):**
+**Pin all dependencies exactly (no `^` or `~` or `latest`).** Placeholders below are filled with exact versions:
+- module / product / schema: the latest release (`npm view <pkg> version`)
+- platform packages: the newest version **within the 1.x line** every collector here uses, not the `latest` tag (already 2.x for hub-client, platform-sdk, types-core-js, codegen, logger). Table and lookup command: `.claude/COLLECTORBOT_RULES.md` → Version Ranges.
 
-Run `npm view <pkg> version` to find the latest for each package.
-
-Example (Avigilon Alta Access shape — adapt scope per package):
+Example (Avigilon Alta Access / azureresourcegraph shape — adapt scope per package):
 ```json
 "dependencies": {
-  "@auditlogic/schema-<vendor>-<product>-<sub>": "latest",
-  "@auditlogic/schema-<vendor>-<product>-<sub>-ts": "latest",
+  "@zerobias-org/schema-<vendor>-<product>-<sub>": "<latest release>",
+  "@zerobias-org/schema-<vendor>-<product>-<sub>-ts": "<same version>",
   "@supercharge/promise-pool": "3.3.0",
-  "@zerobias-com/hub-client": "latest",
-  "@zerobias-com/platform-sdk": "latest",
-  "@zerobias-org/module-<vendor>-<product>-<sub>": "latest",
-  "@zerobias-org/product-<vendor>-<product>-<sub>": "latest",
-  "@zerobias-org/types-core-js": "latest",
-  "@zerobias-org/util-collector": "latest",
-  "inversify": "8.1.0",
+  "@zerobias-com/hub-client": "<newest 1.0.x>",
+  "@zerobias-com/platform-sdk": "<newest 1.1.x>",
+  "@zerobias-org/module-<vendor>-<product>-<sub>": "<latest release>",
+  "@zerobias-org/product-<vendor>-<product>-<sub>": "<latest release>",
+  "@zerobias-org/types-core-js": "<newest 1.2.x>",
+  "@zerobias-org/util-collector": "<newest 1.0.x>",
+  "inversify": "6.0.2",
   "reflect-metadata": "0.2.2"
 }
 ```
 
-**peerDependencies use caret from latest:**
+**peerDependencies use caret:**
 ```json
 "peerDependencies": {
-  "axios": "^1.15.0"
+  "axios": "^1.13.0"
 }
 ```
 
-**overrides use caret from latest:**
+**overrides** (as in azureresourcegraph and avigilon):
 ```json
 "overrides": {
   "@zerobias-org/types-core-js": "$@zerobias-org/types-core-js",
-  "@zerobias-org/logger": "^3.0.9",
-  "axios": "^1.15.0"
+  "@zerobias-org/logger": "3.0.9"
 }
 ```
 
-**devDependencies — pin to exact latest:**
+**devDependencies — pin exactly (codegen and secrets-manager within the 1.x line, util-codegen within 2.0.x):**
 ```json
 "devDependencies": {
   "@types/chai": "5.2.3",
   "@types/mocha": "10.0.10",
   "@types/node": "22.0.0",
-  "@zerobias-com/hub-client-codegen": "latest",
-  "@zerobias-com/hub-secrets-manager": "latest",
+  "@zerobias-com/hub-client-codegen": "<newest 1.0.x>",
+  "@zerobias-com/hub-secrets-manager": "<newest 1.0.x>",
   "@zerobias-org/eslint-config": "latest",
-  "@zerobias-org/util-codegen": "latest",
+  "@zerobias-org/util-codegen": "<newest 2.0.x>",
   "chai": "4.3.8",
   "mocha": "11.7.5",
   "tsx": "4.21.0",
@@ -178,7 +177,7 @@ Every collectorbot migrated to Gradle gets a **major version bump**:
 
 ### 7. Delete npm-shrinkwrap.json (if present)
 
-Old collectorbots may have `npm-shrinkwrap.json`. Delete it — npm will keep updating the shrinkwrap instead of `package-lock.json`. CI runs `npm ci` which expects `package-lock.json`.
+Old collectorbots may have `npm-shrinkwrap.json`. Delete it — npm will keep updating the shrinkwrap instead of `package-lock.json`, and CI switches to `npm ci` when a shrinkwrap is present (otherwise it runs `npm install --no-workspaces`). Commit the new lock with `git add -f package-lock.json` (the root `.gitignore` ignores it).
 
 ```bash
 rm npm-shrinkwrap.json
@@ -244,9 +243,11 @@ This repo's collectorbots publish under `@zerobias-org/collectorbot-*`. Other co
 | `@zerobias-org/module-*` | **NO CHANGE** | Open-source modules stay `@zerobias-org` |
 | `@zerobias-org/product-*` | **NO CHANGE** | Open-source product catalogs stay `@zerobias-org` |
 | `@zerobias-org/vendor-*` | **NO CHANGE** | Open-source vendors stay `@zerobias-org` |
-| `@auditlogic/schema-*` | **NO CHANGE** | Schemas stay `@auditlogic` (shared scope) |
+| `@zerobias-org/schema-*` | **NO CHANGE** | Schemas are `@zerobias-org` in this repo |
+| `@auditlogic/schema-*` (legacy) | -> `@zerobias-org/schema-*` | **Never keep `@auditlogic`**: if the `@zerobias-org` schema does not exist yet, publish it first (Avigilon Alta Access is pending exactly this) |
 | `@auditmation/*` | -> `@zerobias-org/*` or `@zerobias-com/*` | All utilities move |
 | `@auditlogic/product-*` (legacy) | -> `@zerobias-org/product-*` | Product catalogs move to org scope |
+| `@auditlogic/module-*` (legacy) | -> `@zerobias-org/module-*` | No `@auditlogic` fallback |
 
 **Key difference vs the proprietary counterpart repo:** it uses `@auditlogic/collectorbot-*` and `@auditlogic/module-*`. This repo (zerobias-org) uses `@zerobias-org/collectorbot-*` and `@zerobias-org/module-*`. **Do not change package scopes when migrating bots in this repo.**
 
@@ -282,10 +283,14 @@ import { Foo } from './Bar.js';
 
 Replace old package imports:
 ```
-@auditmation/hub-core           -> @zerobias-org/util-connector
+@auditmation/hub-core           -> @zerobias-org/util-connector   (module/connector code; collectors usually import neither)
 @auditmation/util-logger        -> @zerobias-org/logger
 @auditmation/types-core         -> @zerobias-org/types-core
 @auditmation/types-core-js      -> @zerobias-org/types-core-js
+@auditmation/util-collector-utils -> @zerobias-org/util-collector  (Batch)
+@auditmation/hub-client         -> @zerobias-com/hub-client
+@auditmation/module-auditmation-auditmation-platform -> @zerobias-com/platform-sdk  (BaseClient exposes it as this.platform)
+@auditmation/hub-client-codegen -> @zerobias-com/hub-client-codegen
 ```
 
 ## Collectorbot vs Module — Key Differences

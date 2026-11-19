@@ -120,8 +120,8 @@ Parse JSON from each agent and display:
    📄 Concurrency within limits, memory managed well
 
 ❌ Dependencies: FAIL (1 issue)
-   ❌ package.json:38 - Product package in dependencies
-      💡 Remove @auditlogic/product-amazon-aws-iam (transitive dependency)
+   ❌ package.json:38 - @auditlogic/schema-amazon-aws-iam is not allowed in this repository
+      💡 Use @zerobias-org/schema-amazon-aws-iam (publish it first if it does not exist)
 
 =================================================================================
 📊 Overall Results

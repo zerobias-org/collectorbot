@@ -62,7 +62,7 @@ const ldapUsers = new Batch<User>('User', ..., `${accountId}-users-ldap`);
 - Org-level: `${orgName}-${resourceType}` ✓
 
 **Shared/Global:**
-- Empty string: `''` ✓ or `'global'` ✓
+- One fixed value per collector: `''` ✓, `'global'` ✓, or a fixed source name such as `'nist-cmvp'` ✓ (never derived from parameters or the run)
 
 **Check:**
 - [ ] GroupId pattern matches vendor conventions

@@ -53,17 +53,17 @@ User invokes: /review-collector package/amazon/aws/iam
 - collector.yml (schema classes)
 - parameters.yml (OpenAPI 3.0.3)
 - tsconfig.json (decorators, output, includes)
-- .eslintrc (extends, parser, rules)
+- ESLint (root `eslint.config.js`; no per-package `.eslintrc`)
 - .mocharc.json (timeout, extensions)
 - .gitignore (generated/, dist/, node_modules/)
-- .npmrc/.nvmrc (symlinks, not files)
+- .npmrc/.nvmrc present (copy or symlink of the root files)
 
 **Key Rules:**
 - Names follow conventions
-- All required scripts present
+- Only the `clean` script present (Gradle/zbb owns the rest)
 - Operations omitted from hub.yml
-- dataloader-version = 0.5.4
-- Symlinks verified
+- dataloader-version = 1.0.0 (legacy Avigilon: 0.5.4, WARN)
+- .npmrc/.nvmrc present; `gate-stamp.json` committed
 
 ### 2. Schema Validator
 
@@ -181,17 +181,17 @@ User invokes: /review-collector package/amazon/aws/iam
 - All modules from hub.yml in package.json
 - All schemas from collector.yml in package.json
 - Both base and -ts schema packages
-- NO product packages (transitive)
-- NO vendor packages except vendor-neverfail
-- Version prefixes correct (^ vs exact)
+- Product package present (direct `@zerobias-org/product-*`)
+- NO vendor packages; NO `@auditlogic/*` or `@auditmation/*`
+- Exact version pins (no `^`)
 - Required core dependencies present
 
 **Key Rules:**
 - Module/schema dependencies match yml files
-- Product packages forbidden (transitive)
-- Vendor packages forbidden except neverfail
-- TypeScript = exact 4.9.5
-- Others = ^ versions
+- `@zerobias-org` content only (`@zerobias-com` platform runtime allowed)
+- Vendor packages forbidden
+- TypeScript = exact 5.9.3
+- All dependencies exact-pinned
 
 ## Usage
 
@@ -216,8 +216,8 @@ User invokes: /review-collector package/amazon/aws/iam
 # ... create files ...
 
 # 2. Build and lint
-npm run build
-npm run lint
+zbb build
+zbb lint
 
 # 3. Comprehensive validation
 /review-collector

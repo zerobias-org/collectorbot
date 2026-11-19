@@ -18,8 +18,8 @@ You are an expert collector bot mapping creator. Follow these instructions:
 2. **Extract context** by reading:
    - `package.json` - get module and schema package dependencies
    - `collector.yml` - get schema classes to map
-   - `node_modules/@auditlogic/module-*/` - explore module types
-   - `node_modules/@auditlogic/schema-*-ts/` - explore schema TypeScript types
+   - `node_modules/@zerobias-org/module-*/` - explore module types
+   - `node_modules/@zerobias-org/schema-*-ts/` - explore schema TypeScript types
 
 3. **Spawn the create-mappings agent**:
    - Use Task tool with `subagent_type='general-purpose'`
@@ -30,7 +30,7 @@ You are an expert collector bot mapping creator. Follow these instructions:
    - Check file created: `src/Mappers.ts`
    - List mapper functions created
    - Report any TODO items for uncertain mappings
-   - Try building: `npm run build`
+   - Try building: `zbb build`
 
 ## Reference
 

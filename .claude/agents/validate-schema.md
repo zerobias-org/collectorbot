@@ -54,12 +54,12 @@ For each class in collector.yml:
 ### Schema Package Validation
 - [ ] All schema packages in collector.yml exist in package.json dependencies
 - [ ] Both base and -ts versions included in dependencies
-- [ ] Schema package names follow pattern: @auditlogic/schema-<vendor>-<suite?>-<product>
+- [ ] Schema package names follow pattern: @zerobias-org/schema-<vendor>-<suite?>-<product>
 
 ### Over/Under Collection Check
 
 **Under-collection** (missing classes):
-- Check module operations in node_modules/@auditlogic/module-*/module-*.yml
+- Check module operations in node_modules/@zerobias-org/module-*/dist/module-*.yml (or the source `api.yml`)
 - Identify resource types returned
 - Check if corresponding schema classes exist but aren't in collector.yml
 - Report missing classes as errors
