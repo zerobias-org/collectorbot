@@ -1,0 +1,5 @@
+node_modules/
+dist/
+generated/
+tools/.cyberab-mirror/
+tools/extract.json

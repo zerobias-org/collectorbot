@@ -1,0 +1,18 @@
+openapi: 3.0.3
+info:
+  description: Stub to use for codegen of parameters for a hub client
+  version: ''
+  title: '@auditmation/hub-client-codegen'
+paths:
+  /foo:
+    get:
+      tags:
+        - foo
+      operationId: getFoo
+      responses:
+        '204':
+          description: Foo
+components:
+  schemas:
+    Parameters:
+      type: object
