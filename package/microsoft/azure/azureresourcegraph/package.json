@@ -1,6 +1,6 @@
 {
   "name": "@zerobias-org/collectorbot-microsoft-azure-azureresourcegraph",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Azure Resource Graph Collector",
   "license": "UNLICENSED",
   "author": "joe@runningbulltech.com",
