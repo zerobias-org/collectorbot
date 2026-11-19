@@ -23,8 +23,8 @@ Read: `.claude/VENDOR_PATTERNS.md` for vendor-specific page size limits
 ### Shared collectors (module used in-process)
 
 A shared collector (source module NOT in `hub.yml` `modules:`, created via `newX()`; see the create-collector skill, "Collector modes") must page explicitly:
-- [ ] Explicit page loop (`pageNumber` / `pageSize`) that stops on a short or empty page, or at `pageCount` / `count`
-- [ ] ❌ ERROR: `PagedResults.forEach(...)` or `for await` over the module's paged results; Hub paging helpers need Hub and fail in-process
+- [ ] Explicit page loop (`pageNumber` / `pageSize`) that stops at `pageCount` (when set) or on a short/empty page; ❌ ERROR if it can request a page past `pageCount` (throws `Requested page N but only M pages exist`)
+- [ ] ❌ ERROR: `PagedResults.forEach(...)` or `for await` over the module's paged results; without a Hub `baseUrl` they silently stop after the first page (silent data loss)
 - [ ] Preview mode: `previewCount` used as the page size, loop stops after the first page
 - [ ] pageSize is a parameter or a documented constant, not unbounded
 
@@ -140,7 +140,7 @@ const users = await this.module.listUsers(undefined, 1, 50);
 // Only gets first 50 users, rest are lost!
 
 await users.forEach(async (user) => {
-  await batch.add(toUser(user), user);
+  await batch.add(toUser(user));
 });
 // No pagination loop!
 ```
@@ -149,7 +149,7 @@ await users.forEach(async (user) => {
 ```typescript
 // ❌ CRITICAL - DATA LOSS in production
 await users.forEach(async (user) => {
-  await batch.add(toUser(user), user);
+  await batch.add(toUser(user));
 }, undefined, 10);  // ALWAYS limits to 10!
 // Should be: this.previewCount
 ```

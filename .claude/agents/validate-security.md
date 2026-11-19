@@ -122,7 +122,7 @@ this.logger.error('Failed to authenticate');
 
 - [ ] All dependencies are from trusted scopes (@zerobias-org, @zerobias-com); no @auditlogic or @auditmation
 - [ ] No suspicious dependencies
-- [ ] Dependency versions use ^ (allow security patches)
+- [ ] Dependencies are exact pins (gradle-migration standard; ranges are a WARN in the dependency validator). Security patches come from regenerating the lock and bumping pins, not from `^`
 
 ## Common Vulnerabilities to Check
 

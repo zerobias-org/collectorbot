@@ -56,14 +56,14 @@ User invokes: /review-collector package/amazon/aws/iam
 - ESLint (root `eslint.config.js`; no per-package `.eslintrc`)
 - .mocharc.json (timeout, extensions)
 - .gitignore (generated/, dist/, node_modules/)
-- .npmrc/.nvmrc (regular committed files, not symlinks)
+- .npmrc/.nvmrc present (copy or symlink of the root files)
 
 **Key Rules:**
 - Names follow conventions
 - Only the `clean` script present (Gradle/zbb owns the rest)
 - Operations omitted from hub.yml
 - dataloader-version = 1.0.0 (legacy Avigilon: 0.5.4, WARN)
-- .npmrc/.nvmrc are regular files; `gate-stamp.json` committed
+- .npmrc/.nvmrc present; `gate-stamp.json` committed
 
 ### 2. Schema Validator
 

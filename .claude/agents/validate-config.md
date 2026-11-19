@@ -24,8 +24,8 @@ Read and validate against: `.claude/COLLECTORBOT_RULES.md` sections:
 - [ ] Version starts at `0.0.0` for new collectors
 - [ ] `type` is `module`; main points to `dist/src/index.js`
 - [ ] Files includes: `dist`, `npm-shrinkwrap.json`, `*.yml`
-- [ ] Only the `clean` script is present (`rm -rf dist/ generated/`); build/lint/test run through Gradle (`zbb`)
-- [ ] No `directories` section; no `auditmation` key
+- [ ] Only the `clean` script is present (`rm -rf dist/ generated/`); build/lint/test run through Gradle (`zbb`). Extra scripts: ⚠️ WARN "pending gradle migration" (5 older collectors have 10-13)
+- [ ] No `directories` section (⚠️ WARN "pending gradle migration" if present); ❌ ERROR on an `auditmation` key
 - [ ] Repository directory matches package path
 - [ ] Author is `team@zerobias.com` for new collectors
 - [ ] zerobias.package format: `<vendor>.<suite?>.<product>.collectorbot`
@@ -42,7 +42,7 @@ Read and validate against: `.claude/COLLECTORBOT_RULES.md` sections:
 - [ ] Product IDs are valid UUIDs
 - [ ] Module package names match dependencies in package.json
 - [ ] **NO operations section** (should be omitted)
-- [ ] Permissions section optional (if present, for documentation only)
+- [ ] No `permissions` section: codegen and hub-client read only `modules` and `products` (⚠️ WARN if present)
 - [ ] Shared collector: the source module is NOT listed under `modules` (only `@zerobias-com/*-sdk` entries, or `{}`)
 
 ### parameters.yml (shared collector)
@@ -73,7 +73,7 @@ Read and validate against: `.claude/COLLECTORBOT_RULES.md` sections:
 - [ ] relative imports in `src/` and `test/` use the `.js` extension
 
 ### ESLint
-- [ ] No per-package `.eslintrc` (linting uses the root `eslint.config.js`, which extends `@zerobias-org/eslint-config`)
+- [ ] No per-package `.eslintrc` (linting uses the root `eslint.config.js`, which extends `@zerobias-org/eslint-config`). `zerobias/zerobias/dynamic` still has one: ⚠️ WARN "pending gradle migration"
 - [ ] `@zerobias-org/eslint-config` is in devDependencies
 
 ### .mocharc.json
@@ -88,11 +88,12 @@ Read and validate against: `.claude/COLLECTORBOT_RULES.md` sections:
 - [ ] Does NOT ignore gate-stamp.json, .npmrc or .nvmrc (they are committed)
 
 ### .npmrc and .nvmrc
-- [ ] Are regular committed files (git mode 100644), copies of the root files; NOT symlinks
-- [ ] Verified with `git ls-files -s .npmrc .nvmrc`
+- [ ] ❌ ERROR: `.npmrc` missing
+- [ ] ⚠️ WARN: `.nvmrc` missing (mcpservers has none today)
+- [ ] Either form is accepted: regular copy of the root file (mode 100644, the standard for new collectors) or symlink to it (mode 120000, 5 older collectors). Check with `git ls-files -s .npmrc .nvmrc`; INFO only, never an error
 
 ### Tests
-- [ ] E2E tests live in `test/e2e/` (not `test/integration/`) and skip when no live target is configured
+- [ ] E2E tests live in `test/e2e/` and skip when the Hub variables `getClient` needs are missing (see COLLECTORBOT_RULES.md Test Files). `test/integration/`: ⚠️ WARN "pending gradle migration" (5 older collectors)
 
 ## Output Format
 

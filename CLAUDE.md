@@ -216,7 +216,7 @@ Collector Bot
 | **Product packages** | `@zerobias-org/product-*` | `@zerobias-org/product-avigilon-alta-access` |
 | **Schema packages** | `@zerobias-org/schema-*` | `@zerobias-org/schema-hl7-fhir` |
 | **Schema TypeScript** | `@zerobias-org/schema-*-ts` | `@zerobias-org/schema-hl7-fhir-ts` |
-| **Platform runtime** | `@zerobias-com/hub-client`, `hub-core`, `platform-sdk`, `hub-client-codegen` | `@zerobias-com/hub-client` |
+| **Platform runtime** | `@zerobias-com/hub-client`, `platform-sdk`, `hub-client-codegen`, `hub-secrets-manager` | `@zerobias-com/hub-client` |
 | **Utility packages** | `@zerobias-org/util-*`, `@zerobias-org/types-core-js` | `@zerobias-org/util-collector` |
 
 ### Package Naming Convention
@@ -258,7 +258,7 @@ This will show all available products in the ZeroBias ecosystem. Match by the pa
 When resolving dependencies:
 
 1. **Content (modules, products, schemas):** `@zerobias-org/*` only. **Never** depend on `@auditlogic/*`; if a package only exists there, it must be published to zerobias-org first.
-2. **Platform runtime:** `@zerobias-com/*` (hub-client, hub-core, platform-sdk, hub-client-codegen, other `*-sdk`) is allowed.
+2. **Platform runtime:** `@zerobias-com/*` (hub-client, platform-sdk, hub-client-codegen, hub-secrets-manager, other `*-sdk`) is allowed. `@zerobias-com/hub-core` is allowed too but no collector source imports it; don't add it to a new collector.
 3. **Utilities and types:** `@zerobias-org/util-*`, `@zerobias-org/types-core-js`.
 
 ## Related Documentation

@@ -403,7 +403,7 @@ Shared collectors run once for everybody from a daily shared pipeline, so there 
 - The source module is a plain dependency used **in-process as an SDK**: `const api = newX();`. It is **not** listed in `hub.yml` `modules:` (codegen would inject a `<X>HubImpl` that needs a `targetId`).
 - Modules without a connection profile (e.g. `@zerobias-org/module-nist-cmvp`) need no `connect()`.
 - Modules with a connection profile get `connect(...)` with read-only, public-data-scoped credentials passed as collector **parameters**, which the pipeline YAML sets in `params:` (public repo).
-- Page explicitly (`list(pageNumber, pageSize)` until a short page). Don't use `PagedResults.forEach` / `for await`: Hub paging helpers fail without Hub.
+- Page explicitly (`list(pageNumber, pageSize)`), stopping at `page.pageCount` or on a short page; requesting past `pageCount` throws. Don't use `PagedResults.forEach` / `for await`: without a Hub `baseUrl` they silently stop after the first page.
 - Platform SDKs (`@zerobias-com/*-sdk`) are still injected by hub-client-codegen.
 
 Full procedure: `/create-collector <vendor> <suite?> <product> --shared`.

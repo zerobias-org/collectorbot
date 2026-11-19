@@ -33,11 +33,11 @@ Create a new collector bot package with automatic implementation and validation.
 | Run model | On demand, per customer connection | Perpetual daily pipeline, one run for everybody |
 | Source module | Listed in `hub.yml` `modules:`; codegen injects `<X>HubImpl`, called **through Hub** with the customer's connection (`targetId`) | **Not** in `hub.yml` `modules:`; plain npm dependency used **in-process as an SDK**: `newX()` (+ `connect(...)` only if the module has a connection profile) |
 | Connection profile | Customer's, held by Hub | None. If the module needs credentials, they are read-only, public-data-scoped values passed as collector **parameters** (set in the pipeline YAML `params:`) |
-| Paging | `PagedResults.forEach(cb, concurrency, this.previewCount)` | Explicit page loop calling the API with `pageNumber`/`pageSize` until a short/empty page. **Never** `PagedResults.forEach` / `for await` over Hub paged results: they need Hub and fail in-process |
+| Paging | `PagedResults.forEach(cb, concurrency, this.previewCount)` | Explicit page loop calling the API with `pageNumber`/`pageSize`, stopping at `page.pageCount` or a short/empty page (past `pageCount` throws). **Never** `PagedResults.forEach` / `for await`: without a Hub `baseUrl` they silently stop after the first page |
 | groupId | Per tenant (`${account}-${region}`, …) | One fixed global value (e.g. `'nist-cmvp'`, or `''`) |
 | Pipeline artifact | Optional | Required: `zerobias-org/pipeline`, `executionMode: caller`, `batchMode: full`, daily |
 
-**Why the source module stays out of `hub.yml` in shared mode:** hub-client-codegen turns every non-SDK `modules:` entry into a `<X>HubImpl` binding that throws `requires targetId` when no Hub connection exists (`optional: true` only lets hub-client start; the generated binding still needs a target). Platform SDKs (`@zerobias-com/*-sdk`, e.g. `platform-sdk`) are different: codegen discovers them from `hub.yml` or `package.json` and injects a connected `<X>ApiClient` derived from the run context, so declare and use those normally.
+**Why the source module stays out of `hub.yml` in shared mode:** hub-client-codegen turns every non-SDK `modules:` entry into a `<X>HubImpl` binding that throws `Missing <name> module connection configuration` (or `… requires targetId` when the module has a connection profile) when no Hub connection exists (`optional: true` only lets hub-client start; the generated binding still needs a target). Platform SDKs (`@zerobias-com/*-sdk`, e.g. `platform-sdk`) are different: codegen discovers them from `hub.yml` or `package.json` and injects a connected `<X>ApiClient` derived from the run context, so declare and use those normally.
 
 **Reference shared collectors:** `package/auditmation/generic/tls` (in-process module; still on legacy `@auditlogic` deps pending migration, do not copy those), `package/hl7/fhir` (no module, direct HTTP). Worked example for a module without a connection profile: `@zerobias-org/module-nist-cmvp` (`newCmvp().getCertificateApi().list(page, size)`, no `connect()`).
 
@@ -84,11 +84,18 @@ npm view @zerobias-org/schema-bundle --json | jq '.dependencies'
 npm view @zerobias-org/product-bundle --json | jq '.dependencies'
 ```
 
-**Never** depend on `@auditlogic/*` packages: this repository is open source and only takes `@zerobias-org/*` content plus the `@zerobias-com/*` platform runtime (`hub-client`, `hub-core`, `platform-sdk`, `hub-client-codegen`). If only an `@auditlogic` version exists, STOP and tell the user the module/schema/product must first be published to zerobias-org.
+**Released, not prerelease:** check each package's `dist-tags`. If `latest` is a prerelease (`0.0.0-dev.0`, `-qa.`, `-uat.`), only a branch build exists (e.g. merged into `dev`, not `main`): STOP and ask for a release first.
+```bash
+npm view @zerobias-org/module-<vendor>-<suite?>-<product> dist-tags --json   # latest must not contain "-"
+```
+
+**Never** depend on `@auditlogic/*` packages: this repository is open source and only takes `@zerobias-org/*` content plus the `@zerobias-com/*` platform runtime (`hub-client`, `platform-sdk`, `hub-client-codegen`, `hub-secrets-manager`). If only an `@auditlogic` version exists, STOP and tell the user the module/schema/product must first be published to zerobias-org.
 
 **Shared mode, extra check:** does the module have a connection profile?
 ```bash
 npm view @zerobias-org/module-<...> files | grep -i connectionProfile   # connectionProfile.yml present = has a profile
+# files is the package.json "files" list; to see the real tarball contents:
+npm pack --dry-run --json @zerobias-org/module-<...> | jq -r '.[0].files[].path' | grep -x connectionProfile.yml
 ```
 - No profile (e.g. `module-nist-cmvp`) → no `connect()`, no credential parameters.
 - Profile with read-only credentials → plan collector parameters for them (Step 3.3).
@@ -105,7 +112,7 @@ mkdir -p package/<vendor>/<suite?>/<product>
 cd package/<vendor>/<suite?>/<product>
 ```
 
-**Step 2.2: Create .npmrc and .nvmrc** (regular committed files, copies of the root; not symlinks)
+**Step 2.2: Create .npmrc and .nvmrc** (regular copies of the root files, as in azureresourcegraph; older bots symlink them, which also works)
 ```bash
 # Based on depth (3 or 4 levels)
 cp ../../../../.npmrc .npmrc    # or ../../../
@@ -140,7 +147,7 @@ eslint.config.mjs
 - Version: 0.0.0
 - Author: team@zerobias.com
 - Dependencies: module + product + schema (base + ts) + core deps, all `@zerobias-org` / `@zerobias-com`
-- Exact pins of the latest versions (`npm view <pkg> version`); no `^`, `~` or `latest`
+- Exact pins; no `^`, `~` or `latest`. Module / product / schema: latest release. Platform packages (hub-client, platform-sdk, types-core-js, util-collector, codegen, inversify, logger override): newest within the 1.x line in COLLECTORBOT_RULES.md → Version Ranges, **not** the 2.x `latest` tag
 
 **Step 3.2: Get UUIDs and create hub.yml**
 ```bash
@@ -170,7 +177,7 @@ Shared mode: if the module needs credentials, they become parameters (e.g. `nvdA
 
 **Step 3.4: Explore schema and create collector.yml**
 ```bash
-cat node_modules/@zerobias-org/schema-*/dist/index.d.ts
+cat node_modules/@zerobias-org/schema-*-ts/dist/src/index.d.ts
 cat node_modules/@zerobias-org/module-*/module-*.yml
 ```
 
@@ -182,7 +189,7 @@ npm install
 zbb build        # generate + compile
 ```
 
-Verify generated/BaseClient.ts and get module connector name. Shared mode: BaseClient must NOT contain a `<X>HubImpl` for the source module (only SDK `ApiClient`s, if any); get the module's factory name instead (`newCmvp`, `newNvd`, …) from its `dist/index.d.ts`.
+Verify generated/BaseClient.ts and get module connector name. Shared mode: BaseClient must NOT contain a `<X>HubImpl` for the source module (only SDK `ApiClient`s, if any); get the module's factory name instead (`newCmvp`, `newNvd`, …) from its `dist/src/index.d.ts`.
 
 ---
 
@@ -263,6 +270,7 @@ This spawns all 8 validation agents.
 ```bash
 rm -rf node_modules package-lock.json && npm install && npm ci --dry-run   # lock in sync
 git add <the new package files>        # the gate hashes git-tracked files only
+git add -f package-lock.json           # root .gitignore ignores it
 zbb gate                               # commit the generated gate-stamp.json
 ```
 

@@ -26,6 +26,7 @@ Read: `.claude/DEVELOPMENT_WORKFLOW.md` sections:
 
 - [ ] ❌ ERROR: any `@auditlogic/*` or `@auditmation/*` dependency or import. Content comes from `@zerobias-org/*` (modules, schemas, products, utils, types); the platform runtime from `@zerobias-com/*` (`hub-client`, `platform-sdk`, `hub-client-codegen`, `hub-secrets-manager`, other `*-sdk`) is allowed.
 - [ ] If a `@zerobias-org` package does not exist, report it as a blocker (it must be published first); never accept an `@auditlogic` fallback.
+- [ ] ❌ ERROR: a dependency pinned to a prerelease (`0.0.0-dev.0`, `-qa.`, `-uat.`). Branch builds are not releases; the package must be released from `main` first.
 - Known legacy collectors still carrying `@auditlogic` schemas/modules (`package/avigilon/alta/access`, `package/auditmation/generic/tls`): report as WARN "pending migration" instead of copying them as a pattern.
 
 ### Module Dependencies
@@ -35,7 +36,7 @@ Read: `.claude/DEVELOPMENT_WORKFLOW.md` sections:
 - [ ] Versions are exact pins (no `^`, `~` or `latest`): WARN, not ERROR (the standard is in the gradle-migration skill; several existing collectors predate it and still use ranges)
 - [ ] No extra modules not in hub.yml, **except** in a shared collector
 
-**Shared collector:** the source module (`@zerobias-org/module-*`) is a plain package.json dependency imported in `src/` (`newX()`) and must NOT appear in `hub.yml` `modules:`; listing it there makes codegen inject a `<X>HubImpl` that fails with `requires targetId`. Report that as an error. `@zerobias-com/*-sdk` packages may appear in either place.
+**Shared collector:** the source module (`@zerobias-org/module-*`) is a plain package.json dependency imported in `src/` (`newX()`) and must NOT appear in `hub.yml` `modules:`; listing it there makes codegen inject a `<X>HubImpl` binding that throws `Missing <name> module connection configuration` (or `… requires targetId` when the module has a connection profile) when no Hub target exists. Report that as an error. `@zerobias-com/*-sdk` packages may appear in either place.
 
 **Cross-reference:**
 ```yaml
@@ -110,9 +111,10 @@ Optional: `@supercharge/promise-pool` (only if used).
 ### Version Consistency
 
 - [ ] TypeScript version is exactly `5.9.3` (no `^`)
+- [ ] Platform packages stay on the repo's 1.x line (hub-client 1.0.x, platform-sdk 1.1.x, types-core-js 1.2.x, util-collector 1.0.x, hub-client-codegen 1.0.x, inversify 6.0.2, logger override 3.0.x): ⚠️ WARN for any 2.x (logger 4, inversify 8) platform package; mixing lines conflicts with the logger override
 - [ ] All dependencies and devDependencies are exact pins (only `@zerobias-org/eslint-config` may be `latest`): WARN, not ERROR
 - [ ] Schema base and -ts versions match
-- [ ] `peerDependencies` use `^` from latest (e.g. `axios: ^1.13.0`)
+- [ ] `peerDependencies` use `^` from latest (e.g. `axios: ^1.13.0`). Missing `peerDependencies`: ⚠️ WARN "pending gradle migration" (5 older collectors)
 
 ### DevDependencies
 
@@ -148,8 +150,9 @@ Optional: `@supercharge/promise-pool` (only if used).
 
 ### Lock file
 
-- [ ] `package-lock.json` exists and `npm ci --dry-run` passes (lock in sync with `package.json`)
-- [ ] `npm-shrinkwrap.json` is not hand-maintained (release automation generates it; it stays in `files`)
+- [ ] ⚠️ WARN: `package-lock.json` is not committed (root `.gitignore` ignores it; add with `git add -f`). azureresourcegraph has none today.
+- [ ] ⚠️ WARN: `npm ci --dry-run` fails (lock out of sync with `package.json`). Not an ERROR: CI runs `npm install`, not `npm ci`, unless a shrinkwrap exists.
+- [ ] ⚠️ WARN: an `npm-shrinkwrap.json` is committed (CI then switches to `npm ci`; the gradle-migration skill deletes it)
 
 ## Output Format
 

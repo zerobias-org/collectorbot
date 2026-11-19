@@ -85,14 +85,14 @@ Determine the correct path based on vendor structure:
 mkdir -p package/amazon/aws/s3
 cd package/amazon/aws/s3
 
-# Example without suite (ADP)
-mkdir -p package/adp/workforcenowng
-cd package/adp/workforcenowng
+# Example without suite (HL7 FHIR, exists in this repo)
+mkdir -p package/hl7/fhir
+cd package/hl7/fhir
 ```
 
 ### Step 2.2: Create `.npmrc` and `.nvmrc`
 
-**CRITICAL:** These are regular committed files in every package (copies of the root files), **not** symlinks. Existing collectors in this repo do not use symlinks.
+New collectors commit **regular copies** of the root files (as `microsoft/azure/azureresourcegraph` does). Older collectors symlink them to the root (git mode 120000); that still works, so don't "fix" it in passing.
 
 ```bash
 # For 4-level depth (package/vendor/suite/product)
@@ -103,7 +103,7 @@ cp ../../../../.nvmrc .nvmrc
 cp ../../../.npmrc .npmrc
 cp ../../../.nvmrc .nvmrc
 
-# Verify (mode 100644 = regular file)
+# Verify (100644 = regular file)
 git ls-files -s .npmrc .nvmrc
 ```
 
@@ -158,14 +158,14 @@ There is no per-package `.eslintrc`; linting uses the root `eslint.config.js`.
     "import-artifact": "collectorbot"
   },
   "dependencies": {
-    "@zerobias-com/hub-client": "<exact latest>",
-    "@zerobias-com/platform-sdk": "<exact latest>",
+    "@zerobias-com/hub-client": "<newest 1.0.x>",
+    "@zerobias-com/platform-sdk": "<newest 1.1.x>",
     "@zerobias-org/module-<vendor>-<suite?>-<product>": "<exact latest>",
     "@zerobias-org/product-<vendor>-<suite?>-<product>": "<exact latest>",
     "@zerobias-org/schema-<vendor>-<suite?>-<product>": "<exact latest>",
     "@zerobias-org/schema-<vendor>-<suite?>-<product>-ts": "<exact latest>",
-    "@zerobias-org/types-core-js": "<exact latest>",
-    "@zerobias-org/util-collector": "<exact latest>",
+    "@zerobias-org/types-core-js": "<newest 1.2.x>",
+    "@zerobias-org/util-collector": "<newest 1.0.x>",
     "inversify": "6.0.2",
     "reflect-metadata": "0.2.2"
   },
@@ -173,10 +173,10 @@ There is no per-package `.eslintrc`; linting uses the root `eslint.config.js`.
     "@types/chai": "5.2.3",
     "@types/mocha": "10.0.10",
     "@types/node": "22.0.0",
-    "@zerobias-com/hub-client-codegen": "<exact latest>",
-    "@zerobias-com/hub-secrets-manager": "<exact latest>",
+    "@zerobias-com/hub-client-codegen": "<newest 1.0.x>",
+    "@zerobias-com/hub-secrets-manager": "<newest 1.0.x>",
     "@zerobias-org/eslint-config": "latest",
-    "@zerobias-org/util-codegen": "<exact latest>",
+    "@zerobias-org/util-codegen": "<newest 2.0.x>",
     "chai": "4.3.8",
     "mocha": "11.7.5",
     "tsx": "4.21.0",
@@ -193,7 +193,7 @@ There is no per-package `.eslintrc`; linting uses the root `eslint.config.js`.
 ```
 
 **Important (zerobias-org specific):**
-- Pin every dependency and devDependency to the exact latest (`npm view <pkg> version`); no `^`, `~` or `latest` (only `@zerobias-org/eslint-config` is `latest`)
+- Pin every dependency and devDependency exactly; no `^`, `~` or `latest` (only `@zerobias-org/eslint-config` is `latest`). Module / product / schema: latest release (`npm view <pkg> version`). Platform packages: newest within the 1.x line shown in the template, **not** the `latest` tag, which is already 2.x for several of them (COLLECTORBOT_RULES.md → Version Ranges)
 - Include both base schema and `-ts` schema packages
 - **Module / Product / Schema**: `@zerobias-org/*` only, no `@auditlogic` fallback; the product package is a direct dependency in this repo
 - **Platform runtime**: `@zerobias-com/hub-client`, `@zerobias-com/platform-sdk` replace the old `@auditmation/hub-*` and platform modules
@@ -271,7 +271,7 @@ Only include multiple schema packages when collecting data that is:
 ```bash
 npm install @zerobias-org/schema-<vendor>-<product>-ts
 ls node_modules/@zerobias-org/schema-<vendor>-<product>-ts/dist/
-cat node_modules/@zerobias-org/schema-<vendor>-<product>-ts/dist/index.d.ts
+cat node_modules/@zerobias-org/schema-<vendor>-<product>-ts/dist/src/index.d.ts
 ```
 
 **Step 2: Match module operations to schema classes**
@@ -395,7 +395,7 @@ This will:
 - Create `node_modules/`
 - Create `package-lock.json`
 
-(When you later change dependencies, regenerate the lock from scratch: `rm -rf node_modules package-lock.json && npm install`; see COLLECTORBOT_RULES.md "Lock file".)
+Commit the lock with `git add -f package-lock.json` (the root `.gitignore` ignores it). When you later change dependencies, regenerate it from scratch: `rm -rf node_modules package-lock.json && npm install`; see COLLECTORBOT_RULES.md "Lock file".
 
 ### Step 4.2: Generate Code
 
@@ -426,16 +426,14 @@ Look at the BaseClient constructor parameters:
 ```typescript
 constructor(
   @inject(TYPES.HubClientContext) context: HubClientContext,
-  @inject(TYPES.iam) iam: IamConnector,  // <- "Iam" is module class, "iam" is property
-  @inject(TYPES.workforcenowng) workforcenowng: WorkforceNowNgConnector,
+  @inject(TYPES.azureresourcegraph) azureresourcegraph: AzureresourcegraphHubImpl,  // module package
+  @inject(TYPES.platform) platform: PlatformApiClient,                              // @zerobias-com/*-sdk package
 ```
 
-- **Module class name**: `Iam`, `WorkforceNowNg` (for hub.yml `module` field)
-- **Property name**: `iam`, `workforcenowng` (lowercase, use in code as `this.iam`)
+- **Class name**: `<Module>HubImpl` for a module package, `<Pascal>ApiClient` for an `@zerobias-com/*-sdk` package. `<Module>` is the hub.yml `module:` value (here `Azureresourcegraph`); it must match the `<Module>HubImpl` the module package exports.
+- **Property name**: the last `-` segment of the package name (`module-microsoft-azure-azureresourcegraph` → `azureresourcegraph`), used in code as `this.azureresourcegraph`. It does not come from the `module:` field.
 
-**Update hub.yml** with the correct module class name if needed.
-
-**Note:** Property names are lowercase, auto-generated from the module field in hub.yml.
+**Update hub.yml** `module:` if the generated import does not exist in the module package (`grep -o '[A-Za-z]*HubImpl' node_modules/@zerobias-org/module-<x>/dist/generated/api/index.d.ts | sort -u`).
 
 **Check types.ts:**
 ```bash
@@ -483,7 +481,7 @@ This tells you:
 
 ```bash
 # View available TypeScript interfaces
-cat node_modules/@zerobias-org/schema-<vendor>-<product>-ts/dist/index.d.ts
+cat node_modules/@zerobias-org/schema-<vendor>-<product>-ts/dist/src/index.d.ts
 ```
 
 **What to look for:**
@@ -540,8 +538,7 @@ export interface AwsIamUser {
 import { Collector<Vendor><Suite?><Product>Impl } from './Collector<Vendor><Suite?><Product>Impl.js';
 
 export default Collector<Vendor><Suite?><Product>Impl;
-// eslint-disable-next-line
-export * from '../generated';
+export * from '../generated/index.js';
 ```
 
 **Naming Convention:**
@@ -634,7 +631,7 @@ export class Collector<Name>Impl extends BaseClient {
 
         // Add to batch
         // Second parameter is original data for historical re-mapping
-        await batch.add(mapped, resource);
+        await batch.add(mapped);
       } catch (err) {
         await batch.error(
           `Failed to process resource ${resource.id}: ${err.message}`,
@@ -675,7 +672,7 @@ try {
 
 // Use batch.error for item-level errors
 try {
-  await batch.add(mapped, resource);
+  await batch.add(mapped);
 } catch (err) {
   await batch.error(`Failed to process item: ${err.message}`, item);
 }
@@ -769,8 +766,12 @@ describe('Collector<Name>IT', function () {
   let client;
 
   it('Should collect data from <Product>', async function () {
-    if (!process.env.TARGET_ID && !process.env.HUB_TARGET_ID) {
-      this.skip();   // no live hub target: skip instead of failing
+    // getClient() needs these; HUB_CONN_<NAME> is the hub.yml module `name`,
+    // upper-cased with '-' -> '_' (one per module; *-sdk entries need none).
+    const required = ['API_KEY', 'HUB_API', 'ORG_ID', 'JOB_ID', 'PIPELINE_ID',
+      'HUB_CONN_MODULE_<VENDOR>_<PRODUCT>'];
+    if (required.some((name) => !process.env[name])) {
+      this.skip();   // no live hub environment: skip instead of failing
     }
     client = await getClient(container);
     // If collector has parameters, pass them here
@@ -781,10 +782,10 @@ describe('Collector<Name>IT', function () {
 ```
 
 **Notes:**
-- `getClient(container)` reads the target from environment variables (`TARGET_ID` / `HUB_TARGET_ID`)
+- `getClient(container)` reads `API_KEY`, `HUB_API`, `ORG_ID`, `JOB_ID`, `PIPELINE_ID` and one `HUB_CONN_<NAME>` per hub.yml module (the module `name` upper-cased, `-` → `_`, e.g. `HUB_CONN_MODULE_MICROSOFT_AZURE_AZURERESOURCEGRAPH`); it throws if any is missing. There is no `TARGET_ID` variable.
 - Just copy from a similar collector and adjust parameters for `run()`
 - No need to manually set up connection - the container handles it
-- Shared collectors have no Hub target: call the implementation directly with the parameters and do not require `TARGET_ID`
+- Shared collectors have no Hub target: skip only on the Hub variables (`API_KEY`, `HUB_API`, `ORG_ID`, `JOB_ID`, `PIPELINE_ID`); there is no `HUB_CONN_*` for an in-process module
 
 ---
 
@@ -955,7 +956,7 @@ This collector requires no additional parameters. Simply configure the connectio
 - [ ] No manual edits to `generated/` or `dist/`
 
 **Required files checklist:**
-- [ ] `.npmrc` and `.nvmrc` (regular files, copies of root)
+- [ ] `.npmrc` and `.nvmrc` (regular copies of root)
 - [ ] `.mocharc.json`
 - [ ] `.gitignore`
 - [ ] `tsconfig.json`
@@ -1089,7 +1090,7 @@ for (const region of regions) {
 
   const resources = await this.module.listInRegion(region);
   await resources.forEach(async (r) => {
-    await batch.add(toResource(r, region), r);
+    await batch.add(toResource(r, region));
   }, undefined, this.previewCount);
 
   await batch.end();
@@ -1148,7 +1149,7 @@ for await (const resource of resources) {
   if (this.previewCount && count >= this.previewCount) break;
 
   try {
-    await batch.add(toResource(resource), resource);
+    await batch.add(toResource(resource));
     count++;
   } catch (err) {
     await batch.error(`Failed: ${err.message}`, resource);
@@ -1199,7 +1200,7 @@ await resources.forEach(async (resource) => {
   }
 
   // Second parameter preserves original data for historical re-mapping
-  await batch.add(toResource(resource), resource);
+  await batch.add(toResource(resource));
 });
 ```
 
@@ -1217,7 +1218,7 @@ await resources.forEach(async (resource) => {
 
 ### Key Differences
 
-1. **hub.yml:** `modules: {}` plus `products`. The source module is **not** listed (codegen would inject a `<X>HubImpl` that fails with `requires targetId`):
+1. **hub.yml:** `modules: {}` plus `products`. The source module is **not** listed (codegen would inject a `<X>HubImpl` binding that throws `Missing <name> module connection configuration` (or `… requires targetId` when the module has a connection profile)):
 ```yaml
 modules: {}
 products:
@@ -1226,7 +1227,7 @@ products:
     name: NIST CMVP
 ```
 
-2. **package.json:** the source module (`@zerobias-org/module-*`) is a plain exact-pinned dependency imported in `src/`. `@zerobias-com/*-sdk` packages that hub-client-codegen injects stay declared in `hub.yml` / `collector.yml` / `package.json` as usual.
+2. **package.json:** the source module (`@zerobias-org/module-*`) is a plain exact-pinned dependency imported in `src/`. `@zerobias-com/*-sdk` packages that hub-client-codegen injects stay declared in `hub.yml` or `package.json` as usual (`collector.yml` lists schema classes only).
 
 3. **parameters.yml:** credential parameters **only** when the module has a connection profile. They must be read-only, public-data-scoped keys, because the pipeline YAML that sets them lives in the public `zerobias-org/pipeline` repo. Modules without a connection profile need no credentials and no `connect()`.
 
@@ -1253,17 +1254,20 @@ export class CollectorNistCmvpImpl extends BaseClient {
     for (let pageNumber = 1; ; pageNumber += 1) {
       const page = await this.api.getCertificateApi().list(pageNumber, pageSize);
       for (const item of page.items) {
-        try { await batch.add(toCmvpCertificate(item), item); }
+        try { await batch.add(toCmvpCertificate(item)); }
         catch (err) { await batch.error(`Failed to process: ${err.message}`, item); }
       }
-      if (this.previewCount || page.items.length < pageSize) break;
+      // Stop at the last page. Requesting past pageCount throws
+      // "Requested page N but only M pages exist" (an exact multiple of pageSize hits this).
+      const lastPage = page.pageCount !== undefined && pageNumber >= page.pageCount;
+      if (this.previewCount || lastPage || page.items.length < pageSize) break;
     }
     await batch.end();
   }
 }
 ```
 
-5. **No `PagedResults.forEach` / `for await`** over module results (Hub paging helpers fail without Hub), no `metadata()` call, concurrency of at most 30 (PromisePool).
+5. **No `PagedResults.forEach` / `for await`** over module results (without a Hub `baseUrl` they silently stop after the first page: silent data loss), no `metadata()` call, concurrency of at most 30 (PromisePool).
 
 **Finding the connection profile (only if the module has one):** check `connectionProfile.yml` in the module package (`node_modules/@zerobias-org/module-<vendor>-<product>/connectionProfile.yml`) for the exact fields, then map each collector parameter to a `connect({...})` field. Modules without that file have no profile.
 
@@ -1360,7 +1364,7 @@ private async loadNewClass(): Promise<void> {
   const items = await this.<module>.getNewClassApi().list();
 
   await items.forEach(async (item) => {
-    await batch.add(toNewClass(item), item);
+    await batch.add(toNewClass(item));
   }, undefined, this.previewCount);
 
   await batch.end();
@@ -1470,7 +1474,7 @@ git commit -m "fix(<product>): correct user status enum mapping"
 ```json
 {
   "dependencies": {
-    "@zerobias-org/module-<vendor>-<product>": "^<new-version>"
+    "@zerobias-org/module-<vendor>-<product>": "<new-version>"
   }
 }
 ```

@@ -46,7 +46,7 @@ End-to-end creation with automatic validation:
 
 ### Validation System
 
-**[skills/review-collector.md](skills/review-collector.md)** - Comprehensive validation
+**[skills/review-collector/SKILL.md](skills/review-collector/SKILL.md)** - Comprehensive validation
 
 **Usage:** `/review-collector [path]`
 
@@ -56,14 +56,14 @@ Spawns 8 validation agents in parallel and aggregates results.
 
 | Agent | File | Focus Area |
 |-------|------|------------|
-| **Configuration** | [agents/validate-config.md](agents/validate-config.md) | package.json, hub.yml, collector.yml, parameters.yml, tsconfig, eslintrc, mocharc, gitignore, symlinks |
+| **Configuration** | [agents/validate-config.md](agents/validate-config.md) | package.json, hub.yml, collector.yml, parameters.yml, tsconfig, root eslint.config.js (no per-package .eslintrc), mocharc, gitignore, .npmrc/.nvmrc, gradle + gate-stamp, test/e2e |
 | **Schema** | [agents/validate-schema.md](agents/validate-schema.md) | collector.yml completeness, mapper existence, batch creation, collection implementation |
 | **Mapping** | [agents/validate-mapping.md](agents/validate-mapping.md) | Flat mappers (no nesting), date vs datetime, enum correctness, stable IDs, semantic matching |
 | **Pagination** | [agents/validate-pagination.md](agents/validate-pagination.md) | All pages processed (DATA LOSS detection), pageSize optimization, preview mode correct |
 | **GroupId** | [agents/validate-groupid.md](agents/validate-groupid.md) | Consistency, data deletion risks, pattern correctness, system identifier extraction |
 | **Security** | [agents/validate-security.md](agents/validate-security.md) | No secrets, injection vulnerabilities, safe logging, dependency safety |
-| **Performance** | [agents/validate-performance.md](agents/validate-performance.md) | Concurrency ≤30, memory management, API call optimization, for await vs forEach |
-| **Dependencies** | [agents/validate-dependencies.md](agents/validate-dependencies.md) | Package versions, yml file alignment, forbidden packages (product, vendor), required core deps |
+| **Performance** | [agents/validate-performance.md](agents/validate-performance.md) | Concurrency ≤30, memory management, API call optimization, forEach vs for await (tenant) / explicit page loop (shared) |
+| **Dependencies** | [agents/validate-dependencies.md](agents/validate-dependencies.md) | Exact pins, 1.x platform line, yml file alignment, forbidden packages (`@auditlogic`, `@auditmation`, vendor), product package required, required core deps, lock file |
 
 ## 🎯 What Problems This Solves
 

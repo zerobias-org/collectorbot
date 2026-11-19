@@ -25,7 +25,7 @@ Read and follow:
 - `vendor` - Vendor name (amazon, microsoft, etc.)
 - `suite` - Suite name if exists (aws, 365, etc.)
 - `product` - Product name (iam, s3, etc.)
-- `moduleConnectorName` - From generated BaseClient (e.g., `iam`, `workforcenowng`)
+- `moduleConnectorName` - The module property on the generated BaseClient: last segment of the package name (e.g. `azureresourcegraph`, `access`)
 - `schemaClasses` - Array of schema class names from collector.yml
 - `moduleOperations` - Available operations from module spec
 - `mode` - `tenant` (default) or `shared`
@@ -37,11 +37,10 @@ Read and follow:
 
 **Template:**
 ```typescript
-import { Collector<Vendor><Suite?><Product>Impl } from './Collector<Vendor><Suite?><Product>Impl';
+import { Collector<Vendor><Suite?><Product>Impl } from './Collector<Vendor><Suite?><Product>Impl.js';
 
 export default Collector<Vendor><Suite?><Product>Impl;
-// eslint-disable-next-line
-export * from '../generated';
+export * from '../generated/index.js';
 ```
 
 **Example:** For amazon/aws/iam → `CollectorAmazonAwsIamImpl`
@@ -150,7 +149,7 @@ private async load<ClassName>(): Promise<void> {
   await resources.forEach(async (resource) => {
     try {
       const mapped = to<ClassName>(resource);
-      await batch.add(mapped, resource);
+      await batch.add(mapped);
     } catch (err) {
       await batch.error(`Failed to process: ${err.message}`, resource);
     }
@@ -175,7 +174,7 @@ private async load<ChildClass>(): Promise<void> {
 
     await children.forEach(async (child) => {
       const mapped = to<ChildClass>(child, parent.id);
-      await batch.add(mapped, child);
+      await batch.add(mapped);
     }, 6, this.previewCount);  // Inner: 6
 
   }, 5, this.previewCount);  // Outer: 5 → 5×6=30 ✓
@@ -222,18 +221,22 @@ export class CollectorNistCmvpImpl extends BaseClient {
   private async loadCertificates(): Promise<void> {
     const batch = await this.initBatchForClass(CmvpCertificate, this.groupId);
     const pageSize = this.previewCount ?? this.parameters?.pageSize ?? 500;
-    // Explicit page loop. NEVER PagedResults.forEach / `for await` here:
-    // Hub paging helpers need Hub and fail in-process.
+    // Explicit page loop. NEVER PagedResults.forEach / `for await` here: without a
+    // Hub baseUrl they silently stop after the first page (silent data loss).
+    // If the module downloads the whole listing on every list() call, use one large page.
     for (let pageNumber = 1; ; pageNumber += 1) {
       const page = await this.api.getCertificateApi().list(pageNumber, pageSize);
       for (const item of page.items) {                      // check the client's .d.ts for the page shape
         try {
-          await batch.add(toCmvpCertificate(item), item);
+          await batch.add(toCmvpCertificate(item));   // rawData must be Record<string, object>; omit it
         } catch (err) {
           await batch.error(`Failed to process: ${err.message}`, item);
         }
       }
-      if (this.previewCount || page.items.length < pageSize) break;
+      // Stop at the last page: requesting past pageCount throws
+      // "Requested page N but only M pages exist" (exact multiple of pageSize).
+      const lastPage = page.pageCount !== undefined && pageNumber >= page.pageCount;
+      if (this.previewCount || lastPage || page.items.length < pageSize) break;
     }
     await batch.end();
   }

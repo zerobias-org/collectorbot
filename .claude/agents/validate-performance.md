@@ -60,7 +60,7 @@ await users.forEach(async (user) => {
 
 // ✅ CORRECT - process and release
 await users.forEach(async (user) => {
-  await batch.add(toUser(user), user);
+  await batch.add(toUser(user));
   // No storage, memory released
 });
 ```
@@ -70,19 +70,16 @@ await users.forEach(async (user) => {
 - [ ] Data processed and released (not accumulated)
 - [ ] Only store when necessary (for relationships)
 
-**2. for await for large datasets:**
+**2. Streaming paged results (tenant collectors):**
 ```typescript
-// ⚠️ SUBOPTIMAL for large datasets (>10k items)
+// Both stream page by page through Hub; neither loads every page into memory.
 const resources = await this.module.list();
-await resources.forEach(async (r) => { ... });
-// forEach loads all pages into memory
-
-// ✅ BETTER for large datasets
-const resources = await this.module.list();
-for await (const resource of resources) {
-  // Processes one at a time
-}
+await resources.forEach(async (r) => { ... }, 10, this.previewCount);   // up to 10 items in flight
+for await (const resource of resources) { ... }                        // one at a time
 ```
+Pick `forEach` for concurrency, `for await` for strictly serial work.
+
+**Shared collectors:** neither applies. Without a Hub `baseUrl` both silently stop after the first page; use the explicit `pageNumber` loop (see validate-pagination).
 
 **3. Regional serial processing:**
 ```typescript

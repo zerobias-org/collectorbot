@@ -32,25 +32,27 @@ Read and follow:
 
 **Step 1.1: Read module types**
 ```bash
-cat node_modules/@zerobias-org/module-*/dist/index.d.ts
+cat node_modules/@zerobias-org/module-*/dist/src/index.d.ts
+ls node_modules/@zerobias-org/module-*/dist/generated/model/   # response models
 ```
 
 Find interfaces/types returned by operations.
 
 **Step 1.2: Read schema TypeScript types**
 ```bash
-cat node_modules/@zerobias-org/schema-*-ts/dist/index.d.ts
+cat node_modules/@zerobias-org/schema-*-ts/dist/src/index.d.ts
 ```
 
 Understand required fields, optional fields, enums.
 
 **Step 1.3: Read base schema for date vs datetime**
 ```bash
-cat node_modules/@zerobias-org/schema-*/classes/*.ts
-cat node_modules/@zerobias-org/schema-*/interfaces/*.ts
+cat node_modules/@zerobias-org/schema-*/classes/*.yml
+cat node_modules/@zerobias-org/schema-*/interfaces/*.yml
+cat node_modules/@zerobias-org/schema-*/fields/*.yml
 ```
 
-Look for `@Property({ type: 'date' })` vs `@Property({ type: 'datetime' })`.
+Look for `type: date` vs `type: date-time` in the field definitions.
 
 Also check for `linkTo` definitions.
 
