@@ -1,0 +1,9 @@
+modules:
+  '@zerobias-org/module-stellarcyber-stellarcyber':
+    id: 61644b62-0621-4df6-b5c2-4ea2c4e2a9c7
+    name: module-stellarcyber-stellarcyber
+    module: StellarCyber
+products:
+  stellarcyber.stellarcyber:
+    id: 867a791a-e904-497d-92c1-92d4d6773bf7
+    name: Stellar Cyber
